@@ -15,5 +15,5 @@ interface AnimeStatusDao {
     fun delete(animeStatus: DatabaseAnimeStatus)
 
     @Query("SELECT * FROM DatabaseAnimeStatus WHERE animeId = :animeId")
-    fun getStatusByAnimeId(animeId: Int)
+    fun getStatusByAnimeId(animeId: Int) : DatabaseAnimeStatus
 }

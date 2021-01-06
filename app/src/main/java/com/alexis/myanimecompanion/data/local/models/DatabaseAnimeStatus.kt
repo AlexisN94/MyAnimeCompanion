@@ -10,5 +10,5 @@ data class DatabaseAnimeStatus(
     val animeId: Int,
     val score: Int,
     val episodesWatched: Int,
-    val updatedAt: Date
+    val updatedAt: String
 )

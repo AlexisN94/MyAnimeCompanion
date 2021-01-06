@@ -9,6 +9,6 @@ data class DatabaseUser(
     @PrimaryKey
     val id: Int = -1,
     val username: String = "",
-    val lastUpdate: Date? = null,
+    val lastUpdate: String,
     val isOnlineAccount: Boolean = false,
 )

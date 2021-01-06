@@ -15,5 +15,5 @@ interface AnimeDao {
     fun delete(databaseAnime: DatabaseAnime)
 
     @Query("SELECT * FROM DatabaseAnime WHERE id = :animeId")
-    fun getById(animeId: Int)
+    fun getById(animeId: Int) : DatabaseAnime
 }
