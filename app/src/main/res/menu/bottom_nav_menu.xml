@@ -10,7 +10,7 @@
         android:icon="@drawable/ic_baseline_search_24"
         android:title="Search" />
     <item
-        android:id="@+id/loginFragment"
+        android:id="@+id/profileFragment"
         android:icon="@drawable/ic_baseline_person_24"
         android:title="Profile" />
 </menu>
