@@ -1,5 +1,9 @@
 package com.alexis.myanimecompanion
 
+import android.app.Activity
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+
 /**
  * Utility singleton to create a list of filter fields for api queries; e.g. Only get the objet's id and synopsis in
  * the JSON response. Sadly the API doesn't return the complete object. Fields must be specified.
@@ -80,4 +84,10 @@ enum class Field(val value: String) {
     NUM_EPISODES("num_episodes"),
     RATING("rating"),
     SOURCE("source")
+}
+
+fun Activity.dismissKeyboard() {
+    val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    if (inputMethodManager.isAcceptingText)
+        inputMethodManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 }
