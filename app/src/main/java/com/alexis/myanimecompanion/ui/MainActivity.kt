@@ -1,17 +1,15 @@
 package com.alexis.myanimecompanion.ui
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.RemoteDataSource
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
