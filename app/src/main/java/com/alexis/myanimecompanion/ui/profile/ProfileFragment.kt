@@ -19,7 +19,7 @@ class ProfileFragment : Fragment() {
         val animeRepository = AnimeRepository.getInstance(requireContext())
 
         val viewModelFactory = ProfileViewModelFactory(animeRepository)
-        val viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ProfileViewModel::class.java]
+        viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ProfileViewModel::class.java]
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
