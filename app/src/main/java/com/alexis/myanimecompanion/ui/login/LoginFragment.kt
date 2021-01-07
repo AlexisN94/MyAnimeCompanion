@@ -1,5 +1,6 @@
 package com.alexis.myanimecompanion.ui.login
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.alexis.myanimecompanion.data.AnimeRepository
@@ -16,6 +18,10 @@ import com.alexis.myanimecompanion.databinding.FragmentLoginBinding
 import com.alexis.myanimecompanion.databinding.FragmentProfileBinding
 import com.alexis.myanimecompanion.ui.profile.ProfileViewModel
 import com.alexis.myanimecompanion.ui.profile.ProfileViewModelFactory
+import androidx.core.content.ContextCompat.startActivity
+
+
+
 
 class LoginFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -33,19 +39,24 @@ class LoginFragment : Fragment() {
             displayZoomControls = false
             domStorageEnabled = true
         }
-        binding.webView.webViewClient = WebViewController()
+        binding.webView.webViewClient = WebViewController(requireContext())
         
         viewModel.webViewUrl.observe(viewLifecycleOwner, {
             binding.webView.loadUrl(it)
         })
-        return binding.root
 
+        return binding.root
     }
 }
 
-class WebViewController : WebViewClient() {
+class WebViewController(val context: Context) : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        view.loadUrl(url)
+        if(url.contains("oauth://callback")) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(context, intent, null)
+        } else {
+            view.loadUrl(url)
+        }
         return true
     }
 }
