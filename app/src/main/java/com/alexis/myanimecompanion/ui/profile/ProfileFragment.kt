@@ -1,5 +1,7 @@
 package com.alexis.myanimecompanion.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,16 +28,20 @@ class ProfileFragment : Fragment() {
 
         viewModel.evtStartLogin.observe(viewLifecycleOwner, { startLogin ->
             if (startLogin) {
-                navigateToLoginFragment()
+                onStartLogin()
             }
         })
 
         return binding.root
     }
 
-    private fun navigateToLoginFragment() {
-        val direction = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
-        findNavController().navigate(direction)
-        viewModel.onStartLoginHandled()
+    private fun onStartLogin() {
+        val authorizationUrl = viewModel.getAuthorizationUrl()
+        val browse = Intent(Intent.ACTION_VIEW, Uri.parse(authorizationUrl))
+        startActivity(browse)
     }
 }
+
+
+
+

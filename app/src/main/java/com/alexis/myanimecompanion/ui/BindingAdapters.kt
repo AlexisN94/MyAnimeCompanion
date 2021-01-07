@@ -1,5 +1,6 @@
 package com.alexis.myanimecompanion.ui
 
+import android.net.Uri
 import android.view.View
 import android.webkit.WebView
 import android.widget.*
@@ -14,11 +15,6 @@ import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.domain.Anime
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-
-@BindingAdapter("loadUrl")
-fun WebView.loadUrl(url: String) {
-    this.loadUrl(url)
-}
 
 @BindingAdapter("imgUrl")
 fun ImageView.setImage(url: String?) {

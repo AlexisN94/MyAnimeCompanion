@@ -46,4 +46,8 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
     fun onStartLoginHandled() {
         _evtStartLogin.value = false
     }
+
+    fun getAuthorizationUrl(): String {
+        return animeRepository.getAuthorizationUrl()
+    }
 }
