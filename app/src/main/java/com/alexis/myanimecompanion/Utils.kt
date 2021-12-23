@@ -1,0 +1,1 @@
+package com.alexis.myanimecompanion

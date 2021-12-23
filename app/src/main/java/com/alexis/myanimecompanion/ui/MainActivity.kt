@@ -1,7 +1,8 @@
-package com.alexis.myanimecompanion
+package com.alexis.myanimecompanion.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.alexis.myanimecompanion.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
