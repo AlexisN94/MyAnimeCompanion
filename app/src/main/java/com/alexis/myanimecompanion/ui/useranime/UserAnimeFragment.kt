@@ -1,4 +1,4 @@
-package com.alexis.myanimecompanion.ui.mylist
+package com.alexis.myanimecompanion.ui.useranime
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,19 +7,22 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.alexis.myanimecompanion.R
-import com.alexis.myanimecompanion.databinding.FragmentMyListBinding
+import com.alexis.myanimecompanion.databinding.FragmentUserAnimeBinding
 
-class MyListFragment : Fragment() {
+class UserAnimeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding: FragmentMyListBinding = DataBindingUtil.inflate(
+        val binding: FragmentUserAnimeBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_my_list,
+            R.layout.fragment_user_anime,
             container,
             false
         )
 
+        val viewModelFactory = UserAnimeViewModelFactory()
+        val adapter = AnimeListAdapter()
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.userAnimeList.adapter = adapter
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }

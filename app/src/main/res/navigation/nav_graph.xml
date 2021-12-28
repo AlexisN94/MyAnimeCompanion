@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/myListFragment"
-        android:name="com.alexis.myanimecompanion.ui.mylist.MyListFragment"
+        android:name="com.alexis.myanimecompanion.ui.useranime.UserAnimeFragment"
         android:label="MyListFragment">
         <action
             android:id="@+id/action_myListFragment_to_detailsFragment"
