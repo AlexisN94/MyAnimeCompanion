@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/myListFragment">
+
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.alexis.myanimecompanion.ui.details.DetailsFragment"
+        android:label="detailsFragment">
+        <action
+            android:id="@+id/action_detailsFragment_to_myListFragment"
+            app:destination="@id/myListFragment" />
+        <action
+            android:id="@+id/action_detailsFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/myListFragment"
+        android:name="com.alexis.myanimecompanion.ui.mylist.MyListFragment"
+        android:label="MyListFragment">
+        <action
+            android:id="@+id/action_myListFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_myListFragment_to_editFragment"
+            app:destination="@id/editFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editFragment"
+        android:name="com.alexis.myanimecompanion.ui.edit.EditFragment"
+        android:label="EditFragment" >
+        <action
+            android:id="@+id/action_editFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_editFragment_to_myListFragment"
+            app:destination="@id/myListFragment" />
+    </fragment>
+</navigation>
