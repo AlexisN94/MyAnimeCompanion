@@ -1,4 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/list_item_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/list_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/list_item_image"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Ousama Ranking" />
+
+        <TextView
+            android:id="@+id/list_item_episodes_watched"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/list_item_image"
+            tools:text="11/23 eps" />
+
+        <ImageButton
+            android:id="@+id/list_item_button_increment"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/shape_soft_rectangle"
+            android:src="@drawable/ic_increment"
+            app:layout_constraintBottom_toBottomOf="@+id/list_item_episodes_watched"
+            app:layout_constraintStart_toEndOf="@id/list_item_episodes_watched"
+            app:layout_constraintTop_toTopOf="@+id/list_item_episodes_watched" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
