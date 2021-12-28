@@ -1,4 +1,4 @@
-package com.alexis.myanimecompanion.ui.mylist
+package com.alexis.myanimecompanion.ui.edit
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,18 +9,19 @@ import androidx.fragment.app.Fragment
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.databinding.FragmentMyListBinding
 
-class MyListFragment : Fragment() {
+class EditFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding: FragmentMyListBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_my_list,
+            R.layout.fragment_edit,
             container,
             false
         )
 
         binding.lifecycleOwner = viewLifecycleOwner
+        // binding.viewModel = viewModel
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return binding.root
     }
 }
