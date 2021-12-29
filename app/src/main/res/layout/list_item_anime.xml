@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_list_item_image"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
@@ -33,7 +33,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@drawable/ic_launcher_background" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_list_item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Ousama Ranking" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_list_item_eps_watched"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
                 app:layout_constraintStart_toEndOf="@+id/iv_list_item_image"
                 tools:text="11/23 eps" />
 
-            <ImageButton
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/ib_list_item_increment"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
@@ -69,7 +69,7 @@
                 app:layout_constraintStart_toEndOf="@id/tv_list_item_eps_watched"
                 app:layout_constraintTop_toTopOf="@+id/tv_list_item_eps_watched" />
 
-            <ImageButton
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/ib_list_item_menu"
                 android:layout_width="40dp"
                 android:layout_height="98dp"
