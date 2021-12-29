@@ -1,1 +1,0 @@
-package com.alexis.myanimecompanion.repository.remoteData
