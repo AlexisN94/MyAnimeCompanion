@@ -3,22 +3,20 @@ package com.alexis.myanimecompanion.ui.list
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.alexis.myanimecompanion.databinding.ListItemAnimeBinding
 import com.alexis.myanimecompanion.domain.Anime
 
-class ListAdapter(
-    private val animeClickListener: AnimeClickListener,
-    private val animeMenuClickListener: AnimeMenuClickListener
-) :
+class ListAdapter(private val itemClickListener: ClickListener) :
     androidx.recyclerview.widget.ListAdapter<Anime, ListAdapter.ViewHolder>(MyAnimeDiffCallback()) {
 
-    private val _eventItemMenuClicked = MutableLiveData<Boolean>()
-    val eventItemMenuClicked: LiveData<Boolean>
-        get() = _eventItemMenuClicked
+    interface ClickListener {
+        fun onItemClick(anime: Anime)
+        fun onOptionsMenuClick(anime: Anime, view: View)
+        fun onIncrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit)
+        fun onDecrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
@@ -26,17 +24,29 @@ class ListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val anime: Anime = getItem(position)
-        holder.bind(anime, animeClickListener, animeMenuClickListener)
+        holder.bind(anime, itemClickListener, this::notifyDataSetChanged)
     }
 
     class ViewHolder private constructor(private val binding: ListItemAnimeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(anime: Anime, animeClickListener: AnimeClickListener, animeMenuClickListener: AnimeMenuClickListener) {
-            binding.anime = anime
-            binding.root.setOnClickListener { animeClickListener.onAnimeClick(anime) }
-            binding.ibListItemMenu.setOnClickListener { animeMenuClickListener.onAnimeMenuClick(it, anime) }
-            binding.executePendingBindings()
+        fun bind(anime: Anime, clickListener: ClickListener, notifyDatasetChanged: () -> Unit) {
+            binding.apply {
+                this.anime = anime
+                root.setOnClickListener {
+                    clickListener.onItemClick(anime)
+                }
+                ibListItemMenu.setOnClickListener { view ->
+                    clickListener.onOptionsMenuClick(anime, view)
+                }
+                ibListItemIncrement.setOnClickListener {
+                    clickListener.onIncrementWatchedClick(anime, notifyDatasetChanged)
+                }
+                ibListItemDecrement.setOnClickListener {
+                    clickListener.onDecrementWatchedClick(anime, notifyDatasetChanged)
+                }
+                executePendingBindings()
+            }
         }
 
         companion object {
@@ -57,12 +67,4 @@ class MyAnimeDiffCallback : DiffUtil.ItemCallback<Anime>() {
     override fun areContentsTheSame(oldItem: Anime, newItem: Anime): Boolean {
         return oldItem == newItem
     }
-}
-
-interface AnimeClickListener {
-    fun onAnimeClick(anime: Anime)
-}
-
-interface AnimeMenuClickListener {
-    fun onAnimeMenuClick(view: View, anime: Anime)
 }

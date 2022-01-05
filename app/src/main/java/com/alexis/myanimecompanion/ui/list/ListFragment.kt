@@ -2,43 +2,41 @@ package com.alexis.myanimecompanion.ui.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.alexis.myanimecompanion.R
+import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentListBinding
 import com.alexis.myanimecompanion.domain.Anime
 
-class ListFragment : Fragment(), AnimeClickListener, AnimeMenuClickListener {
-
+class ListFragment : Fragment(), ListAdapter.ClickListener {
     private lateinit var viewModel: ListViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding: FragmentListBinding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_list,
-            container,
-            false
-        )
-        val viewModelFactory = ListViewModelFactory()
+        val binding = FragmentListBinding.inflate(inflater)
+        val animeRepository: AnimeRepository? = AnimeRepository.getInstance(requireNotNull(context))
+        val viewModelFactory = ListViewModelFactory(requireNotNull(animeRepository))
+        val adapter = ListAdapter(this)
+
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory).get(ListViewModel::class.java)
-        val adapter = ListAdapter(this, this)
-
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.rvList.adapter = adapter
-
         viewModel.animeList.observe(viewLifecycleOwner, { animeList ->
             animeList?.let {
                 adapter.submitList(animeList)
             }
         })
+
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.rvList.apply {
+            this.adapter = adapter
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
 
         return binding.root
     }
@@ -59,35 +57,42 @@ class ListFragment : Fragment(), AnimeClickListener, AnimeMenuClickListener {
         findNavController().navigate(directions)
     }
 
-    override fun onAnimeClick(anime: Anime) {
+    private fun showItemMenuOptions(view: View, anime: Anime) {
+        PopupMenu(context, view).apply {
+            inflate(R.menu.rv_user_list_item_menu)
+            setOnMenuItemClickListener { item ->
+                when (item?.itemId) {
+                    R.id.rv_user_list_item_menu_edit -> {
+                        navigateToEditFragment(anime)
+                        true
+                    }
+                    R.id.rv_user_list_item_menu_remove -> {
+                        // TODO viewModel.remove(anime)
+                        Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            show()
+        }
+    }
+
+    override fun onItemClick(anime: Anime) {
         navigateToDetailsFragment(anime)
     }
 
-    override fun onAnimeMenuClick(view: View, anime: Anime) {
-        // TODO should keep popup open on screen rotation, but can't reference views in ViewModel...
-        val popupMenu = PopupMenu(context, view)
-        popupMenu.inflate(R.menu.rv_user_list_item_menu)
+    override fun onOptionsMenuClick(anime: Anime, view: View) {
+        showItemMenuOptions(view, anime)
+    }
 
-        popupMenu.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-            override fun onMenuItemClick(item: MenuItem?): Boolean {
-                item?.let {
-                    when (item.itemId) {
-                        R.id.rv_user_list_item_menu_edit -> {
-                            navigateToEditFragment(anime)
-                            return true
-                        }
-                        R.id.rv_user_list_item_menu_remove -> {
-                            // TODO viewModel.remove(anime)
-                            Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show()
-                            return true
-                        }
-                        else -> return false
-                    }
-                }
-                return false
-            }
-        })
+    override fun onIncrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit) {
+        viewModel.incrementWatchedEpisodes(anime)
+        notifyDatasetChanged()
+    }
 
-        popupMenu.show()
+    override fun onDecrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit) {
+        viewModel.decrementWatchedEpisodes(anime)
+        notifyDatasetChanged()
     }
 }
