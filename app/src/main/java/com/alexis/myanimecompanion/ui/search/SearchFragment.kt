@@ -1,16 +1,21 @@
 package com.alexis.myanimecompanion.ui.search
 
+import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentSearchBinding
+import com.alexis.myanimecompanion.dismissKeyboard
 import com.alexis.myanimecompanion.domain.Anime
 
 class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
@@ -19,7 +24,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentSearchBinding.inflate(inflater)
         val animeRepository = AnimeRepository.getInstance(requireContext())
-        val viewModelFactory = SearchViewModelFactory(animeRepository)
+        val viewModelFactory = SearchViewModelFactory(animeRepository, resources)
         val adapter = SearchListAdapter(this)
 
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[SearchViewModel::class.java]
@@ -33,12 +38,13 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
         binding.viewModel = viewModel
         binding.rvSearchResultList.apply {
             this.adapter = adapter
-            layoutManager = GridLayoutManager(requireContext(), 2)
+            layoutManager = GridLayoutManager(requireContext(), 3)
         }
         binding.etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     viewModel.search()
+                    activity?.dismissKeyboard()
                     return true
                 }
                 return false
@@ -48,8 +54,13 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
         return binding.root
     }
 
+    private fun navigateToDetailsFragment(anime: Anime) {
+        val direction = SearchFragmentDirections.actionSearchFragmentToDetailsFragment(anime)
+        findNavController().navigate(direction)
+    }
+
     override fun onItemClick(anime: Anime) {
-        TODO("Not yet implemented")
+        navigateToDetailsFragment(anime)
     }
 
     override fun onStatusChange(anime: Anime) {

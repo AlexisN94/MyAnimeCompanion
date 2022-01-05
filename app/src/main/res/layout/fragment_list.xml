@@ -4,17 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.list.ListFragment">
 
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.alexis.myanimecompanion.ui.list.ListViewModel" />
+    </data>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- TODO conditional rendering -->
         <ProgressBar
             android:id="@+id/pb_list"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
@@ -23,5 +31,12 @@
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/list_item_anime" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@{viewModel.statusMessage}"
+            android:visibility="@{viewModel.statusMessage != null ? View.VISIBLE : View.GONE}" />
     </FrameLayout>
 </layout>
