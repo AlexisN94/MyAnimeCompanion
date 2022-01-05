@@ -1,5 +1,5 @@
 package com.alexis.myanimecompanion.data.remote.models
 
-data class RemotePaging(
+data class Paging(
     val next: String = ""
 )

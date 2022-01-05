@@ -2,7 +2,7 @@ package com.alexis.myanimecompanion.data.remote.models
 
 import com.squareup.moshi.Json
 
-data class RemoteMyListStatus(
+data class MyListStatus(
     val status: String = "",
     val score: Int = 0,
     @Json(name = "num_episodes_watched")
