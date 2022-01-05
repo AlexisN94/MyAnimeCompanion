@@ -8,7 +8,8 @@
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.alexis.myanimecompanion.ui.details.DetailsFragment"
-        android:label="detailsFragment">
+        android:label="detailsFragment"
+        tools:layout="@layout/fragment_details">
         <action
             android:id="@+id/action_detailsFragment_to_editFragment"
             app:destination="@id/editFragment" />
@@ -19,20 +20,38 @@
     <fragment
         android:id="@+id/ListFragment"
         android:name="com.alexis.myanimecompanion.ui.list.ListFragment"
-        android:label="ListFragment">
+        android:label="ListFragment"
+        tools:layout="@layout/fragment_list">
         <action
             android:id="@+id/action_myListFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
         <action
             android:id="@+id/action_myListFragment_to_editFragment"
             app:destination="@id/editFragment" />
+        <action
+            android:id="@+id/action_ListFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_ListFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
-    <fragment
+    <dialog
         android:id="@+id/editFragment"
         android:name="com.alexis.myanimecompanion.ui.edit.EditFragment"
-        android:label="EditFragment" >
+        android:label="EditFragment"
+        tools:layout="@layout/fragment_edit">
         <argument
             android:name="anime"
             app:argType="com.alexis.myanimecompanion.domain.Anime" />
-    </fragment>
+    </dialog>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.alexis.myanimecompanion.ui.login.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.alexis.myanimecompanion.ui.search.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/fragment_search" />
 </navigation>
