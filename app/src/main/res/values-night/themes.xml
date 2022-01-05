@@ -14,5 +14,6 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
+        <item name="bottomSheetDialogTheme">@style/Theme.Material3.DayNight.BottomSheetDialog</item>
     </style>
 </resources>
