@@ -26,10 +26,6 @@ class AnimeRepository private constructor() {
         return remoteDataSource.getAnimeDetails(animeId)
     }
 
-    suspend fun isLoggedIn(): Boolean {
-        return true
-    }
-
     suspend fun getUser() : User {
         return User()
     }

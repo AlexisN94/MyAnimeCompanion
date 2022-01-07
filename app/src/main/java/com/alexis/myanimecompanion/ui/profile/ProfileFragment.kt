@@ -39,6 +39,7 @@ class ProfileFragment : Fragment() {
         val authorizationUrl = viewModel.getAuthorizationUrl()
         val browse = Intent(Intent.ACTION_VIEW, Uri.parse(authorizationUrl))
         startActivity(browse)
+        viewModel.onStartLoginHandled()
     }
 }
 
