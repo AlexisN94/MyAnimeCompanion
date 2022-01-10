@@ -28,14 +28,14 @@
             android:id="@+id/group_not_logged_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.domainUser.isLoggedIn ? View.GONE : View.VISIBLE}"
+            android:visibility="@{(viewModel.user.isLoggedIn || viewModel.loading) ? View.GONE : View.VISIBLE}"
             app:constraint_referenced_ids="btn_profile_login, tv_profile_not_logged_in_msg" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/group_logged_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.domainUser.isLoggedIn ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.user.isLoggedIn ? View.VISIBLE : View.GONE}"
             app:constraint_referenced_ids="tv_profile_username" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -65,7 +65,7 @@
             android:id="@+id/tv_profile_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{`Username: ` + viewModel.username}"
+            android:text="@{`Username: ` + viewModel.user.username}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
