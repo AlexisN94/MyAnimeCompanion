@@ -2,8 +2,9 @@ package com.alexis.myanimecompanion.data
 
 import android.content.Context
 import com.alexis.myanimecompanion.TokenStorageManager
+import com.alexis.myanimecompanion.data.local.models.asDomainUser
 import com.alexis.myanimecompanion.domain.Anime
-import com.alexis.myanimecompanion.domain.User
+import com.alexis.myanimecompanion.domain.DomainUser
 
 
 class AnimeRepository private constructor() {
@@ -20,17 +21,35 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun getAnime(anime: Anime): Anime? {
-        /* TODO return complete? Anime object with fresh user-specific status */
+        /* TODO return complete? Anime object with fresh domainUser-specific status */
         return remoteDataSource.getAnimeDetails(anime)
     }
 
     suspend fun getAnime(animeId: Int): Anime? {
-        /* TODO return complete? Anime object with fresh user-specific status */
+        /* TODO return complete? Anime object with fresh domainUser-specific status */
         return remoteDataSource.getAnimeDetails(animeId)
     }
 
-    suspend fun getUser(): User {
-        return User()
+    suspend fun getUser(): DomainUser? {
+        if (!tokenStorageManager.hasToken())
+            return null
+
+        var token = tokenStorageManager.getToken()
+        if (tokenStorageManager.checkExpired()) {
+            val refreshToken = token!!.refreshToken
+            token = remoteDataSource.refreshAccessToken(refreshToken)
+            if (token != null) {
+                tokenStorageManager.setToken(token)
+            } else {
+                return null
+            }
+        }
+
+        token?.let{
+            return remoteDataSource.getUser(it.accessToken)?.asDomainUser()
+        }
+
+        return null
     }
 
     fun getAuthorizationUrl(): String {

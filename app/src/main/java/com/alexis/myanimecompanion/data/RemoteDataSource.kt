@@ -2,12 +2,10 @@ package com.alexis.myanimecompanion.data
 
 import android.util.Base64
 import android.util.Log
+import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.Token
-import com.alexis.myanimecompanion.data.remote.models.asAnime
-import com.alexis.myanimecompanion.data.remote.models.asDomainModel
-import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
+import com.alexis.myanimecompanion.data.remote.models.*
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
 import java.security.SecureRandom
@@ -112,6 +110,15 @@ class RemoteDataSource private constructor() {
         }
         return try {
             myAnimeListApi.refreshAccessToken(params).asDomainModel()
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
+            null
+        }
+    }
+
+    suspend fun getUser(accessToken: String): DatabaseUser? {
+        return try {
+            myAnimeListApi.getUserProfile(accessToken).asDatabaseModel()
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
             null
