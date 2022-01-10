@@ -1,7 +1,6 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
-import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainUser
 
@@ -9,7 +8,6 @@ import com.alexis.myanimecompanion.domain.DomainUser
 class AnimeRepository private constructor() {
     private lateinit var localDataSource: LocalDataSource
     private lateinit var remoteDataSource: RemoteDataSource
-    private lateinit var tokenStorageManager: TokenStorageManager
 
     suspend fun search(q: String): List<Anime>? {
         return remoteDataSource.search(q)
@@ -30,15 +28,7 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun getUser(): DomainUser? {
-        var token = tokenStorageManager.getToken()
-        if (tokenStorageManager.checkExpired()) {
-            token = remoteDataSource.refreshAccessToken(token?.refreshToken)
-            token?.let {
-                tokenStorageManager.setToken(token)
-            }
-        }
-
-        val remoteUserAsDatabaseUser = remoteDataSource.getUser(token?.accessToken)
+        val remoteUserAsDatabaseUser = remoteDataSource.getUser()
         remoteUserAsDatabaseUser?.let {
             localDataSource.updateUser(remoteUserAsDatabaseUser)
         }
@@ -48,7 +38,7 @@ class AnimeRepository private constructor() {
 
     fun logout() {
         localDataSource.clearUser()
-        tokenStorageManager.clearToken()
+        remoteDataSource.clearUser()
     }
 
     fun getAuthorizationUrl(): String {
@@ -56,10 +46,7 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun onAuthorizationCodeReceived(authorizationCode: String) {
-        val token = remoteDataSource.getAccessToken(authorizationCode)
-        if (token != null) {
-            tokenStorageManager.setToken(token)
-        }
+        remoteDataSource.onAuthorizationCodeReceived(authorizationCode)
     }
 
     companion object {
@@ -71,8 +58,7 @@ class AnimeRepository private constructor() {
                     ?: AnimeRepository()
                         .also { animeRepo ->
                             animeRepo.localDataSource = LocalDataSource.getInstance(context)
-                            animeRepo.remoteDataSource = RemoteDataSource.getInstance()
-                            animeRepo.tokenStorageManager = TokenStorageManager.getInstance(context)
+                            animeRepo.remoteDataSource = RemoteDataSource.getInstance(context)
                             INSTANCE = animeRepo
                         }
             }
