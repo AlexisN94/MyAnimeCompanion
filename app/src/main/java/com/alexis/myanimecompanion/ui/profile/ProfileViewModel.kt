@@ -6,20 +6,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.domain.DomainUser
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
-
-    private val _username = MutableLiveData<String>()
-    val username: LiveData<String>
-        get() = _username
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
         get() = _loading
 
-    private val _user = MutableLiveData<DomainUser>()
-    val domainUser: LiveData<DomainUser>
+    private val _user = MutableLiveData<DomainUser?>()
+    val user: LiveData<DomainUser?>
         get() = _user
 
     private val _evtStartLogin = MutableLiveData<Boolean>()
@@ -28,15 +26,17 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            _loading.value = true
-            getUser()
-            _loading.value = false
+            withContext(Dispatchers.IO) {
+                _loading.postValue(true)
+                getUser()
+                _loading.postValue(false)
+            }
         }
     }
 
-    private fun getUser() {
-        viewModelScope.launch {
-            _user.value = animeRepository.getUser()
+    private suspend fun getUser() {
+        animeRepository.getUser()?.let {
+            _user.postValue(it)
         }
     }
 
