@@ -13,6 +13,6 @@ data class DatabaseUser(
     val isOnlineAccount: Boolean = false,
 )
 
-fun DatabaseUser.asDomainUser(): DomainUser? {
+fun DatabaseUser.asDomainUser(): DomainUser {
     return DomainUser(id, username, lastUpdate, isOnlineAccount)
 }
