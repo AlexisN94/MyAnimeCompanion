@@ -2,7 +2,6 @@ package com.alexis.myanimecompanion.data
 
 import android.content.Context
 import com.alexis.myanimecompanion.TokenStorageManager
-import com.alexis.myanimecompanion.data.local.models.asDomainUser
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainUser
 
@@ -31,25 +30,25 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun getUser(): DomainUser? {
-        if (!tokenStorageManager.hasToken())
-            return null
-
         var token = tokenStorageManager.getToken()
         if (tokenStorageManager.checkExpired()) {
-            val refreshToken = token!!.refreshToken
-            token = remoteDataSource.refreshAccessToken(refreshToken)
-            if (token != null) {
+            token = remoteDataSource.refreshAccessToken(token?.refreshToken)
+            token?.let {
                 tokenStorageManager.setToken(token)
-            } else {
-                return null
             }
         }
 
-        token?.let{
-            return remoteDataSource.getUser(it.accessToken)?.asDomainUser()
+        val remoteUserAsDatabaseUser = remoteDataSource.getUser(token?.accessToken)
+        remoteUserAsDatabaseUser?.let {
+            localDataSource.updateUser(remoteUserAsDatabaseUser)
         }
 
-        return null
+        return localDataSource.getUser()
+    }
+
+    fun logout() {
+        localDataSource.clearUser()
+        tokenStorageManager.clearToken()
     }
 
     fun getAuthorizationUrl(): String {

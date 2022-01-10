@@ -101,7 +101,11 @@ class RemoteDataSource private constructor() {
         codeChallenge = codeVerifier
     }
 
-    suspend fun refreshAccessToken(refreshToken: String): DomainToken? {
+    suspend fun refreshAccessToken(refreshToken: String?): DomainToken? {
+        if (refreshToken == null) {
+            return null
+        }
+
         val params = mutableMapOf<String, String>()
         params.apply {
             put("client_id", APIClient.MAL_CLIENT_ID)
@@ -116,7 +120,11 @@ class RemoteDataSource private constructor() {
         }
     }
 
-    suspend fun getUser(accessToken: String): DatabaseUser? {
+    suspend fun getUser(accessToken: String?): DatabaseUser? {
+        if (accessToken == null) {
+            return null
+        }
+
         return try {
             myAnimeListApi.getUserProfile(accessToken).asDatabaseModel()
         } catch (e: Exception) {
