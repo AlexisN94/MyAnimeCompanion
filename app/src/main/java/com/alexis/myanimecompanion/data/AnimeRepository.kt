@@ -1,22 +1,25 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
-import android.net.Uri
+import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.User
-import retrofit2.http.Url
+
 
 class AnimeRepository private constructor() {
+    private lateinit var localDataSource: LocalDataSource
+    private lateinit var remoteDataSource: RemoteDataSource
+    private lateinit var tokenStorageManager: TokenStorageManager
 
     suspend fun search(q: String): List<Anime>? {
         return remoteDataSource.search(q)
     }
 
-    suspend fun updateAnimeStatus(anime: Anime?) {
+    suspend fun updateAnimeStatus(anime: Anime) {
         /* TODO Save changes to localDataSource and remoteDataSource if applicable */
     }
 
-    suspend fun getAnime(anime: Anime?): Anime? {
+    suspend fun getAnime(anime: Anime): Anime? {
         /* TODO return complete? Anime object with fresh user-specific status */
         return remoteDataSource.getAnimeDetails(anime)
     }
@@ -26,27 +29,33 @@ class AnimeRepository private constructor() {
         return remoteDataSource.getAnimeDetails(animeId)
     }
 
-    suspend fun getUser() : User {
+    suspend fun getUser(): User {
         return User()
     }
 
-    fun getAuthorizationUrl() : String {
+    fun getAuthorizationUrl(): String {
         return remoteDataSource.getAuthorizationURL()
+    }
+
+    suspend fun onAuthorizationCodeReceived(authorizationCode: String) {
+        val token = remoteDataSource.getAccessToken(authorizationCode)
+        if (token != null) {
+            tokenStorageManager.setToken(token)
+        }
     }
 
     companion object {
         private var INSTANCE: AnimeRepository? = null
-        private lateinit var localDataSource: LocalDataSource
-        private lateinit var remoteDataSource: RemoteDataSource
 
         fun getInstance(context: Context): AnimeRepository {
             synchronized(this) {
                 return INSTANCE
                     ?: AnimeRepository()
                         .also { animeRepo ->
+                            animeRepo.localDataSource = LocalDataSource.getInstance(context)
+                            animeRepo.remoteDataSource = RemoteDataSource.getInstance()
+                            animeRepo.tokenStorageManager = TokenStorageManager.getInstance(context)
                             INSTANCE = animeRepo
-                            localDataSource = LocalDataSource.getInstance(context)
-                            remoteDataSource = RemoteDataSource.getInstance()
                         }
             }
         }
