@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.data.AnimeRepository
-import com.alexis.myanimecompanion.domain.User
+import com.alexis.myanimecompanion.domain.DomainUser
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
@@ -18,8 +18,8 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
     val loading: LiveData<Boolean>
         get() = _loading
 
-    private val _user = MutableLiveData<User>()
-    val user: LiveData<User>
+    private val _user = MutableLiveData<DomainUser>()
+    val domainUser: LiveData<DomainUser>
         get() = _user
 
     private val _evtStartLogin = MutableLiveData<Boolean>()

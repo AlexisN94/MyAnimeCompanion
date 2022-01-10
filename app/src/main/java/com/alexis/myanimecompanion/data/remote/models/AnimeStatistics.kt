@@ -1,7 +1,7 @@
 package com.alexis.myanimecompanion.data.remote.models
 
 /**
- * General anime statistics for the user
+ * General anime statistics for the domainUser
  */
 data class AnimeStatistics(
     val mean_score: Double = 0.0,
