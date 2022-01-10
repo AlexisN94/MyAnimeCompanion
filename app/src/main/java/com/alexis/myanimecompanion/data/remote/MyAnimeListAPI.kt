@@ -15,9 +15,9 @@ interface MyAnimeListAPI {
 
     @GET("anime/{anime_id}")
     suspend fun getAnimeDetails(
-        @Path("anime_id") animeId: Int,
-        @Query("fields") fields: String? = QueryFieldsBuilder.fieldsForAnimeDetails().done(),
         @Header("Authentication") token: String? = null,
+        @Path("anime_id") animeId: Int,
+        @Query("fields") fields: String? = QueryFieldsBuilder.fieldsForAnimeDetails().done()
     ): Details
 
     @GET("users/{user_name}/animelist")
