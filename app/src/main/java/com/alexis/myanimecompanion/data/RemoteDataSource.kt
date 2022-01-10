@@ -1,84 +1,87 @@
 package com.alexis.myanimecompanion.data
 
 import android.util.Base64
-import com.alexis.myanimecompanion.QueryFieldsBuilder
+import android.util.Log
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import com.alexis.myanimecompanion.data.remote.models.Token
 import com.alexis.myanimecompanion.data.remote.models.asAnime
+import com.alexis.myanimecompanion.data.remote.models.asDomainModel
 import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.domain.DomainToken
 import java.security.SecureRandom
+
+private const val TAG = "RemoteDataSource"
 
 class RemoteDataSource private constructor() {
     private var myAnimeListApi: MyAnimeListAPI = APIClient.myAnimeListApi
-    private var codeVerifier: String? = null
-    private var codeChallenge: String? = null
-    private var token: Token? = null
+    private lateinit var codeVerifier: String
+    private lateinit var codeChallenge: String
+    private var token: Token? = null // null if not logged in
 
     /**
      * Since search results aren't stored in the database, we use them directly by returning List<Anime>
      */
     suspend fun search(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
-        val searchResult: List<Anime>? =
-            try {
-                val searchResult = myAnimeListApi.search(q, limit, offset, fields)
-                val listOfAnime = searchResult.asListOfAnime()
-                listOfAnime.map {
-                    getAnimeDetails(it)
-                }
-                return listOfAnime
-            } catch (e: Exception) {
-                null
+        return try {
+            val searchResult = myAnimeListApi.search(q, limit, offset, fields)
+            val listOfAnime = searchResult.asListOfAnime()
+            listOfAnime.map {
+                getAnimeDetails(it)
             }
-
-        return searchResult
+            return listOfAnime
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
+            null
+        }
     }
 
-    suspend fun getAnimeDetails(anime: Anime?): Anime? {
-        return getAnimeDetails(anime?.id)
+    suspend fun getAnimeDetails(anime: Anime): Anime? {
+        return getAnimeDetails(anime.id)
     }
 
     /**
      * Since anime details aren't stored in the database, we use them directly by returning Anime
      */
-    suspend fun getAnimeDetails(animeId: Int?): Anime? {
-        val anime: Anime? =
-            try {
-                if (animeId != null) {
-                    myAnimeListApi.getAnimeDetails(
-                        animeId,
-                        token = token?.access_token
-                    ).asAnime()
-                } else
-                    null
-            } catch (e: Exception) {
-                null
-            }
-
-        return anime
-    }
-
-    suspend fun updateAnimeStatus(token: String, anime: Anime?) {
-        anime?.let {
-            myAnimeListApi.updateAnimeStatus(token, it.id, it.userStatus, it.episodesWatched, it.userScore)
+    suspend fun getAnimeDetails(animeId: Int): Anime? {
+        return try {
+            myAnimeListApi.getAnimeDetails(
+                token?.access_token,
+                animeId
+            ).asAnime()
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
+            null
         }
     }
 
-    suspend fun getAccessToken(authorizationCode: String): Boolean {
+    suspend fun updateAnimeStatus(accessToken: String, anime: Anime) {
+        myAnimeListApi.updateAnimeStatus(
+            accessToken,
+            anime.id,
+            anime.userStatus,
+            anime.episodesWatched,
+            anime.userScore
+        )
+    }
+
+    suspend fun getAccessToken(authorizationCode: String): DomainToken? {
         val params = mutableMapOf<String, String>()
+
         params.apply {
             put("client_id", APIClient.MAL_CLIENT_ID)
             put("code", authorizationCode)
-            put("code_verifier", codeVerifier!!)
+            put("code_verifier", codeVerifier)
             put("grant_type", "authorization_code")
         }
-        val bn = myAnimeListApi
-        val n = bn::getAccessToken
-        // TODO properly store token
-        token = myAnimeListApi.getAccessToken(params)
-        val a = token
-        return token != null
+
+        return try {
+            myAnimeListApi.getAccessToken(params).asDomainModel()
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
+            null
+        }
     }
 
     fun getAuthorizationURL(): String {
@@ -100,14 +103,19 @@ class RemoteDataSource private constructor() {
         codeChallenge = codeVerifier
     }
 
-    suspend fun refreshAccessToken(refreshToken: String): Token? {
+    suspend fun refreshAccessToken(refreshToken: String): DomainToken? {
         val params = mutableMapOf<String, String>()
         params.apply {
             put("client_id", APIClient.MAL_CLIENT_ID)
             put("grant_type", "refresh_token")
             put("refresh_token", refreshToken)
         }
-        return myAnimeListApi.refreshAccessToken(params)
+        return try {
+            myAnimeListApi.refreshAccessToken(params).asDomainModel()
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
+            null
+        }
     }
 
     companion object {
