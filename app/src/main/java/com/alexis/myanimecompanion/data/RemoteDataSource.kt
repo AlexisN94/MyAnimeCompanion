@@ -1,11 +1,16 @@
 package com.alexis.myanimecompanion.data
 
+import android.content.Context
 import android.util.Base64
 import android.util.Log
+import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.*
+import com.alexis.myanimecompanion.data.remote.models.asAnime
+import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
+import com.alexis.myanimecompanion.data.remote.models.asDomainModel
+import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
 import java.security.SecureRandom
@@ -16,7 +21,8 @@ class RemoteDataSource private constructor() {
     private var myAnimeListApi: MyAnimeListAPI = APIClient.myAnimeListApi
     private lateinit var codeVerifier: String
     private lateinit var codeChallenge: String
-    private var token: Token? = null // null if not logged in
+    private lateinit var tokenStorageManager: TokenStorageManager
+    private var token: DomainToken? = null // null if not logged in
 
     /**
      * Since search results aren't stored in the database, we use them directly by returning List<Anime>
@@ -45,7 +51,7 @@ class RemoteDataSource private constructor() {
     suspend fun getAnimeDetails(animeId: Int): Anime? {
         return try {
             myAnimeListApi.getAnimeDetails(
-                token?.access_token,
+                token?.accessToken,
                 animeId
             ).asAnime()
         } catch (e: Exception) {
@@ -54,17 +60,19 @@ class RemoteDataSource private constructor() {
         }
     }
 
-    suspend fun updateAnimeStatus(accessToken: String, anime: Anime) {
-        myAnimeListApi.updateAnimeStatus(
-            accessToken,
-            anime.id,
-            anime.userStatus,
-            anime.episodesWatched,
-            anime.userScore
-        )
+    suspend fun updateAnimeStatus(anime: Anime) {
+        token?.accessToken?.let {
+            myAnimeListApi.updateAnimeStatus(
+                it,
+                anime.id,
+                anime.userStatus,
+                anime.episodesWatched,
+                anime.userScore
+            )
+        }
     }
 
-    suspend fun getAccessToken(authorizationCode: String): DomainToken? {
+    private suspend fun getAccessToken(authorizationCode: String) {
         val params = mutableMapOf<String, String>()
 
         params.apply {
@@ -74,11 +82,11 @@ class RemoteDataSource private constructor() {
             put("grant_type", "authorization_code")
         }
 
-        return try {
-            myAnimeListApi.getAccessToken(params).asDomainModel()
+        try {
+            token = myAnimeListApi.getAccessToken(params).asDomainModel()
+            token?.let { tokenStorageManager.setToken(it) }
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
-            null
         }
     }
 
@@ -101,44 +109,56 @@ class RemoteDataSource private constructor() {
         codeChallenge = codeVerifier
     }
 
-    suspend fun refreshAccessToken(refreshToken: String?): DomainToken? {
-        if (refreshToken == null) {
+    private suspend fun refreshAccessToken() {
+        token?.let {
+            val params = mutableMapOf<String, String>()
+            params.apply {
+                put("client_id", APIClient.MAL_CLIENT_ID)
+                put("grant_type", "refresh_token")
+                put("refresh_token", it.refreshToken)
+            }
+            try {
+                token = myAnimeListApi.refreshAccessToken(params).asDomainModel()
+                token?.let { tokenStorageManager.setToken(it) }
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+        }
+    }
+
+    suspend fun getUser(): DatabaseUser? {
+        if (token == null) {
             return null
         }
-
-        val params = mutableMapOf<String, String>()
-        params.apply {
-            put("client_id", APIClient.MAL_CLIENT_ID)
-            put("grant_type", "refresh_token")
-            put("refresh_token", refreshToken)
+        if (tokenStorageManager.checkExpired()) {
+            refreshAccessToken()
         }
+
         return try {
-            myAnimeListApi.refreshAccessToken(params).asDomainModel()
+            myAnimeListApi.getUserProfile("Bearer ${token?.accessToken}").asDatabaseModel()
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
             null
         }
     }
 
-    suspend fun getUser(accessToken: String?): DatabaseUser? {
-        if (accessToken == null) {
-            return null
-        }
+    suspend fun onAuthorizationCodeReceived(authorizationCode: String) {
+        getAccessToken(authorizationCode)
+    }
 
-        return try {
-            myAnimeListApi.getUserProfile("Bearer $accessToken").asDatabaseModel()
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
-            null
-        }
+    fun clearUser() {
+        tokenStorageManager.clearToken()
     }
 
     companion object {
         private var INSTANCE: RemoteDataSource? = null
 
-        fun getInstance(): RemoteDataSource {
+        fun getInstance(context: Context): RemoteDataSource {
             synchronized(this) {
                 return INSTANCE ?: RemoteDataSource().also { instance ->
+                    val tokenStorageManager = TokenStorageManager.getInstance(context)
+                    instance.tokenStorageManager = tokenStorageManager
+                    instance.token = tokenStorageManager.getToken()
                     INSTANCE = instance
                 }
             }
