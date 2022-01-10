@@ -126,7 +126,7 @@ class RemoteDataSource private constructor() {
         }
 
         return try {
-            myAnimeListApi.getUserProfile(accessToken).asDatabaseModel()
+            myAnimeListApi.getUserProfile("Bearer $accessToken").asDatabaseModel()
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
             null
