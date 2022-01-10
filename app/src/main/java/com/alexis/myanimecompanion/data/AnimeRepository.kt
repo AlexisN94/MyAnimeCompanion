@@ -29,7 +29,11 @@ class AnimeRepository private constructor() {
 
     suspend fun getUser(): DomainUser? {
         val remoteUserAsDatabaseUser = remoteDataSource.getUser()
-        remoteUserAsDatabaseUser?.let {
+        val localUser = localDataSource.getUser()
+
+        if(localUser == null && remoteUserAsDatabaseUser != null) {
+            localDataSource.insertUser(remoteUserAsDatabaseUser)
+        } else if (remoteUserAsDatabaseUser != null) {
             localDataSource.updateUser(remoteUserAsDatabaseUser)
         }
 

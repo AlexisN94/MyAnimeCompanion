@@ -9,8 +9,12 @@ import com.alexis.myanimecompanion.domain.DomainUser
 class LocalDataSource private constructor() {
     private lateinit var animeDatabase: AnimeDatabase
 
+    fun insertUser(user: DatabaseUser){
+        animeDatabase.userDao.insert(user)
+    }
+
     fun getUser(): DomainUser? {
-        return animeDatabase.userDao.getUser().asDomainUser()
+        return animeDatabase.userDao.getUser()?.asDomainUser()
     }
 
     fun clearUser() {
