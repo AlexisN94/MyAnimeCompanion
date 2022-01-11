@@ -7,8 +7,8 @@ import java.util.*
 @Entity
 data class DatabaseUser(
     @PrimaryKey
-    val id: Int = -1,
-    val username: String = "",
+    val id: Int,
+    val username: String,
     val lastUpdate: String,
     val isOnlineAccount: Boolean = false,
 )
