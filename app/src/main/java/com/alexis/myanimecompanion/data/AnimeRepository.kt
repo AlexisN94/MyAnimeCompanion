@@ -10,16 +10,13 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun updateAnimeStatus(anime: Anime?) {
-        /* TODO Save changes to localDataSource and remoteDataSource if applicable */
     }
 
     suspend fun getAnime(anime: Anime?): Anime? {
-        /* TODO return complete? Anime object with fresh user-specific status */
         return remoteDataSource.getAnimeDetails(anime)
     }
 
     suspend fun getAnime(animeId: Int): Anime? {
-        /* TODO return complete? Anime object with fresh user-specific status */
         return remoteDataSource.getAnimeDetails(animeId)
     }
 

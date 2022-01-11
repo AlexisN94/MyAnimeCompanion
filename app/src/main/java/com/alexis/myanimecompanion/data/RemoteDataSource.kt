@@ -16,9 +16,6 @@ class RemoteDataSource private constructor() {
     private var codeChallenge: String? = null
     private var token: Token? = null
 
-    /**
-     * Since search results aren't stored in the database, we use them directly by returning List<Anime>
-     */
     suspend fun search(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
         val searchResult: List<Anime>? =
             try {
@@ -39,9 +36,6 @@ class RemoteDataSource private constructor() {
         return getAnimeDetails(anime?.id)
     }
 
-    /**
-     * Since anime details aren't stored in the database, we use them directly by returning Anime
-     */
     suspend fun getAnimeDetails(animeId: Int?): Anime? {
         val anime: Anime? =
             try {
