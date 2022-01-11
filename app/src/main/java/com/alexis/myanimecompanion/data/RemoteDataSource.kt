@@ -7,10 +7,7 @@ import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.asAnime
-import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
-import com.alexis.myanimecompanion.data.remote.models.asDomainModel
-import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
+import com.alexis.myanimecompanion.data.remote.models.*
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
 import java.security.SecureRandom
@@ -126,7 +123,7 @@ class RemoteDataSource private constructor() {
         }
     }
 
-    suspend fun getUser(): DatabaseUser? {
+    suspend fun getUser(): User? {
         if (token == null) {
             return null
         }
@@ -135,7 +132,7 @@ class RemoteDataSource private constructor() {
         }
 
         return try {
-            myAnimeListApi.getUserProfile("Bearer ${token?.accessToken}").asDatabaseModel()
+            myAnimeListApi.getUserProfile("Bearer ${token?.accessToken}")
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
             null
