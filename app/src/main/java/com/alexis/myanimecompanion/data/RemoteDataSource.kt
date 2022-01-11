@@ -7,6 +7,7 @@ import com.alexis.myanimecompanion.data.remote.models.RemoteToken
 import com.alexis.myanimecompanion.data.remote.models.asAnime
 import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
+import retrofit2.HttpException
 import java.security.SecureRandom
 
 class RemoteDataSource private constructor() {
@@ -24,7 +25,7 @@ class RemoteDataSource private constructor() {
                     getAnimeDetails(it)
                 }
                 return listOfAnime
-            } catch (e: Exception) {
+            } catch (e: HttpException) {
                 null
             }
 
@@ -43,7 +44,7 @@ class RemoteDataSource private constructor() {
                 } else {
                     null
                 }
-            } catch (e: Exception) {
+            } catch (e: HttpException) {
                 null
             }
 

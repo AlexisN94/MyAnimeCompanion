@@ -2,6 +2,7 @@ package com.alexis.myanimecompanion.data.remote.models
 
 import com.alexis.myanimecompanion.domain.Anime
 import com.squareup.moshi.Json
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,7 +45,7 @@ fun Details.asAnime(): Anime {
     }
     val parsedUpdatedAt: Date? = try {
         dateFormat.parse(myListStatus?.updatedAt)
-    } catch (e: Exception) {
+    } catch (e: ParseException) {
         null
     }
     val alternativeTitlesStr = "${alternativeTitles.en + ", "}" +
