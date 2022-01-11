@@ -1,10 +1,9 @@
 package com.alexis.myanimecompanion.data
 
 import android.util.Base64
-import com.alexis.myanimecompanion.QueryFieldsBuilder
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.Token
+import com.alexis.myanimecompanion.data.remote.models.RemoteToken
 import com.alexis.myanimecompanion.data.remote.models.asAnime
 import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
@@ -14,12 +13,12 @@ class RemoteDataSource private constructor() {
     private var myAnimeListApi: MyAnimeListAPI = APIClient.myAnimeListApi
     private var codeVerifier: String? = null
     private var codeChallenge: String? = null
-    private var token: Token? = null
+    private var token: RemoteToken? = null
 
-    suspend fun search(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
+    suspend fun search(query: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
         val searchResult: List<Anime>? =
             try {
-                val searchResult = myAnimeListApi.search(q, limit, offset, fields)
+                val searchResult = myAnimeListApi.search(query, limit, offset, fields)
                 val listOfAnime = searchResult.asListOfAnime()
                 listOfAnime.map {
                     getAnimeDetails(it)
@@ -67,16 +66,13 @@ class RemoteDataSource private constructor() {
             put("code_verifier", codeVerifier!!)
             put("grant_type", "authorization_code")
         }
-        val bn = myAnimeListApi
-        val n = bn::getAccessToken
         // TODO properly store token
         token = myAnimeListApi.getAccessToken(params)
-        val a = token
         return token != null
     }
 
     fun getAuthorizationURL(): String {
-        newCodeVerifierAndChallenge()
+        generateCodeVerifierAndChallenge()
 
         return MyAnimeListAPI.BASE_AUTHORIZATION_URL +
                 "?response_type=code" +
@@ -84,7 +80,7 @@ class RemoteDataSource private constructor() {
                 "&code_challenge=$codeChallenge"
     }
 
-    private fun newCodeVerifierAndChallenge() {
+    private fun generateCodeVerifierAndChallenge() {
         val secureRandom = SecureRandom()
         val bytes = ByteArray(32)
         secureRandom.nextBytes(bytes)
@@ -94,7 +90,7 @@ class RemoteDataSource private constructor() {
         codeChallenge = codeVerifier
     }
 
-    suspend fun refreshAccessToken(refreshToken: String): Token? {
+    suspend fun refreshAccessToken(refreshToken: String): RemoteToken? {
         val params = mutableMapOf<String, String>()
         params.apply {
             put("client_id", APIClient.MAL_CLIENT_ID)

@@ -5,8 +5,8 @@ import com.alexis.myanimecompanion.domain.Anime
 
 class AnimeRepository private constructor() {
 
-    suspend fun search(q: String): List<Anime>? {
-        return remoteDataSource.search(q)
+    suspend fun search(query: String): List<Anime>? {
+        return remoteDataSource.search(query)
     }
 
     suspend fun updateAnimeStatus(anime: Anime?) {

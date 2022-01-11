@@ -7,7 +7,7 @@ data class Node(
     val id: Int,
     val title: String,
     @Json(name = "main_picture")
-    val mainPicture: MainPicture
+    val mainPicture: RemoteMainPicture
 )
 
 fun Node.asAnime(): Anime {

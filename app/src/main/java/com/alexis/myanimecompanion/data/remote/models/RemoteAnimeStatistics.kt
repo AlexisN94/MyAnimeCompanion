@@ -3,7 +3,7 @@ package com.alexis.myanimecompanion.data.remote.models
 /**
  * General anime statistics for the user
  */
-data class AnimeStatistics(
+data class RemoteAnimeStatistics(
     val mean_score: Double,
     val num_days: Double,
     val num_days_completed: Double,

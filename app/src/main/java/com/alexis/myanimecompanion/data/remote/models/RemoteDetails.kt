@@ -11,16 +11,16 @@ data class Details(
     val background: String,
     @Json(name = "end_date")
     val endDate: String,
-    val genres: List<Genre>,
+    val genres: List<RemoteGenre>,
     val id: Int,
     @Json(name = "main_picture")
-    val mainPicture: MainPicture,
+    val mainPicture: RemoteMainPicture,
     val mean: Double,
     val media_type: String,
     @Json(name = "my_list_status")
-    val myListStatus: MyListStatus?,
+    val myListStatus: RemoteMyListStatus?,
     val num_episodes: Int,
-    val pictures: List<Picture>,
+    val pictures: List<RemotePicture>,
     val popularity: Int,
     val rank: Int,
     val rating: String,
@@ -28,7 +28,7 @@ data class Details(
     @Json(name = "start_date")
     val startDate: String,
     @Json(name = "start_season")
-    val startSeason: StartSeason,
+    val startSeason: RemoteStartSeason,
     val status: String,
     val synopsis: String,
     val title: String

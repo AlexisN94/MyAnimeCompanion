@@ -1,6 +1,6 @@
 package com.alexis.myanimecompanion.data.remote.models
 
-data class Token(
+data class RemoteToken(
     val access_token: String,
     val expires_in: Int,
     val refresh_token: String,

@@ -1,6 +1,6 @@
 package com.alexis.myanimecompanion.data.remote.models
 
-data class Picture(
+data class RemoteMainPicture(
     val large: String,
     val medium: String
 )

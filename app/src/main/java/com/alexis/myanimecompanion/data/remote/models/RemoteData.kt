@@ -1,6 +1,6 @@
 package com.alexis.myanimecompanion.data.remote.models
 
-data class Data(
+data class RemoteData(
     val node: Node,
-    val list_status: ListStatus
+    val list_status: RemoteListStatus
 )

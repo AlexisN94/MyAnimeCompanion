@@ -1,6 +1,6 @@
 package com.alexis.myanimecompanion.data.remote.models
 
-data class StartSeason(
+data class RemoteStartSeason(
     val season: String,
     val year: Int
 )
