@@ -31,11 +31,11 @@ class RemoteDataSource private constructor() {
         return searchResult
     }
 
-    suspend fun getAnimeDetails(anime: Anime?): Anime? {
-        return getAnimeDetails(anime?.id)
+    suspend fun getAnimeDetails(anime: Anime): Anime? {
+        return getAnimeDetails(anime.id)
     }
 
-    suspend fun getAnimeDetails(animeId: Int?): Anime? {
+    suspend fun getAnimeDetails(animeId: Int): Anime? {
         val anime: Anime? =
             try {
                 if (animeId != null) {
@@ -50,10 +50,8 @@ class RemoteDataSource private constructor() {
         return anime
     }
 
-    suspend fun updateAnimeStatus(token: String, anime: Anime?) {
-        anime?.let {
-            myAnimeListApi.updateAnimeStatus(token, it.id, it.userStatus, it.episodesWatched, it.userScore)
-        }
+    suspend fun updateAnimeStatus(token: String, anime: Anime) {
+        myAnimeListApi.updateAnimeStatus(token, anime.id, anime.userStatus, anime.episodesWatched, anime.userScore)
     }
 
     suspend fun getAccessToken(authorizationCode: String): Boolean {

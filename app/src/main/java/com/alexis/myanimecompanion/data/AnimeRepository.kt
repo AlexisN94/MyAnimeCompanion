@@ -12,7 +12,7 @@ class AnimeRepository private constructor() {
     suspend fun updateAnimeStatus(anime: Anime?) {
     }
 
-    suspend fun getAnime(anime: Anime?): Anime? {
+    suspend fun getAnime(anime: Anime): Anime? {
         return remoteDataSource.getAnimeDetails(anime)
     }
 
