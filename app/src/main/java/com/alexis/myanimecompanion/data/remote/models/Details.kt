@@ -7,31 +7,31 @@ import java.util.*
 
 data class Details(
     @Json(name = "alternative_titles")
-    val alternativeTitles: AlternativeTitles = AlternativeTitles(),
-    val background: String = "",
+    val alternativeTitles: AlternativeTitles,
+    val background: String,
     @Json(name = "end_date")
-    val endDate: String = "",
-    val genres: List<Genre> = listOf(),
-    val id: Int = 0,
+    val endDate: String,
+    val genres: List<Genre>,
+    val id: Int,
     @Json(name = "main_picture")
-    val mainPicture: MainPicture = MainPicture(),
-    val mean: Double = 0.0,
-    val media_type: String = "",
+    val mainPicture: MainPicture,
+    val mean: Double,
+    val media_type: String,
     @Json(name = "my_list_status")
-    val myListStatus: MyListStatus? = null,
-    val num_episodes: Int = 0,
-    val pictures: List<Picture> = listOf(),
-    val popularity: Int = 0,
-    val rank: Int = 0,
-    val rating: String = "",
-    val source: String = "",
+    val myListStatus: MyListStatus?,
+    val num_episodes: Int,
+    val pictures: List<Picture>,
+    val popularity: Int,
+    val rank: Int,
+    val rating: String,
+    val source: String,
     @Json(name = "start_date")
-    val startDate: String = "",
+    val startDate: String,
     @Json(name = "start_season")
-    val startSeason: StartSeason = StartSeason(),
-    val status: String = "",
-    val synopsis: String = "",
-    val title: String = ""
+    val startSeason: StartSeason,
+    val status: String,
+    val synopsis: String,
+    val title: String
 )
 
 fun Details.asAnime(): Anime {
