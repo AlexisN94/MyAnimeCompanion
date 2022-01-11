@@ -39,12 +39,10 @@ class RemoteDataSource private constructor() {
         val anime: Anime? =
             try {
                 if (animeId != null) {
-                    myAnimeListApi.getAnimeDetails(
-                        animeId,
-                        token = token?.access_token
-                    ).asAnime()
-                } else
+                    myAnimeListApi.getAnimeDetails(animeId, token = token?.access_token).asAnime()
+                } else {
                     null
+                }
             } catch (e: Exception) {
                 null
             }

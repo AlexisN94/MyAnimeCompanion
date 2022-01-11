@@ -18,7 +18,6 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-
 data class DatabaseAnimeList(
     @PrimaryKey
     val id: Int,
