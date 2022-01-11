@@ -32,7 +32,7 @@ class AnimeRepository private constructor() {
                         .also { animeRepo ->
                             INSTANCE = animeRepo
                             localDataSource = LocalDataSource.getInstance(context)
-                            remoteDataSource = RemoteDataSource.getInstance()
+                            remoteDataSource = RemoteDataSource.getInstance(context)
                         }
             }
         }
