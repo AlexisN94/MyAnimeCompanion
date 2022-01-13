@@ -62,5 +62,6 @@ interface MyAnimeListAPI {
         const val BASE_AUTHORIZATION_URL = "https://myanimelist.net/v1/oauth2/authorize"
         const val BASE_TOKEN_URL = "https://myanimelist.net/v1/oauth2/token"
         const val BASE_URL = "https://api.myanimelist.net/v2/"
+        const val DATE_PATTERN = "yyyy-MM-dd'T'HH:mmXXX"
     }
 }

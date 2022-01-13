@@ -1,8 +1,9 @@
 package com.alexis.myanimecompanion.data.remote.models
 
+import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.toMALDate
 import com.squareup.moshi.Json
-import java.text.SimpleDateFormat
 import java.util.*
 
 data class Details(
@@ -36,17 +37,8 @@ data class Details(
 
 fun Details.asAnime(): Anime {
     val genreList: List<String> = this.genres.map { it.name }
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX")
-    val parsedStartDate: Date? = try {
-        dateFormat.parse(startDate)
-    } catch (e: Exception) {
-        null
-    }
-    val parsedUpdatedAt: Date? = try {
-        dateFormat.parse(myListStatus?.updatedAt)
-    } catch (e: Exception) {
-        null
-    }
+    val parsedStartDate: Date? = startDate.toMALDate()
+    val parsedUpdatedAt: Date? = myListStatus?.updatedAt?.toMALDate()
     val alternativeTitlesStr = "${alternativeTitles.en + ", "}" +
             "${alternativeTitles.ja + ", "}${alternativeTitles.synonyms.joinToString(", ")}"
 

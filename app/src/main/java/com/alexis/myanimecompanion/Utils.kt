@@ -3,6 +3,10 @@ package com.alexis.myanimecompanion
 import android.app.Activity
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Utility singleton to create a list of filter fields for api queries; e.g. Only get the objet's id and synopsis in
@@ -90,4 +94,24 @@ fun Activity.dismissKeyboard() {
     val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     if (inputMethodManager.isAcceptingText)
         inputMethodManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+}
+
+@Throws(ParseException::class)
+fun String.toDate(pattern: String): Date? {
+    val dateFormat = SimpleDateFormat(pattern)
+    return dateFormat.parse(this)
+}
+
+@Throws(ParseException::class)
+fun String.toMALDate(): Date? {
+    return this.toDate(MyAnimeListAPI.DATE_PATTERN)
+}
+
+fun Date.toString(pattern: String): String {
+    val dateFormat = SimpleDateFormat(pattern)
+    return dateFormat.format(this)
+}
+
+fun Date.toMALDateString(): String {
+    return this.toString(MyAnimeListAPI.DATE_PATTERN)
 }
