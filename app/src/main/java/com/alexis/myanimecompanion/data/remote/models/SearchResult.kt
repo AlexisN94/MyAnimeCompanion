@@ -12,7 +12,7 @@ fun SearchResult.asListOfAnime(): List<Anime> {
     val animeList = mutableListOf<Anime>()
 
     for (data in this.data) {
-        animeList.add(data.node.asAnime())
+        animeList.add(data.node.asDomainModel())
     }
     return animeList
 }

@@ -1,9 +1,11 @@
 package com.alexis.myanimecompanion.data.remote.models
 
-import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.domain.AnimeDetails
+import com.alexis.myanimecompanion.domain.AnimeStatus
 import com.alexis.myanimecompanion.toMALDate
 import com.squareup.moshi.Json
+import java.text.ParseException
 import java.util.*
 
 data class Details(
@@ -20,7 +22,8 @@ data class Details(
     val media_type: String = "",
     @Json(name = "my_list_status")
     val myListStatus: MyListStatus? = null,
-    val num_episodes: Int = 0,
+    @Json(name = "num_episodes")
+    val numEpisodes: Int = 0,
     val pictures: List<Picture> = listOf(),
     val popularity: Int = 0,
     val rank: Int = 0,
@@ -35,27 +38,19 @@ data class Details(
     val title: String = ""
 )
 
-fun Details.asAnime(): Anime {
-    val genreList: List<String> = this.genres.map { it.name }
+@Throws(ParseException::class)
+fun Details.asDomainModel(): Anime {
+    val genreList: String = this.genres.joinToString(", ") { it.name }
     val parsedStartDate: Date? = startDate.toMALDate()
     val parsedUpdatedAt: Date? = myListStatus?.updatedAt?.toMALDate()
-    val alternativeTitlesStr = "${alternativeTitles.en + ", "}" +
-            "${alternativeTitles.ja + ", "}${alternativeTitles.synonyms.joinToString(", ")}"
+    val alternativeTitlesStr =
+        "alternativeTitles.en" + ", " + "alternativeTitles.ja" + ", " + alternativeTitles.synonyms.joinToString(", ")
 
-    return Anime(
-        id,
-        title,
-        mainPicture.medium,
-        synopsis,
-        genreList.joinToString(", "),
-        parsedStartDate,
-        mean,
-        num_episodes,
-        myListStatus?.numEpisodesWatched ?: 0,
-        myListStatus?.score,
-        myListStatus?.status,
-        parsedUpdatedAt,
-        status,
-        alternativeTitlesStr
-    )
+    val userStatus = myListStatus?.let {
+        AnimeStatus(it.score, it.status, it.numEpisodesWatched, it.updatedAt.toMALDate())
+    }
+
+    val details = AnimeDetails(synopsis, genreList, parsedStartDate, mean, numEpisodes, status, alternativeTitlesStr)
+
+    return Anime(id, title, mainPicture.large, userStatus, details)
 }

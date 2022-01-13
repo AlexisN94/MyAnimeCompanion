@@ -1,8 +1,6 @@
 package com.alexis.myanimecompanion.ui
 
-import android.net.Uri
 import android.view.View
-import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
@@ -11,6 +9,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
+import androidx.lifecycle.MutableLiveData
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.domain.Anime
 import com.bumptech.glide.Glide
@@ -34,10 +33,10 @@ fun ImageView.setImage(url: String?) {
 
 @BindingAdapter("progress")
 fun ProgressBar.setProgress(anime: Anime) {
-    progress = if (anime.numEpisodes == null || anime.numEpisodes == 0) {
+    progress = if (anime.myListStatus?.episodesWatched == null || anime.details?.numEpisodes == 0) {
         0
     } else {
-        val percentage = anime.episodesWatched?.toDouble().div(anime.numEpisodes)
+        val percentage = anime.myListStatus.episodesWatched?.toDouble().div(anime.details!!.numEpisodes)
         percentage.times(100).toInt()
     }
 }
@@ -51,16 +50,16 @@ fun TextView.setValue(value: Double?) {
 
 @BindingAdapter("episodesWatchedFormatted")
 fun TextView.setEpisodesWatched(anime: Anime?) {
-    text = "${anime?.episodesWatched ?: 0}/${anime?.numEpisodes ?: "?"} eps"
+    text = "${anime?.myListStatus?.episodesWatched ?: 0}/${anime?.details?.numEpisodes ?: "?"} eps"
 }
 
 @BindingAdapter("epsReleased")
 fun TextView.setNumEpsReleased(anime: Anime?) {
-    text = "Episodes: ${anime?.numEpisodes ?: "?"}"
+    text = "Episodes: ${anime?.details?.numEpisodes ?: "?"}"
 }
 
 @InverseBindingAdapter(attribute = "spinnerValue")
-fun AppCompatSpinner.getValue(): Any? {
+fun AppCompatSpinner.getValue(value: MutableLiveData<Any>): Any? {
     return selectedItem
 }
 

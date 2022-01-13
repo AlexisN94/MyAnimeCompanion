@@ -10,6 +10,6 @@ data class User(
     val name: String = ""
 )
 
-fun User.asDatabaseModel(): DatabaseUser? {
-    return DatabaseUser(id, name, lastUpdate = null, isOnlineAccount = true)
+fun User.asDatabaseModel(): DatabaseUser {
+    return DatabaseUser(id, name)
 }

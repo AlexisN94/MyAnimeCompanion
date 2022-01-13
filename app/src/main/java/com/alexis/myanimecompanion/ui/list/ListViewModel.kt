@@ -11,7 +11,7 @@ import com.alexis.myanimecompanion.domain.Anime
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-class ListViewModel(private val animeRepository: AnimeRepository,  private val resources: Resources) : ViewModel() {
+class ListViewModel(private val animeRepository: AnimeRepository, private val resources: Resources) : ViewModel() {
 
     private val _animeList = MutableLiveData<List<Anime>>()
     val animeList: LiveData<List<Anime>>
@@ -69,13 +69,14 @@ class ListViewModel(private val animeRepository: AnimeRepository,  private val r
 
     fun incrementWatchedEpisodes(anime: Anime) {
         viewModelScope.launch {
-            if (anime.numEpisodes == null || anime.numEpisodes == 0)
+            if (anime.details == null
+                || anime.myListStatus == null
+                || anime.details.numEpisodes == null
+                || anime.details.numEpisodes == 0
+            )
                 TODO("end coroutine")
-            else if (anime.episodesWatched < anime.numEpisodes) {
-                anime.episodesWatched++
-                /*TODO updateAnimeStatus should return boolean for status check.
-                  If all good, apply change to _animeList. Else, display failure to update error message.
-                  Also, in updateAnimeStatus, assert that remote values haven't changed in the meantime. */
+            else if (anime.myListStatus.episodesWatched!! < anime.details.numEpisodes) {
+                anime.myListStatus.episodesWatched++
                 animeRepository.updateAnimeStatus(anime)
                 _animeList.value?.map {
                     if (it.id == anime.id)
@@ -87,10 +88,14 @@ class ListViewModel(private val animeRepository: AnimeRepository,  private val r
 
     fun decrementWatchedEpisodes(anime: Anime) {
         viewModelScope.launch {
-            if (anime.numEpisodes == null || anime.numEpisodes == 0)
+            if (anime.details == null
+                || anime.myListStatus == null
+                || anime.details.numEpisodes == null
+                || anime.details.numEpisodes == 0
+            )
                 cancel()
-            else if (anime.episodesWatched > 0) {
-                anime.episodesWatched--
+            else if (anime.myListStatus.episodesWatched > 0) {
+                anime.myListStatus.episodesWatched++
                 /*TODO updateAnimeStatus should return boolean for status check.
                    If all good, apply change to _animeList. Else, display failure to update error message.
                    Also, assert that remote values haven't changed before pushing update. */

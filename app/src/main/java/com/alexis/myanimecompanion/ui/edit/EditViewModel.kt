@@ -20,19 +20,19 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
         viewModelScope.launch {
             animeRepository.getAnime(anime)?.let {
                 anime = it
-                episodesWatched.value = anime.episodesWatched
-                currentStatus.value = anime.userStatus
-                userScore.value = anime.userScore
+                episodesWatched.value = anime.myListStatus?.episodesWatched
+                currentStatus.value = anime.myListStatus?.status
+                userScore.value = anime.myListStatus?.score
             }
         }
     }
 
     fun onSave() {
         viewModelScope.launch {
-            anime?.let {
-                it.userStatus = currentStatus.value
-                it.userScore = userScore.value
-                it.episodesWatched = episodesWatched.value ?: 0
+            anime?.myListStatus?.let {
+                it.status = currentStatus.value ?: it.status
+                it.score = userScore.value ?: it.score
+                it.episodesWatched = episodesWatched.value ?: it.episodesWatched
                 // TODO handle failure to update
                 animeRepository.updateAnimeStatus(anime)
             }

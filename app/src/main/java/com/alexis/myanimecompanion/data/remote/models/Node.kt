@@ -10,6 +10,6 @@ data class Node(
     val mainPicture: MainPicture = MainPicture()
 )
 
-fun Node.asAnime(): Anime {
+fun Node.asDomainModel(): Anime {
     return Anime(id, title, mainPicture.large)
 }

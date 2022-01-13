@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Base64
 import android.util.Log
 import com.alexis.myanimecompanion.TokenStorageManager
-import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import com.alexis.myanimecompanion.data.remote.models.*
@@ -50,7 +49,7 @@ class RemoteDataSource private constructor() {
             myAnimeListApi.getAnimeDetails(
                 token?.accessToken,
                 animeId
-            ).asAnime()
+            ).asDomainModel()
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
             null
