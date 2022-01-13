@@ -9,7 +9,7 @@ interface AnimeStatusDao {
     fun insert(animeStatus: DatabaseAnimeStatus)
 
     @Update
-    fun update(animeStatus: DatabaseAnimeStatus)
+    fun update(animeStatus: DatabaseAnimeStatus): Int
 
     @Delete
     fun delete(animeStatus: DatabaseAnimeStatus)
