@@ -1,6 +1,5 @@
 package com.alexis.myanimecompanion.data.local.models
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,7 +9,5 @@ data class DatabaseAnime(
     val id: Int,
     val title: String,
     val imageUrl: String,
-    val ranking: Int,
-    @Embedded
-    val animeStatus: DatabaseAnimeStatus
+    val numEpisodes: Int
 )
