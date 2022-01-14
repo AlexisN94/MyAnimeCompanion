@@ -5,26 +5,49 @@ import com.alexis.myanimecompanion.data.local.AnimeDatabase
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeWithStatus
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
-import com.alexis.myanimecompanion.domain.Anime
 
 class LocalDataSource private constructor() {
     private lateinit var animeDatabase: AnimeDatabase
 
-    fun insertUser(user: DatabaseUser){
-        animeDatabase.userDao.insert(user)
+    fun insertOrUpdateUser(user: DatabaseUser) {
+        if (animeDatabase.userDao.update(user) == 0) {
+            animeDatabase.userDao.insert(user)
+        }
     }
 
     fun getUser(): DatabaseUser? {
         return animeDatabase.userDao.getUser()
     }
 
-    fun clearUser() {
-        val user = animeDatabase.userDao.getUser()
-        animeDatabase.userDao.delete(user)
+    fun insertOrUpdateAnime(animeWithStatus: DatabaseAnimeWithStatus) {
+        val anime = animeWithStatus.anime
+        val status = animeWithStatus.animeStatus
+
+        if (animeDatabase.animeDao.update(anime) == 0) {
+            animeDatabase.animeDao.insert(anime)
+        }
+        if (animeDatabase.animeStatusDao.update(status) == 0) {
+            animeDatabase.animeStatusDao.insert(status)
+        }
     }
 
-    fun updateUser(user: DatabaseUser) {
-        animeDatabase.userDao.update(user)
+    fun deleteAnime(anime: DatabaseAnime) {
+        animeDatabase.animeDao.delete(anime)
+    }
+
+    fun getAnimeList(): List<DatabaseAnimeWithStatus> {
+        return animeDatabase.animeDao.getAll()
+    }
+
+    fun insertOrUpdateAnimeList(animeList: List<DatabaseAnimeWithStatus>) {
+        animeDatabase.animeDao.insertAll(animeList)
+    }
+
+    /**
+     * Only call on logout
+     */
+    fun clearAllTables() {
+        return animeDatabase.clearAllTables()
     }
 
     companion object {
