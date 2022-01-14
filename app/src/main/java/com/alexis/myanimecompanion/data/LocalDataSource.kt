@@ -31,6 +31,10 @@ class LocalDataSource private constructor() {
         }
     }
 
+    fun getAnime(animeId: Int): DatabaseAnimeWithStatus {
+        return animeDatabase.animeDao.getById(animeId)
+    }
+
     fun deleteAnime(anime: DatabaseAnime) {
         animeDatabase.animeDao.delete(anime)
     }

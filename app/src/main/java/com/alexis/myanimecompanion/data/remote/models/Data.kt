@@ -1,6 +1,9 @@
 package com.alexis.myanimecompanion.data.remote.models
 
+import com.squareup.moshi.Json
+
 data class Data(
     val node: Node = Node(),
-    val list_status: ListStatus = ListStatus(),
+    @Json(name = "list_status")
+    val listStatus: ListStatus = ListStatus(),
 )
