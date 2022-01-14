@@ -2,57 +2,200 @@ package com.alexis.myanimecompanion.data
 
 import android.content.Context
 import com.alexis.myanimecompanion.data.local.models.asDomainModel
+import com.alexis.myanimecompanion.data.remote.models.Details
 import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
+import com.alexis.myanimecompanion.data.remote.models.asDomainModel
+import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainUser
+import com.alexis.myanimecompanion.domain.asDatabaseModel
+import com.alexis.myanimecompanion.toMALDate
+import retrofit2.HttpException
 
 
 class AnimeRepository private constructor() {
     private lateinit var localDataSource: LocalDataSource
     private lateinit var remoteDataSource: RemoteDataSource
 
-    suspend fun search(q: String): List<Anime>? {
-        return remoteDataSource.search(q)
-    }
-
-    suspend fun updateAnimeStatus(anime: Anime) {
-        /* TODO Save changes to localDataSource and remoteDataSource if applicable */
-    }
-
-    suspend fun getAnime(anime: Anime): Anime? {
-        /* TODO return complete? Anime object with fresh domainUser-specific status */
-        return remoteDataSource.getAnimeDetails(anime)
-    }
-
-    suspend fun getAnime(animeId: Int): Anime? {
-        /* TODO return complete? Anime object with fresh domainUser-specific status */
-        return remoteDataSource.getAnimeDetails(animeId)
-    }
-
-    suspend fun getUser(): DomainUser? {
-        val remoteUser = remoteDataSource.getUser()
-        val localUser = localDataSource.getUser()
-
-        if (localUser == null && remoteUser != null) {
-            localDataSource.insertUser(remoteUser.asDatabaseModel())
-        } else if (remoteUser != null) {
-            localDataSource.updateUser(remoteUser.asDatabaseModel())
+    suspend fun search(q: String): Result<List<Anime>?> {
+        val animeList = remoteDataSource.trySearch(q).let { result ->
+            result.getOrNull()?.asListOfAnime() ?: return Result.failure(result.errorOrNull()!!)
         }
 
-        return localDataSource.getUser()?.asDomainModel()
+        return Result.success(animeList)
+    }
+
+    /**
+     * Errors – [Network][Error.Network], [Authorization][Error.Authorization],
+     * [Generic][Error.Generic],  [OutdatedLocalData][Error.OutdatedLocalData], [NullUserStatus][Error.NullUserStatus]
+     */
+    suspend fun insertOrUpdateAnimeStatus(anime: Anime): Result<Unit> {
+        if (isLoggedIn()) {
+            tryUpdateRemoteAnime(anime).let { result ->
+                if (result.isFailure) {
+                    return result
+                }
+            }
+        }
+
+        val databaseAnime = anime.asDatabaseModel() ?: return Result.failure(Error.NullUserStatus)
+        localDataSource.insertOrUpdateAnime(databaseAnime)
+        return Result.success()
+    }
+
+    /**
+     * Errors – [Network][Error.Network], [Authorization][Error.Authorization],
+     * [Generic][Error.Generic],  [OutdatedLocalData][Error.OutdatedLocalData]
+     */
+    private suspend fun tryUpdateRemoteAnime(anime: Anime): Result<Unit> {
+        val remoteAnime = remoteDataSource.tryGetAnimeDetails(anime).let {
+            it.getOrNull() ?: return Result.failure(it.errorOrNull()!!)
+        }
+
+        // The API doesn't complain if client requests field `my_list_status` without authorization
+        if (remoteAnime.myListStatus == null) {
+            return Result.failure(Error.Authorization)
+        }
+
+        val remoteUpdatedAt = remoteAnime.myListStatus.updatedAt.toMALDate()
+        val localUpdatedAt = anime.myListStatus?.updatedAt
+
+        if (remoteUpdatedAt == null || localUpdatedAt == null) {
+            return Result.failure(Error.Generic)
+        }
+
+        if (remoteUpdatedAt.before(localUpdatedAt)) {
+            remoteDataSource.tryUpdateAnimeStatus(anime).let { result ->
+                if (result.isFailure) {
+                    return Result.failure(result.errorOrNull()!!)
+                }
+            }
+        } else if (remoteUpdatedAt.after(localUpdatedAt)) {
+            trySaveRemoteListToDatabase()
+            return Result.failure(Error.OutdatedLocalData)
+        }
+
+        return Result.success()
+    }
+
+    suspend fun getAnime(anime: Anime): Result<Anime> {
+        val anime = remoteDataSource.tryGetAnimeDetails(anime).let { result ->
+            result.getOrNull()?.asDomainModel() ?: return Result.failure(result.errorOrNull()!!)
+        }
+
+        return Result.success(anime)
+    }
+
+    /**
+     * if not logged in then get anime from database
+     *                  if (it or it.myListStatus) is null then return
+     *
+     */
+    /*
+    suspend fun getMergedAnime(remote: Anime, local: Anime): Result<Anime> {
+        if(isLoggedIn()){
+
+        }
+        val remoteUpdatedAt = remote.myListStatus!!.updatedAt
+        val localUpdatedAt = local.myListStatus!!.updatedAt
+
+        if(remoteUpdatedAt.after(localUpdatedAt)) {
+            return Result.failure(Error.OutdatedLocalData)
+        }
+
+        val mergedAnime =
+            if (remote.id == local.id && (remote.title != local.title || remote.imageUrl != local.imageUrl)) {
+                remote
+            } else {
+                Anime(remote.id, remote.title, remote.imageUrl, )
+            }
+
+        return Result.success(mergedAnime)
+    }
+     */
+
+    suspend fun getAnimeList(): Result<List<Anime>> {
+        if (isLoggedIn()) {
+            trySaveRemoteListToDatabase()?.let { result ->
+                if (result.isFailure) {
+                    return Result.failure(result.errorOrNull()!!)
+                }
+            }
+        }
+
+        val animeList = localDataSource.getAnimeList().asDomainModel()
+        return Result.success(animeList)
+    }
+
+
+    /**
+     * Errors – [Network][Error.Network]
+     */
+    private fun tryGetRemoteAnimeList(): Result<List<Details>> {
+        return try {
+            val animeList = remoteDataSource.getAnimeList()
+            Result.success(animeList)
+        } catch (e: HttpException) {
+            Result.failure(Error.Network)
+        }
+    }
+
+    /**
+     * Errors – [Authorization][Error.Authorization], [Network][Error.Network]
+     *
+     * @return negative result when the conversion from remoteAnimeList to databaseAnimeList fails.
+     * This occurs when there's an authorization error, such as an invalid token.
+     */
+    private fun trySaveRemoteListToDatabase(): Result<Unit> {
+        val result = tryGetRemoteAnimeList()
+        if (result.isFailure) {
+            return Result.failure(result.errorOrNull()!!)
+        }
+
+        val databaseAnimeList = result.getOrNull()!!.asDatabaseModel()
+
+        return if (databaseAnimeList == null) {
+            Result.failure(Error.Authorization)
+        } else {
+            localDataSource.insertOrUpdateAnimeList(databaseAnimeList)
+            Result.success()
+        }
+    }
+
+    /**
+     * Errors - [DatabaseQuery][Error.DatabaseQuery], [Authorization][Error.Authorization],
+     * [Network][Error.Network]
+     */
+    suspend fun getUser(): Result<DomainUser> {
+        if (!isLoggedIn()) {
+            return Result.failure(Error.Authorization)
+        }
+
+        val remoteUser = remoteDataSource.tryGetUser().let { result ->
+            result.getOrNull() ?: return Result.failure(result.errorOrNull()!!)
+        }
+
+        localDataSource.insertOrUpdateUser(remoteUser.asDatabaseModel())
+
+        val domainUser = localDataSource.getUser()?.asDomainModel() ?: return Result.failure(Error.DatabaseQuery)
+        return Result.success(domainUser)
     }
 
     fun logout() {
-        localDataSource.clearUser()
+        localDataSource.clearAllTables()
         remoteDataSource.clearUser()
+    }
+
+    suspend fun isLoggedIn(): Boolean {
+        return remoteDataSource.hasValidToken()
     }
 
     fun getAuthorizationUrl(): String {
         return remoteDataSource.getAuthorizationURL()
     }
 
-    suspend fun onAuthorizationCodeReceived(authorizationCode: String) {
-        remoteDataSource.onAuthorizationCodeReceived(authorizationCode)
+    suspend fun onAuthorizationCodeReceived(authorizationCode: String): Result<Unit> {
+        return remoteDataSource.onAuthorizationCodeReceived(authorizationCode)
     }
 
     companion object {

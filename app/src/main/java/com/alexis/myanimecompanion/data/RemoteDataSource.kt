@@ -6,13 +6,11 @@ import android.util.Log
 import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.Details
-import com.alexis.myanimecompanion.data.remote.models.User
-import com.alexis.myanimecompanion.data.remote.models.asDomainModel
-import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
+import com.alexis.myanimecompanion.data.remote.models.*
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
 import retrofit2.HttpException
+import java.net.HttpURLConnection
 import java.security.SecureRandom
 
 private const val TAG = "RemoteDataSource"
@@ -23,64 +21,66 @@ class RemoteDataSource private constructor() {
     private lateinit var codeChallenge: String
     private lateinit var tokenStorageManager: TokenStorageManager
 
+    private suspend fun <T> tryRequest(request: suspend () -> T?): Result<T> {
+        val requestResult = try {
+            request()
+        } catch (e: HttpException) {
+            return when (e.code()) {
+                HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Authorization)
+                HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
+                else -> Result.failure(Error.Network)
+            }
+        }
+
+        return Result.success(requestResult)
+    }
+
     /**
      * Since search results aren't stored in the database, we use them directly by returning List<Anime>
      */
-    suspend fun search(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
-        return try {
-            val searchResult = myAnimeListApi.search(q, limit, offset, fields)
-            val listOfAnime = searchResult.asListOfAnime()
-            listOfAnime.map {
-                getAnimeDetails(it)
-            }
-            return listOfAnime
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
-            null
+    suspend fun trySearch(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): Result<SearchResult> {
+        return tryRequest {
+            myAnimeListApi.search(q, limit, offset, fields)
         }
-    }
-
-    suspend fun getAnimeDetails(anime: Anime): Details? {
-        return getAnimeDetails(anime.id)
     }
 
     /**
      * Since anime details aren't stored in the database, we use them directly by returning Anime
      */
-    suspend fun getAnimeDetails(animeId: Int): Details? {
+    suspend fun tryGetAnimeDetails(anime: Anime): Result<Details> {
         val token = getNonExpiredToken()
 
-        return try {
+        return tryRequest {
             myAnimeListApi.getAnimeDetails(
                 token?.accessToken,
-                animeId
+                anime.id
             )
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
-            null
         }
     }
 
-    suspend fun updateAnimeStatus(anime: Anime): Boolean {
+    suspend fun tryUpdateAnimeStatus(anime: Anime): Result<MyListStatus> {
         val token = getNonExpiredToken()
 
-        if (token?.accessToken != null && anime.myListStatus != null) {
-            try {
-                myAnimeListApi.updateAnimeStatus(
-                    token.accessToken,
-                    anime.myListStatus.animeId,
-                    anime.myListStatus.status,
-                    anime.myListStatus.episodesWatched,
-                    anime.myListStatus.score
-                )
-            } catch (e: HttpException) {
-                false
-            }
+        if (token?.accessToken == null) {
+            return Result.failure(Error.Authorization)
         }
-        return true
+
+        if (anime.myListStatus == null) {
+            return Result.failure(Error.NullUserStatus)
+        }
+
+        return tryRequest {
+            myAnimeListApi.updateAnimeStatus(
+                token.accessToken,
+                anime.id,
+                anime.myListStatus.status,
+                anime.myListStatus.episodesWatched,
+                anime.myListStatus.score
+            )
+        }
     }
 
-    private suspend fun getAccessToken(authorizationCode: String) {
+    private suspend fun getAccessToken(authorizationCode: String): Result<Unit> {
         val params = mutableMapOf<String, String>()
 
         params.apply {
@@ -90,12 +90,16 @@ class RemoteDataSource private constructor() {
             put("grant_type", "authorization_code")
         }
 
-        try {
-            val token = myAnimeListApi.getAccessToken(params).asDomainModel()
-            token?.let { tokenStorageManager.setToken(it) }
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+        val requestResult = tryRequest { myAnimeListApi.getAccessToken(params) }
+
+        if (requestResult.isFailure) {
+            return Result.failure(requestResult.errorOrNull()!!)
         }
+
+        val token = requestResult.getOrNull()!!
+        tokenStorageManager.setToken(token.asDomainModel())
+
+        return Result.success()
     }
 
     fun getAuthorizationURL(): String {
@@ -143,19 +147,16 @@ class RemoteDataSource private constructor() {
         }
     }
 
-    suspend fun getUser(): User? {
+    suspend fun tryGetUser(): Result<User> {
         val token = getNonExpiredToken()
 
-        return try {
+        return tryRequest {
             myAnimeListApi.getUserProfile("Bearer ${token?.accessToken}")
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
-            null
         }
     }
 
-    suspend fun onAuthorizationCodeReceived(authorizationCode: String) {
-        getAccessToken(authorizationCode)
+    suspend fun onAuthorizationCodeReceived(authorizationCode: String): Result<Unit> {
+        return getAccessToken(authorizationCode)
     }
 
     fun clearUser() {

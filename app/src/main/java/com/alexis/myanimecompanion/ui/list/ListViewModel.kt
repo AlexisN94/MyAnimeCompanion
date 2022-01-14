@@ -27,18 +27,9 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
 
     init {
         viewModelScope.launch {
-            /*_animeList.value = animeRepository.search("one")
-            delay(4000)
-            _animeList.value = animeRepository.search("kimi")*/
             unsetStatusMessage()
             setLoading()
-            _animeList.value = mutableListOf(
-                animeRepository.getAnime(28851),
-                animeRepository.getAnime(42938),
-                animeRepository.getAnime(11499),
-                animeRepository.getAnime(11500) /* doesn't exist */,
-                animeRepository.getAnime(33352)
-            ).filterNotNull()
+            _animeList.value = TODO("get list")
             unsetLoading()
             setStatusMessage(_animeList.value)
         }
@@ -77,7 +68,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
                 TODO("end coroutine")
             else if (anime.myListStatus.episodesWatched!! < anime.details.numEpisodes) {
                 anime.myListStatus.episodesWatched++
-                animeRepository.updateAnimeStatus(anime)
+                animeRepository.insertOrUpdateAnimeStatus(anime)
                 _animeList.value?.map {
                     if (it.id == anime.id)
                         anime
@@ -99,7 +90,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
                 /*TODO updateAnimeStatus should return boolean for status check.
                    If all good, apply change to _animeList. Else, display failure to update error message.
                    Also, assert that remote values haven't changed before pushing update. */
-                animeRepository.updateAnimeStatus(anime)
+                animeRepository.insertOrUpdateAnimeStatus(anime)
                 _animeList.value?.map {
                     if (it.id == anime.id) {
                         anime

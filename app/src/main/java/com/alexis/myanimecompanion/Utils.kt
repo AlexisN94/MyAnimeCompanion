@@ -96,15 +96,21 @@ fun Activity.dismissKeyboard() {
         inputMethodManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 }
 
-@Throws(ParseException::class)
 fun String.toDate(pattern: String): Date? {
-    val dateFormat = SimpleDateFormat(pattern)
-    return dateFormat.parse(this)
+    return try {
+        val dateFormat = SimpleDateFormat(pattern)
+        return dateFormat.parse(this)
+    } catch (e: ParseException) {
+        null
+    }
 }
 
-@Throws(ParseException::class)
 fun String.toMALDate(): Date? {
-    return this.toDate(MyAnimeListAPI.DATE_PATTERN)
+    return try {
+        this.toDate(MyAnimeListAPI.DATE_PATTERN)
+    } catch (e: ParseException) {
+        null
+    }
 }
 
 fun Date.toString(pattern: String): String {

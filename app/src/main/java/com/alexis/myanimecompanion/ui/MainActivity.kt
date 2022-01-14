@@ -2,12 +2,14 @@ package com.alexis.myanimecompanion.ui
 
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.Error
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
@@ -36,7 +38,16 @@ class MainActivity : AppCompatActivity() {
     private fun handleMALAuthorizationResponse(data: Uri) {
         val authorizationCode = requireNotNull(data.getQueryParameter("code"))
         lifecycleScope.launch {
-            AnimeRepository.getInstance(applicationContext).onAuthorizationCodeReceived(authorizationCode)
+            val result = AnimeRepository.getInstance(applicationContext).onAuthorizationCodeReceived(authorizationCode)
+            if (result.isFailure) {
+                val toastMessage = when (result.errorOrNull()!!) {
+                    Error.Network -> "A network error occurred while logging you in"
+                    Error.Authorization -> "Your authentication was not successful"
+                    else -> "An unexpected error occurred while logging you in"
+                }
+
+                Toast.makeText(applicationContext, toastMessage, Toast.LENGTH_LONG).show()
+            }
         }
     }
 }
