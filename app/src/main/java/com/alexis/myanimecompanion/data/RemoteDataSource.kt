@@ -6,9 +6,13 @@ import android.util.Log
 import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.*
+import com.alexis.myanimecompanion.data.remote.models.Details
+import com.alexis.myanimecompanion.data.remote.models.User
+import com.alexis.myanimecompanion.data.remote.models.asDomainModel
+import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
+import retrofit2.HttpException
 import java.security.SecureRandom
 
 private const val TAG = "RemoteDataSource"
@@ -18,7 +22,6 @@ class RemoteDataSource private constructor() {
     private lateinit var codeVerifier: String
     private lateinit var codeChallenge: String
     private lateinit var tokenStorageManager: TokenStorageManager
-    private var token: DomainToken? = null // null if not logged in
 
     /**
      * Since search results aren't stored in the database, we use them directly by returning List<Anime>
@@ -37,35 +40,44 @@ class RemoteDataSource private constructor() {
         }
     }
 
-    suspend fun getAnimeDetails(anime: Anime): Anime? {
+    suspend fun getAnimeDetails(anime: Anime): Details? {
         return getAnimeDetails(anime.id)
     }
 
     /**
      * Since anime details aren't stored in the database, we use them directly by returning Anime
      */
-    suspend fun getAnimeDetails(animeId: Int): Anime? {
+    suspend fun getAnimeDetails(animeId: Int): Details? {
+        val token = getNonExpiredToken()
+
         return try {
             myAnimeListApi.getAnimeDetails(
                 token?.accessToken,
                 animeId
-            ).asDomainModel()
+            )
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
             null
         }
     }
 
-    suspend fun updateAnimeStatus(anime: Anime) {
-        token?.accessToken?.let {
-            myAnimeListApi.updateAnimeStatus(
-                it,
-                anime.id,
-                anime.userStatus,
-                anime.episodesWatched,
-                anime.userScore
-            )
+    suspend fun updateAnimeStatus(anime: Anime): Boolean {
+        val token = getNonExpiredToken()
+
+        if (token?.accessToken != null && anime.myListStatus != null) {
+            try {
+                myAnimeListApi.updateAnimeStatus(
+                    token.accessToken,
+                    anime.myListStatus.animeId,
+                    anime.myListStatus.status,
+                    anime.myListStatus.episodesWatched,
+                    anime.myListStatus.score
+                )
+            } catch (e: HttpException) {
+                false
+            }
         }
+        return true
     }
 
     private suspend fun getAccessToken(authorizationCode: String) {
@@ -79,7 +91,7 @@ class RemoteDataSource private constructor() {
         }
 
         try {
-            token = myAnimeListApi.getAccessToken(params).asDomainModel()
+            val token = myAnimeListApi.getAccessToken(params).asDomainModel()
             token?.let { tokenStorageManager.setToken(it) }
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
@@ -105,7 +117,16 @@ class RemoteDataSource private constructor() {
         codeChallenge = codeVerifier
     }
 
+    private suspend fun getNonExpiredToken(): DomainToken? {
+        if (tokenStorageManager.checkExpired()) {
+            refreshAccessToken()
+        }
+        return tokenStorageManager.getToken()
+    }
+
     private suspend fun refreshAccessToken() {
+        var token = tokenStorageManager.getToken()
+
         token?.let {
             val params = mutableMapOf<String, String>()
             params.apply {
@@ -123,12 +144,7 @@ class RemoteDataSource private constructor() {
     }
 
     suspend fun getUser(): User? {
-        if (token == null) {
-            return null
-        }
-        if (tokenStorageManager.checkExpired()) {
-            refreshAccessToken()
-        }
+        val token = getNonExpiredToken()
 
         return try {
             myAnimeListApi.getUserProfile("Bearer ${token?.accessToken}")
@@ -146,6 +162,14 @@ class RemoteDataSource private constructor() {
         tokenStorageManager.clearToken()
     }
 
+    fun getAnimeList(): List<Details>? {
+        TODO("Not yet implemented")
+    }
+
+    suspend fun hasValidToken(): Boolean {
+        return getNonExpiredToken() != null
+    }
+
     companion object {
         private var INSTANCE: RemoteDataSource? = null
 
@@ -154,7 +178,6 @@ class RemoteDataSource private constructor() {
                 return INSTANCE ?: RemoteDataSource().also { instance ->
                     val tokenStorageManager = TokenStorageManager.getInstance(context)
                     instance.tokenStorageManager = tokenStorageManager
-                    instance.token = tokenStorageManager.getToken()
                     INSTANCE = instance
                 }
             }
