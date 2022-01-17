@@ -36,7 +36,7 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
 
     private suspend fun getUser() {
         animeRepository.getUser()?.let {
-            _user.postValue(it)
+            _user.postValue(it.getOrNull())
         }
     }
 

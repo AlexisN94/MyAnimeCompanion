@@ -30,7 +30,7 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
             searchQuery.value?.let {
                 unsetStatusMessage()
                 setLoading()
-                val searchResults: List<Anime>? = animeRepository.search(it)
+                val searchResults: List<Anime>? = animeRepository.search(it).getOrNull()
                 searchResults?.let {
                     _resultList.value = searchResults
                 }

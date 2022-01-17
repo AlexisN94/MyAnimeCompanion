@@ -26,7 +26,7 @@ class RemoteDataSource private constructor() {
             request()
         } catch (e: HttpException) {
             return when (e.code()) {
-                HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Authorization)
+                HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
                 HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
                 else -> Result.failure(Error.Network)
             }
@@ -52,7 +52,7 @@ class RemoteDataSource private constructor() {
 
         return tryRequest {
             myAnimeListApi.getAnimeDetails(
-                token?.accessToken,
+                token = token?.let { "Bearer ${token.accessToken}" },
                 anime.id
             )
         }
@@ -163,8 +163,12 @@ class RemoteDataSource private constructor() {
         tokenStorageManager.clearToken()
     }
 
-    fun getAnimeList(): List<Details>? {
-        TODO("Not yet implemented")
+    suspend fun tryGetAnimeList(): Result<UserAnimeList> {
+        val token = getNonExpiredToken() ?: return Result.failure(Error.Authorization)
+
+        return tryRequest {
+            myAnimeListApi.getUserAnimeList("Bearer ${token?.accessToken}")
+        }
     }
 
     suspend fun hasValidToken(): Boolean {

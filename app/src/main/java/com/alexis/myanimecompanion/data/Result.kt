@@ -15,7 +15,7 @@ class Result<out T> private constructor(private val value: Any?) {
 
     fun errorOrNull(): Error? =
         when (value) {
-            is Failure -> value.error
+            is Error -> value
             else -> null
         }
 
@@ -24,8 +24,6 @@ class Result<out T> private constructor(private val value: Any?) {
 
         fun <T> failure(error: Error) = Result<T>(error)
     }
-
-    private data class Failure(val error: Error)
 }
 
 enum class Error {

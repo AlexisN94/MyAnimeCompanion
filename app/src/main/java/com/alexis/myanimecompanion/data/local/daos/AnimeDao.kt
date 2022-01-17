@@ -15,12 +15,13 @@ interface AnimeDao {
     @Delete
     fun delete(databaseAnime: DatabaseAnime)
 
+    @Transaction
     @Query("SELECT * FROM DatabaseAnime WHERE id = :animeId")
     fun getById(animeId: Int): DatabaseAnimeWithStatus
 
     @Transaction
-    @Insert
-    fun insertAll(animeList: List<DatabaseAnimeWithStatus>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(vararg animes: DatabaseAnime)
 
     @Transaction
     @Query("SELECT * FROM DatabaseAnime")

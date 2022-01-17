@@ -15,14 +15,16 @@ interface MyAnimeListAPI {
 
     @GET("anime/{anime_id}")
     suspend fun getAnimeDetails(
-        @Header("Authentication") token: String? = null,
+        @Header("Authorization") token: String? = null,
         @Path("anime_id") animeId: Int,
         @Query("fields") fields: String? = QueryFieldsBuilder.fieldsForAnimeDetails().done()
     ): Details
 
-    @GET("users/{user_name}/animelist")
+    @GET("users/@me/animelist")
     suspend fun getUserAnimeList(
-        @Path("user_name") username: String
+        @Header("Authorization") token: String,
+        @Query("fields") fields: String = "list_status",
+        @Query("limit") limit: Int = 1000
     ): UserAnimeList
 
     @GET("users/@me")
@@ -62,6 +64,6 @@ interface MyAnimeListAPI {
         const val BASE_AUTHORIZATION_URL = "https://myanimelist.net/v1/oauth2/authorize"
         const val BASE_TOKEN_URL = "https://myanimelist.net/v1/oauth2/token"
         const val BASE_URL = "https://api.myanimelist.net/v2/"
-        const val DATE_PATTERN = "yyyy-MM-dd'T'HH:mmXXX"
+        const val DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssXXX"
     }
 }

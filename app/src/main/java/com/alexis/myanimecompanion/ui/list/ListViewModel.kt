@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.domain.Anime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -26,47 +27,74 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
         get() = _statusMessage
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             unsetStatusMessage()
             setLoading()
-            _animeList.value = TODO("get list")
+            setAnimeList()
             unsetLoading()
-            setStatusMessage(_animeList.value)
+            setAnimeDetails()
+            // setStatusMessage()
+        }
+    }
+
+    private suspend fun setAnimeList() {
+        animeRepository.getAnimeList().let { result ->
+            if (result.isFailure) {
+                _statusMessage.postValue(result.errorOrNull()!!.name)
+            } else {
+                _animeList.postValue(result.getOrNull()!!)
+            }
+        }
+    }
+
+    private suspend fun setAnimeDetails() {
+        val animeList = _animeList.value?.iterator()
+        if (animeList != null) {
+            for ((index, anime) in animeList.withIndex()) {
+                animeRepository.getAnime(anime).let { result ->
+                    if (result.isSuccess) {
+                        _animeList.value?.elementAt(index)?.details = result.getOrNull()!!.details
+                        _animeList.postValue(_animeList.value)
+                    }
+                }
+            }
         }
     }
 
     private fun setLoading() {
-        _loading.value = true
+        _loading.postValue(true)
     }
 
     private fun unsetLoading() {
-        _loading.value = false
+        _loading.postValue(false)
     }
 
-    private fun setStatusMessage(list: List<Anime>?) {
+    private fun setStatusMessage() {
+        val list = _animeList.value
         when {
             list == null -> {
-                _statusMessage.value = resources.getString(R.string.network_error_occurred)
+                _statusMessage.postValue(resources.getString(R.string.network_error_occurred))
             }
             list.isEmpty() -> {
-                _statusMessage.value = resources.getString(R.string.empty_user_list)
+                _statusMessage.postValue(resources.getString(R.string.empty_user_list))
             }
         }
     }
 
     private fun unsetStatusMessage() {
-        _statusMessage.value = null
+        _statusMessage.postValue(null)
     }
 
     fun incrementWatchedEpisodes(anime: Anime) {
         viewModelScope.launch {
-            if (anime.details == null
+            var animeDetails = anime.details
+            if (animeDetails == null
                 || anime.myListStatus == null
-                || anime.details.numEpisodes == null
-                || anime.details.numEpisodes == 0
+                || animeDetails.numEpisodes == null
+                || animeDetails.numEpisodes == 0
             )
                 TODO("end coroutine")
-            else if (anime.myListStatus.episodesWatched!! < anime.details.numEpisodes) {
+            else if (anime.myListStatus.episodesWatched!! < animeDetails.numEpisodes) {
                 anime.myListStatus.episodesWatched++
                 animeRepository.insertOrUpdateAnimeStatus(anime)
                 _animeList.value?.map {
@@ -79,10 +107,11 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
 
     fun decrementWatchedEpisodes(anime: Anime) {
         viewModelScope.launch {
-            if (anime.details == null
+            var animeDetails = anime.details
+            if (animeDetails == null
                 || anime.myListStatus == null
-                || anime.details.numEpisodes == null
-                || anime.details.numEpisodes == 0
+                || animeDetails.numEpisodes == null
+                || animeDetails.numEpisodes == 0
             )
                 cancel()
             else if (anime.myListStatus.episodesWatched > 0) {

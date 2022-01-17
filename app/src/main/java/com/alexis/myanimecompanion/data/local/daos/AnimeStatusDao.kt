@@ -15,5 +15,9 @@ interface AnimeStatusDao {
     fun delete(animeStatus: DatabaseAnimeStatus)
 
     @Query("SELECT * FROM DatabaseAnimeStatus WHERE animeId = :animeId")
-    fun getStatusByAnimeId(animeId: Int) : DatabaseAnimeStatus
+    fun getStatusByAnimeId(animeId: Int): DatabaseAnimeStatus
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(vararg animeStatus: DatabaseAnimeStatus)
 }

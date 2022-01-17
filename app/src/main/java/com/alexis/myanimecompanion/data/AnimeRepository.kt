@@ -1,8 +1,8 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
+import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeWithStatus
 import com.alexis.myanimecompanion.data.local.models.asDomainModel
-import com.alexis.myanimecompanion.data.remote.models.Details
 import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
 import com.alexis.myanimecompanion.data.remote.models.asDomainModel
 import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
@@ -10,7 +10,6 @@ import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainUser
 import com.alexis.myanimecompanion.domain.asDatabaseModel
 import com.alexis.myanimecompanion.toMALDate
-import retrofit2.HttpException
 
 
 class AnimeRepository private constructor() {
@@ -114,9 +113,12 @@ class AnimeRepository private constructor() {
     }
      */
 
+    /**
+     * Errors – [Network][Error.Network], [Authorization][Error.Authorization]
+     */
     suspend fun getAnimeList(): Result<List<Anime>> {
         if (isLoggedIn()) {
-            trySaveRemoteListToDatabase()?.let { result ->
+            trySaveRemoteListToDatabase().let { result ->
                 if (result.isFailure) {
                     return Result.failure(result.errorOrNull()!!)
                 }
@@ -124,42 +126,35 @@ class AnimeRepository private constructor() {
         }
 
         val animeList = localDataSource.getAnimeList().asDomainModel()
-        return Result.success(animeList)
+
+        animeList?.let {
+            return Result.success(animeList)
+        } ?: return Result.failure(Error.Generic)
+
     }
 
 
     /**
-     * Errors – [Network][Error.Network]
+     * Errors – [Network][Error.Network], [Authorization][Error.Authorization]
      */
-    private fun tryGetRemoteAnimeList(): Result<List<Details>> {
-        return try {
-            val animeList = remoteDataSource.getAnimeList()
-            Result.success(animeList)
-        } catch (e: HttpException) {
-            Result.failure(Error.Network)
+    private suspend fun tryGetRemoteAnimeList(): Result<List<DatabaseAnimeWithStatus>> {
+        val animeList = remoteDataSource.tryGetAnimeList().let { result ->
+            result.getOrNull() ?: return Result.failure(result.errorOrNull()!!)
         }
+
+        return Result.success(animeList.asDatabaseModel())
     }
 
     /**
      * Errors – [Authorization][Error.Authorization], [Network][Error.Network]
-     *
-     * @return negative result when the conversion from remoteAnimeList to databaseAnimeList fails.
-     * This occurs when there's an authorization error, such as an invalid token.
      */
-    private fun trySaveRemoteListToDatabase(): Result<Unit> {
-        val result = tryGetRemoteAnimeList()
-        if (result.isFailure) {
-            return Result.failure(result.errorOrNull()!!)
+    private suspend fun trySaveRemoteListToDatabase(): Result<Unit> {
+        val databaseAnimeList = tryGetRemoteAnimeList().let { result ->
+            result.getOrNull() ?: return Result.failure(result.errorOrNull()!!)
         }
 
-        val databaseAnimeList = result.getOrNull()!!.asDatabaseModel()
-
-        return if (databaseAnimeList == null) {
-            Result.failure(Error.Authorization)
-        } else {
-            localDataSource.insertOrUpdateAnimeList(databaseAnimeList)
-            Result.success()
-        }
+        localDataSource.insertOrUpdateAnimeList(databaseAnimeList)
+        return Result.success()
     }
 
     /**

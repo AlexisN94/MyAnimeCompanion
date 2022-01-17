@@ -44,7 +44,11 @@ class LocalDataSource private constructor() {
     }
 
     fun insertOrUpdateAnimeList(animeList: List<DatabaseAnimeWithStatus>) {
-        animeDatabase.animeDao.insertAll(animeList)
+        val animeArray = animeList.map { it.anime }.toTypedArray()
+        val statusArray = animeList.map { it.animeStatus }.toTypedArray()
+
+        animeDatabase.animeDao.insertAll(*animeArray)
+        animeDatabase.animeStatusDao.insertAll(*statusArray)
     }
 
     /**

@@ -60,10 +60,10 @@ class TokenStorageManager private constructor() {
             synchronized(this) {
                 return INSTANCE
                     ?: TokenStorageManager()
-                        .also { tokenStorageManager ->
+                        .also { instance ->
                             val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
-                            tokenStorageManager.sharedPreferences = EncryptedSharedPreferences
+                            instance.sharedPreferences = EncryptedSharedPreferences
                                 .create(
                                     "token_sp",
                                     masterKeyAlias,
@@ -72,7 +72,7 @@ class TokenStorageManager private constructor() {
                                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
                                 ) as EncryptedSharedPreferences
 
-                            INSTANCE = tokenStorageManager
+                            INSTANCE = instance
                         }
             }
         }

@@ -59,7 +59,7 @@
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:visibility="@{anime.details.globalScore != null ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{(anime.details != null) ? View.VISIBLE : View.GONE}"
                     app:doubleToInt="@{anime.details.globalScore}"
                     tools:text="9.8" />
             </FrameLayout>

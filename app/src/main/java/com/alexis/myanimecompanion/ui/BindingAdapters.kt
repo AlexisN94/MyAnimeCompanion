@@ -9,7 +9,6 @@ import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
-import androidx.lifecycle.MutableLiveData
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.domain.Anime
 import com.bumptech.glide.Glide
@@ -33,12 +32,14 @@ fun ImageView.setImage(url: String?) {
 
 @BindingAdapter("progress")
 fun ProgressBar.setProgress(anime: Anime) {
-    progress = if (anime.myListStatus?.episodesWatched == null || anime.details?.numEpisodes == 0) {
-        0
-    } else {
-        val percentage = anime.myListStatus.episodesWatched?.toDouble().div(anime.details!!.numEpisodes)
-        percentage.times(100).toInt()
-    }
+    var animeDetails = anime.details
+    progress =
+        if (anime.myListStatus?.episodesWatched == null || animeDetails == null || animeDetails.numEpisodes == 0) {
+            0
+        } else {
+            val percentage = anime.myListStatus.episodesWatched?.toDouble().div(animeDetails.numEpisodes)
+            percentage.times(100).toInt()
+        }
 }
 
 @BindingAdapter("doubleToInt")
@@ -59,7 +60,7 @@ fun TextView.setNumEpsReleased(anime: Anime?) {
 }
 
 @InverseBindingAdapter(attribute = "spinnerValue")
-fun AppCompatSpinner.getValue(value: MutableLiveData<Any>): Any? {
+fun AppCompatSpinner.getValue(): Any? {
     return selectedItem
 }
 
