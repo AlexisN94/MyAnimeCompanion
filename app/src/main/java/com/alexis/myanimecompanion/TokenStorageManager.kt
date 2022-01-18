@@ -2,7 +2,6 @@ package com.alexis.myanimecompanion
 
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
 import com.alexis.myanimecompanion.domain.DomainToken
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -56,21 +55,14 @@ class TokenStorageManager private constructor() {
     companion object {
         private var INSTANCE: TokenStorageManager? = null
 
+
         fun getInstance(context: Context): TokenStorageManager {
             synchronized(this) {
                 return INSTANCE
                     ?: TokenStorageManager()
                         .also { tokenStorageManager ->
-                            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-
-                            tokenStorageManager.sharedPreferences = EncryptedSharedPreferences
-                                .create(
-                                    "token_sp",
-                                    masterKeyAlias,
-                                    context.applicationContext,
-                                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                                ) as EncryptedSharedPreferences
+                            tokenStorageManager.sharedPreferences =
+                                createEncryptedSharedPreferences(context, TOKEN_SP_FILENAME)
 
                             INSTANCE = tokenStorageManager
                         }
