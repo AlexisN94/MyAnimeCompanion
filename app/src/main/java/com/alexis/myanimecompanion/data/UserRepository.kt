@@ -7,6 +7,8 @@ import com.alexis.myanimecompanion.data.local.models.asDomainUser
 import com.alexis.myanimecompanion.domain.DomainUser
 
 private const val USER_SP_FILENAME = "user_sp"
+private const val CURRENT_USER_SP_KEY = "current_user_id"
+private const val INVALID_USER_ID = Int.MIN_VALUE
 
 class UserRepository private constructor() {
     private lateinit var sharedPreferences: EncryptedSharedPreferences
@@ -15,20 +17,33 @@ class UserRepository private constructor() {
 
     suspend fun fetchAndCacheUser(): DomainUser? {
         val remoteUser = remoteDataSource.getUser()
-        val localUser = localDataSource.getUser()
 
-        if (localUser == null && remoteUser != null) {
-            localDataSource.insertUser(remoteUser)
-        } else if (remoteUser != null) {
-            localDataSource.updateUser(
-        }
+        val localUser =
+            if (remoteUser == null) {
+                // Not logged in or network error. Get local user if exists, otherwise return null
+                var userId = getCurrentUserId()
+                if (userId == INVALID_USER_ID) return null
+                localDataSource.getUser(userId)
+            } else {
+                // Logged in
+                updateCurrentUserId(remoteUser.id)
+                localDataSource.updateUser(remoteUser)
+                localDataSource.getUser(remoteUser.id)
+            }
 
-        return localDataSource.getUser().asDomainUser()
+        return localUser?.asDomainUser()
+    }
+
+    private fun updateCurrentUserId(userId: Int) {
+        sharedPreferences.edit().putInt(CURRENT_USER_SP_KEY, userId)
+    }
+
+    private fun getCurrentUserId(): Int {
+        return sharedPreferences.getInt(CURRENT_USER_SP_KEY, INVALID_USER_ID)
     }
 
     fun logout() {
-        val user =
-            localDataSource.deleteUser()
+        localDataSource.deleteUser()
         remoteDataSource.clearUser()
     }
 
