@@ -1,14 +1,10 @@
 package com.alexis.myanimecompanion.ui.search
 
-import android.content.Context
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -24,6 +20,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentSearchBinding.inflate(inflater)
         val animeRepository = AnimeRepository.getInstance(requireContext())
+
         val viewModelFactory = SearchViewModelFactory(animeRepository, resources)
         val adapter = SearchListAdapter(this)
 

@@ -27,9 +27,9 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _loading.postValue(true)
-                getUser()
-                _loading.postValue(false)
+                updateLoading(true)
+                fetchUser()
+                updateLoading(false)
             }
         }
     }
@@ -38,6 +38,10 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
         animeRepository.fetchAndCacheUser()?.let {
             _user.postValue(it)
         }
+    }
+
+    private fun updateLoading(value: Boolean) {
+        _loading.postValue(value)
     }
 
     fun onStartLogin() {

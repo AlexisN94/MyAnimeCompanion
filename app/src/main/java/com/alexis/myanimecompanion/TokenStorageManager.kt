@@ -8,6 +8,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 private const val MIN_MILLIS_REMAINING_ALLOWED = 60 * 1000 // 1 min
+private const val TOKEN_SP_KEY = "token_json"
+private const val TOKEN_SP_FILENAME = "token_sp"
 
 class TokenStorageManager private constructor() {
     private lateinit var sharedPreferences: EncryptedSharedPreferences
@@ -17,15 +19,12 @@ class TokenStorageManager private constructor() {
     fun updateToken(domainToken: DomainToken) {
         val tokenJson = jsonAdapter.toJson(domainToken)
         sharedPreferences.edit()
-            .putString("token_json", tokenJson)
+            .putString(TOKEN_SP_KEY, tokenJson)
             .apply()
     }
 
-    fun getToken(): DomainToken? {
-        if (!hasToken())
-            return null
-
-        val tokenJson = sharedPreferences.getString("token", null)
+    fun fetchToken(): DomainToken? {
+        val tokenJson = sharedPreferences.getString(TOKEN_SP_KEY, null) ?: return null
         return jsonAdapter.fromJson(tokenJson)
     }
 
@@ -36,16 +35,10 @@ class TokenStorageManager private constructor() {
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun checkExpired(domainToken: DomainToken?): Boolean {
-        if (domainToken == null)
-            return false
+        if (domainToken == null) return false
 
         val millisLeft = domainToken.expiresAt - System.currentTimeMillis()
         return millisLeft <= MIN_MILLIS_REMAINING_ALLOWED
-    }
-
-    fun hasToken(): Boolean {
-        val accessToken = sharedPreferences.getString("token", null)
-        return accessToken != null
     }
 
     fun clearToken() {

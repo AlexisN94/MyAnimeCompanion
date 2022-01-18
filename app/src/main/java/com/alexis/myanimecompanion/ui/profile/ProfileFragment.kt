@@ -7,10 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.UserRepository
 import com.alexis.myanimecompanion.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {
@@ -23,8 +22,10 @@ class ProfileFragment : Fragment() {
         val viewModelFactory = ProfileViewModelFactory(animeRepository)
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ProfileViewModel::class.java]
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = viewModel
+        }
 
         viewModel.evtStartLogin.observe(viewLifecycleOwner, { startLogin ->
             if (startLogin) {
@@ -42,7 +43,3 @@ class ProfileFragment : Fragment() {
         viewModel.onStartLoginHandled()
     }
 }
-
-
-
-

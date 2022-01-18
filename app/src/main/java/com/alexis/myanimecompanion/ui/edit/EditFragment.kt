@@ -19,6 +19,7 @@ class EditFragment : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentEditBinding.inflate(inflater)
         val args: EditFragmentArgs by navArgs()
+
         val animeRepository = AnimeRepository.getInstance(requireNotNull(context))
         val viewModelFactory = EditViewModelFactory(args.anime, animeRepository)
         val viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[EditViewModel::class.java]

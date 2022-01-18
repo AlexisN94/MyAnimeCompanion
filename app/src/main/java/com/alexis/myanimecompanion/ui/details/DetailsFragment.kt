@@ -15,6 +15,7 @@ class DetailsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentDetailsBinding.inflate(inflater)
         val args: DetailsFragmentArgs by navArgs()
+
         val animeRepository = AnimeRepository.getInstance(requireContext())
         val viewModelFactory = DetailsViewModelFactory(args.anime, animeRepository)
         val viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[DetailsViewModel::class.java]
