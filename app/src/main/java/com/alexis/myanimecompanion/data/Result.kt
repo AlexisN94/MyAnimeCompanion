@@ -32,5 +32,7 @@ enum class Error {
     Generic,
     NullUserStatus,
     Authorization,
-    DatabaseQuery
+    DatabaseQuery,
+    EmptyList,
+    BadRequest
 }

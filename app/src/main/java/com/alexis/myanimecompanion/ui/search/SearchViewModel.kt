@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.domain.Anime
 import kotlinx.coroutines.launch
 
@@ -27,15 +28,22 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
 
     fun search() {
         viewModelScope.launch {
-            searchQuery.value?.let {
-                unsetStatusMessage()
+            searchQuery.value?.let { searchQuery ->
+                updateStatusMessage(null)
                 setLoading()
-                val searchResults: List<Anime>? = animeRepository.search(it).getOrNull()
-                searchResults?.let {
-                    _resultList.value = searchResults
+                animeRepository.search(searchQuery).let { result ->
+                    if (result.isFailure) {
+                        handleError(result.errorOrNull()!!)
+                    } else {
+                        result.getOrNull()!!.also { list ->
+                            if (list.isEmpty()) {
+                                updateStatusMessage(resources.getString(R.string.no_results))
+                            }
+                            _resultList.value = list
+                        }
+                    }
                 }
                 unsetLoading()
-                setStatusMessage(searchResults)
             }
         }
     }
@@ -52,18 +60,18 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
         _loading.value = false
     }
 
-    private fun setStatusMessage(searchResults: List<Anime>?) {
-        when {
-            searchResults == null -> {
-                _statusMessage.value = resources.getString(R.string.network_error_occurred)
-            }
-            searchResults.isEmpty() -> {
-                _statusMessage.value = resources.getString(R.string.empty_search_results)
-            }
+    private fun handleError(error: Error) {
+        when (error) {
+            Error.Network -> updateStatusMessage(resources.getString(R.string.network_error_occurred))
+            Error.EmptyList -> updateStatusMessage(resources.getString(R.string.empty_user_list))
+            Error.BadRequest -> updateStatusMessage(resources.getString(R.string.invalid_search_query))
+            else -> updateStatusMessage(resources.getString(R.string.generic_error_occurred))
         }
+
+        _resultList.value = listOf()
     }
 
-    private fun unsetStatusMessage() {
-        _statusMessage.value = null
+    private fun updateStatusMessage(value: String?) {
+        _statusMessage.value = value
     }
 }

@@ -76,7 +76,7 @@
                 android:id="@+id/rv_search_result_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
+                android:visibility="@{viewModel.loading == false &amp;&amp; viewModel.statusMessage == null? View.VISIBLE : View.GONE}"
                 tools:listitem="@layout/list_item_search_result" />
 
             <TextView
