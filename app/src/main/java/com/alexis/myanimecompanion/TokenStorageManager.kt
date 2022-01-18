@@ -15,10 +15,10 @@ class TokenStorageManager private constructor() {
     private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val jsonAdapter: JsonAdapter<DomainToken> = moshi.adapter(DomainToken::class.java)
 
-    fun setToken(domainToken: DomainToken) {
+    fun updateToken(domainToken: DomainToken) {
         val tokenJson = jsonAdapter.toJson(domainToken)
         sharedPreferences.edit()
-            .putString("token", tokenJson)
+            .putString("token_json", tokenJson)
             .apply()
     }
 
@@ -31,7 +31,7 @@ class TokenStorageManager private constructor() {
     }
 
     fun checkExpired(): Boolean {
-        val token = getToken()
+        val token = fetchToken()
         return checkExpired(token)
     }
 

@@ -84,13 +84,13 @@ class RemoteDataSource private constructor() {
 
         try {
             token = myAnimeListApi.getAccessToken(params).asDomainModel()
-            token?.let { tokenStorageManager.setToken(it) }
+            token?.let { tokenStorageManager.updateToken(it) }
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
         }
     }
 
-    fun getAuthorizationURL(): String {
+    fun getAuthorizationUrl(): String {
         newCodeVerifierAndChallenge()
 
         return MyAnimeListAPI.BASE_AUTHORIZATION_URL +
@@ -119,7 +119,7 @@ class RemoteDataSource private constructor() {
             }
             try {
                 token = myAnimeListApi.refreshAccessToken(params).asDomainModel()
-                token?.let { tokenStorageManager.setToken(it) }
+                token?.let { tokenStorageManager.updateToken(it) }
             } catch (e: Exception) {
                 Log.e(TAG, e.toString())
             }
@@ -158,7 +158,7 @@ class RemoteDataSource private constructor() {
                 return INSTANCE ?: RemoteDataSource().also { instance ->
                     val tokenStorageManager = TokenStorageManager.getInstance(context)
                     instance.tokenStorageManager = tokenStorageManager
-                    instance.token = tokenStorageManager.getToken()
+                    instance.token = tokenStorageManager.fetchToken()
                     INSTANCE = instance
                 }
             }

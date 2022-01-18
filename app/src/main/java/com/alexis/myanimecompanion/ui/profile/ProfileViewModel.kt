@@ -34,8 +34,8 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
         }
     }
 
-    private suspend fun getUser() {
-        animeRepository.getUser()?.let {
+    private suspend fun fetchUser() {
+        animeRepository.fetchAndCacheUser()?.let {
             _user.postValue(it)
         }
     }

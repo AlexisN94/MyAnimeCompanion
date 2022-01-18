@@ -19,35 +19,35 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun getAnime(anime: Anime): Anime? {
-        /* TODO return complete? Anime object with fresh domainUser-specific status */
+        /* TODO return complete? Anime object with fresh user-specific status */
         return remoteDataSource.getAnimeDetails(anime)
     }
 
     suspend fun getAnime(animeId: Int): Anime? {
-        /* TODO return complete? Anime object with fresh domainUser-specific status */
+        /* TODO return complete? Anime object with fresh user-specific status */
         return remoteDataSource.getAnimeDetails(animeId)
     }
 
-    suspend fun getUser(): DomainUser? {
-        val remoteUserAsDatabaseUser = remoteDataSource.getUser()
+    suspend fun fetchAndCacheUser(): DomainUser? {
+        val remoteUser = remoteDataSource.getUser()
         val localUser = localDataSource.getUser()
 
-        if(localUser == null && remoteUserAsDatabaseUser != null) {
-            localDataSource.insertUser(remoteUserAsDatabaseUser)
-        } else if (remoteUserAsDatabaseUser != null) {
-            localDataSource.updateUser(remoteUserAsDatabaseUser)
+        if (localUser == null && remoteUser != null) {
+            localDataSource.insertUser(remoteUser)
+        } else if (remoteUser != null) {
+            localDataSource.updateUser(
         }
 
         return localDataSource.getUser().asDomainUser()
     }
 
     fun logout() {
-        localDataSource.clearUser()
+        localDataSource.deleteUser()
         remoteDataSource.clearUser()
     }
 
     fun getAuthorizationUrl(): String {
-        return remoteDataSource.getAuthorizationURL()
+        return remoteDataSource.getAuthorizationUrl()
     }
 
     suspend fun onAuthorizationCodeReceived(authorizationCode: String) {

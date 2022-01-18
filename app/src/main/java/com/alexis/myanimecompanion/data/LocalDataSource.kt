@@ -15,9 +15,8 @@ class LocalDataSource private constructor() {
         return animeDatabase.userDao.getUser()
     }
 
-    fun clearUser() {
-        val user = animeDatabase.userDao.getUser()
-        animeDatabase.userDao.delete(user)
+    fun deleteUser() {
+        animeDatabase.userDao.delete()
     }
 
     fun updateUser(user: DatabaseUser) {
