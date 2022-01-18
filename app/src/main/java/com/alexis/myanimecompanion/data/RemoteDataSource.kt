@@ -3,6 +3,8 @@ package com.alexis.myanimecompanion.data
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import com.alexis.myanimecompanion.data.remote.models.RemoteToken
@@ -11,12 +13,6 @@ import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
 import retrofit2.HttpException
 import java.security.SecureRandom
-import androidx.security.crypto.EncryptedSharedPreferences
-
-import androidx.security.crypto.MasterKeys
-
-
-
 
 class RemoteDataSource private constructor() {
     private var myAnimeListApi: MyAnimeListAPI = APIClient.myAnimeListApi
