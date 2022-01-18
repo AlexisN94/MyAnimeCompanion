@@ -3,18 +3,16 @@ package com.alexis.myanimecompanion.data
 import android.content.Context
 import com.alexis.myanimecompanion.data.local.AnimeDatabase
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
-import com.alexis.myanimecompanion.data.local.models.asDomainUser
-import com.alexis.myanimecompanion.domain.DomainUser
 
 class LocalDataSource private constructor() {
     private lateinit var animeDatabase: AnimeDatabase
 
-    fun insertUser(user: DatabaseUser){
+    fun insertUser(user: DatabaseUser) {
         animeDatabase.userDao.insert(user)
     }
 
-    fun getUser(): DomainUser? {
-        return animeDatabase.userDao.getUser()?.asDomainUser()
+    fun getUser(): DatabaseUser {
+        return animeDatabase.userDao.getUser()
     }
 
     fun clearUser() {

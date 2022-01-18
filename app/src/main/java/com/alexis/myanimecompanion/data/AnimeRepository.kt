@@ -1,6 +1,7 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
+import com.alexis.myanimecompanion.data.local.models.asDomainUser
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainUser
 
@@ -37,7 +38,7 @@ class AnimeRepository private constructor() {
             localDataSource.updateUser(remoteUserAsDatabaseUser)
         }
 
-        return localDataSource.getUser()
+        return localDataSource.getUser().asDomainUser()
     }
 
     fun logout() {
