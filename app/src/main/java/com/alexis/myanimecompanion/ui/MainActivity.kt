@@ -7,7 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.alexis.myanimecompanion.R
-import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.UserRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleMALAuthorizationResponse(data: Uri) {
         val authorizationCode = requireNotNull(data.getQueryParameter("code"))
         lifecycleScope.launch {
-            AnimeRepository.getInstance(applicationContext).onAuthorizationCodeReceived(authorizationCode)
+            UserRepository.getInstance(applicationContext).onAuthorizationCodeReceived(authorizationCode)
         }
     }
 }

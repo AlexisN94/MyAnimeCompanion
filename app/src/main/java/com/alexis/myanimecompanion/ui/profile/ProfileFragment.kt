@@ -17,9 +17,10 @@ class ProfileFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentProfileBinding.inflate(inflater)
+        val userRepository = UserRepository.getInstance(requireContext())
         val animeRepository = AnimeRepository.getInstance(requireContext())
 
-        val viewModelFactory = ProfileViewModelFactory(animeRepository)
+        val viewModelFactory = ProfileViewModelFactory(animeRepository, userRepository)
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ProfileViewModel::class.java]
 
         binding.apply {

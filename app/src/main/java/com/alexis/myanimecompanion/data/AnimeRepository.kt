@@ -1,9 +1,7 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
-import com.alexis.myanimecompanion.data.local.models.asDomainUser
 import com.alexis.myanimecompanion.domain.Anime
-import com.alexis.myanimecompanion.domain.DomainUser
 
 
 class AnimeRepository private constructor() {
@@ -26,32 +24,6 @@ class AnimeRepository private constructor() {
     suspend fun getAnime(animeId: Int): Anime? {
         /* TODO return complete? Anime object with fresh user-specific status */
         return remoteDataSource.getAnimeDetails(animeId)
-    }
-
-    suspend fun fetchAndCacheUser(): DomainUser? {
-        val remoteUser = remoteDataSource.getUser()
-        val localUser = localDataSource.getUser()
-
-        if (localUser == null && remoteUser != null) {
-            localDataSource.insertUser(remoteUser)
-        } else if (remoteUser != null) {
-            localDataSource.updateUser(
-        }
-
-        return localDataSource.getUser().asDomainUser()
-    }
-
-    fun logout() {
-        localDataSource.deleteUser()
-        remoteDataSource.clearUser()
-    }
-
-    fun getAuthorizationUrl(): String {
-        return remoteDataSource.getAuthorizationUrl()
-    }
-
-    suspend fun onAuthorizationCodeReceived(authorizationCode: String) {
-        remoteDataSource.onAuthorizationCodeReceived(authorizationCode)
     }
 
     companion object {

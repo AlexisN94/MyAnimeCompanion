@@ -5,12 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.UserRepository
 import com.alexis.myanimecompanion.domain.DomainUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
+class ProfileViewModel(val animeRepository: AnimeRepository, val userRepository: UserRepository) : ViewModel() {
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
@@ -35,7 +36,7 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
     }
 
     private suspend fun fetchUser() {
-        animeRepository.fetchAndCacheUser()?.let {
+        userRepository.fetchAndCacheUser()?.let {
             _user.postValue(it)
         }
     }
@@ -53,6 +54,6 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
     }
 
     fun getAuthorizationUrl(): String {
-        return animeRepository.getAuthorizationUrl()
+        return userRepository.getAuthorizationUrl()
     }
 }
