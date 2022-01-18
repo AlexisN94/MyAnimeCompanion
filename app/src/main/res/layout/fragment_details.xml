@@ -35,8 +35,8 @@
             android:id="@+id/iv_details_cover"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
             android:layout_marginTop="12dp"
+            android:adjustViewBounds="true"
             app:imgUrl="@{viewModel.anime.imageUrl}"
             app:layout_constraintEnd_toStartOf="@id/tv_details_alt_titles_label"
             app:layout_constraintStart_toStartOf="parent"
@@ -54,9 +54,9 @@
             android:textColor="?attr/colorOnPrimary"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:text="9.8"
             app:layout_constraintEnd_toEndOf="@id/iv_details_cover"
-            app:layout_constraintTop_toTopOf="@id/iv_details_cover"/>
+            app:layout_constraintTop_toTopOf="@id/iv_details_cover"
+            tools:text="9.8" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_details_alt_titles_label"
@@ -66,9 +66,9 @@
             android:text="Alternative Titles:"
             android:textAlignment="viewStart"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="@id/iv_details_cover"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_details_cover"/>
+            app:layout_constraintStart_toEndOf="@id/iv_details_cover"
+            app:layout_constraintTop_toTopOf="@id/iv_details_cover" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_details_alt_titles"
@@ -76,11 +76,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@{viewModel.anime.alternativeTitles}"
+            app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
             app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
             app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
-            tools:text="Alternative Title1, Alternative Title2"
-            />
+            tools:text="Alternative Title1, Alternative Title2" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_details_genres_label"
@@ -90,9 +89,9 @@
             android:text="Genres:"
             android:textAlignment="viewStart"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
             app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles"/>
+            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
+            app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_details_genres"
@@ -100,9 +99,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@{viewModel.anime.genres}"
-            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
             app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintTop_toBottomOf="@id/tv_details_genres_label"/>
+            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
+            app:layout_constraintTop_toBottomOf="@id/tv_details_genres_label" />
 
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -111,10 +110,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@{viewModel.anime.synopsis}"
-            tools:text="Synopsis"
-            app:layout_constraintTop_toBottomOf="@id/iv_details_cover"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/iv_details_cover"
+            tools:text="Synopsis" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

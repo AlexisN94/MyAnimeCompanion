@@ -35,7 +35,7 @@ class EditFragment : BottomSheetDialogFragment() {
             spnEditDialogEpWatched.adapter = ArrayAdapter(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                IntRange(0, viewModel.anime?.numEpisodes ?: 0).toList()
+                IntRange(0, viewModel.anime.numEpisodes ?: 0).toList()
             )
             spnEditDialogRating.adapter = ArrayAdapter(
                 requireContext(),
@@ -43,8 +43,7 @@ class EditFragment : BottomSheetDialogFragment() {
                 IntRange(0, MAX_RATING).toList()
             )
             btnEditDialogSave.setOnClickListener {
-                // TODO save data
-                viewModel.onSave()
+                viewModel.save()
                 dialog?.dismiss()
             }
             btnEditDialogClose.setOnClickListener {

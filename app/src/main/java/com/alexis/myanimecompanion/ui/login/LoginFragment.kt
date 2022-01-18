@@ -19,7 +19,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun startLogin() {
-        val authorizationURL = RemoteDataSource.getInstance().getAuthorizationURL()
+        val authorizationURL = RemoteDataSource.getInstance(requireContext()).getAuthorizationURL()
         val browse = Intent(Intent.ACTION_VIEW, Uri.parse(authorizationURL))
         startActivity(browse)
     }

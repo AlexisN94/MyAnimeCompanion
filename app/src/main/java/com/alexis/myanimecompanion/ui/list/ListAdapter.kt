@@ -33,6 +33,7 @@ class ListAdapter(private val itemClickListener: ClickListener) :
         fun bind(anime: Anime, clickListener: ClickListener, notifyDatasetChanged: () -> Unit) {
             binding.apply {
                 this.anime = anime
+
                 root.setOnClickListener {
                     clickListener.onItemClick(anime)
                 }
@@ -45,6 +46,7 @@ class ListAdapter(private val itemClickListener: ClickListener) :
                 ibListItemDecrement.setOnClickListener {
                     clickListener.onDecrementWatchedClick(anime, notifyDatasetChanged)
                 }
+
                 executePendingBindings()
             }
         }

@@ -1,14 +1,10 @@
 package com.alexis.myanimecompanion.ui.search
 
-import android.content.Context
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -34,22 +30,24 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
             }
         })
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
-        binding.rvSearchResultList.apply {
-            this.adapter = adapter
-            layoutManager = GridLayoutManager(requireContext(), 3)
-        }
-        binding.etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
-            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    viewModel.search()
-                    activity?.dismissKeyboard()
-                    return true
-                }
-                return false
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = viewModel
+            rvSearchResultList.apply {
+                this.adapter = adapter
+                layoutManager = GridLayoutManager(requireContext(), 3)
             }
-        })
+            etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
+                override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+                    if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                        viewModel.search()
+                        activity?.dismissKeyboard()
+                        return true
+                    }
+                    return false
+                }
+            })
+        }
 
         return binding.root
     }

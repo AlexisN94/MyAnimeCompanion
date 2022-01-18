@@ -6,7 +6,7 @@ import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.domain.Anime
 import kotlinx.coroutines.launch
 
-class DetailsViewModel(var anime: Anime?, private val animeRepository: AnimeRepository) : ViewModel() {
+class DetailsViewModel(var anime: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
@@ -15,6 +15,8 @@ class DetailsViewModel(var anime: Anime?, private val animeRepository: AnimeRepo
     }
 
     suspend fun refreshAnime() {
-        anime = anime?.let { animeRepository.getAnime(it) }
+        animeRepository.getAnime(anime)?.let {
+            anime = it
+        }
     }
 }

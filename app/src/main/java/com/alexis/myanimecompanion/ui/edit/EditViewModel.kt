@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "EditViewModel"
 
-class EditViewModel(var anime: Anime?, private val animeRepository: AnimeRepository) : ViewModel() {
+class EditViewModel(var anime: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
 
     // Must be public for two-way data binding
     val currentStatus = MutableLiveData<String?>()
@@ -18,8 +18,8 @@ class EditViewModel(var anime: Anime?, private val animeRepository: AnimeReposit
 
     init {
         viewModelScope.launch {
-            anime = animeRepository.getAnime(anime)
-            anime?.let {
+            animeRepository.getAnime(anime)?.let {
+                anime = it
                 episodesWatched.value = it.episodesWatched
                 currentStatus.value = it.userStatus
                 userScore.value = it.userScore
@@ -27,9 +27,9 @@ class EditViewModel(var anime: Anime?, private val animeRepository: AnimeReposit
         }
     }
 
-    fun onSave() {
+    fun save() {
         viewModelScope.launch {
-            anime?.let {
+            anime.let {
                 it.userStatus = currentStatus.value
                 it.userScore = userScore.value
                 it.episodesWatched = episodesWatched.value ?: 0

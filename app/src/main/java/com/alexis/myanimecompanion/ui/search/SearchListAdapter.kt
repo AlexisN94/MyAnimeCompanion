@@ -45,5 +45,4 @@ class SearchListAdapter(private val clickListener: ClickListener) :
             }
         }
     }
-
 }

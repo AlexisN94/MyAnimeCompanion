@@ -31,11 +31,13 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
             }
         })
 
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.rvList.apply {
-            this.adapter = adapter
-            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.apply {
+            viewModel = viewModel
+            lifecycleOwner = viewLifecycleOwner
+            rvList.apply {
+                this.adapter = adapter
+                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            }
         }
 
         return binding.root
