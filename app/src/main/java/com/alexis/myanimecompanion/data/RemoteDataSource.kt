@@ -146,7 +146,7 @@ class RemoteDataSource private constructor() {
         getAccessToken(authorizationCode)
     }
 
-    fun clearUser() {
+    fun forgetUser() {
         tokenStorageManager.clearToken()
     }
 

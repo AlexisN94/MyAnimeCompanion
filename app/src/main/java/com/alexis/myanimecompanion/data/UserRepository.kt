@@ -21,8 +21,7 @@ class UserRepository private constructor() {
         val localUser =
             if (remoteUser == null) {
                 // Not logged in or network error. Get local user if exists, otherwise return null
-                var userId = getCurrentUserId()
-                if (userId == INVALID_USER_ID) return null
+                var userId = getCurrentUserId() ?: return null
                 localDataSource.getUser(userId)
             } else {
                 // Logged in
@@ -38,13 +37,17 @@ class UserRepository private constructor() {
         sharedPreferences.edit().putInt(CURRENT_USER_SP_KEY, userId)
     }
 
-    private fun getCurrentUserId(): Int {
-        return sharedPreferences.getInt(CURRENT_USER_SP_KEY, INVALID_USER_ID)
+    private fun getCurrentUserId(): Int? {
+        val userId = sharedPreferences.getInt(CURRENT_USER_SP_KEY, INVALID_USER_ID)
+        if (userId == INVALID_USER_ID) return null
+        return userId
     }
 
     fun logout() {
-        localDataSource.deleteUser()
-        remoteDataSource.clearUser()
+        val userId = getCurrentUserId() ?: return
+        val user = localDataSource.getUser(userId) ?: return
+        localDataSource.deleteUser(user)
+        remoteDataSource.forgetUser()
     }
 
     fun getAuthorizationUrl(): String {

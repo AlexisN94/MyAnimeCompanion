@@ -11,12 +11,12 @@ class LocalDataSource private constructor() {
         animeDatabase.userDao.insert(user)
     }
 
-    fun getUser(): DatabaseUser {
-        return animeDatabase.userDao.getUser()
+    fun getUser(userId: Int): DatabaseUser? {
+        return animeDatabase.userDao.getUser(userId)
     }
 
-    fun deleteUser() {
-        animeDatabase.userDao.delete()
+    fun deleteUser(user: DatabaseUser) {
+        animeDatabase.userDao.delete(user)
     }
 
     fun updateUser(user: DatabaseUser) {
