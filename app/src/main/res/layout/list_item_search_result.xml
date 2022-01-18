@@ -17,13 +17,14 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true">
+        android:clickable="true"
+        android:focusable="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
+            android:clickable="false"
+            android:focusable="false"
             android:gravity="center"
             android:orientation="vertical"
             android:paddingVertical="4dp">
