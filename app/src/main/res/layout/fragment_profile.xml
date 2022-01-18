@@ -30,14 +30,14 @@
             android:id="@+id/group_not_logged_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{(viewModel.user == null &amp;&amp; !viewModel.loading) ? View.VISIBLE : View.GONE}"
+            app:showIfNotLoggedIn="@{viewModel}"
             app:constraint_referenced_ids="btn_profile_login, tv_profile_not_logged_in_msg" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/group_logged_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{(viewModel.user != null &amp;&amp; !viewModel.loading) ? View.VISIBLE : View.GONE}"
+            app:showIfLoggedIn="@{viewModel}"
             app:constraint_referenced_ids="tv_profile_username" />
 
         <androidx.appcompat.widget.AppCompatTextView
