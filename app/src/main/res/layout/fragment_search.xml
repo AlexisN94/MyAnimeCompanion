@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.search.SearchFragment">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.alexis.myanimecompanion.ui.search.SearchViewModel" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:cardElevation="8dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_search_query"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:drawableStart="@drawable/ic_baseline_search_24"
+                    android:drawableTint="?android:attr/textColorHint"
+                    android:gravity="center_vertical"
+                    android:hint="@string/search_hint"
+                    android:inputType="textAutoCorrect|textCapWords"
+                    android:maxLines="1"
+                    android:minHeight="48dp"
+                    android:padding="8dp"
+                    android:paddingEnd="55dp"
+                    app:searchQuery="@={viewModel.searchQuery}" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/ib_search_bar_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:backgroundTint="@color/none"
+                    android:clickable="true"
+                    android:contentDescription="Clear search text"
+                    android:onClick="@{()->viewModel.clearQuery()}"
+                    android:src="@drawable/ic_baseline_close_24"
+                    android:tint="?android:attr/textColorHint"
+                    android:visibility="@{viewModel.searchQuery.length() > 0 ? View.VISIBLE : View.GONE}" />
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <FrameLayout
+            android:id="@+id/fl_rv_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center">
+
+            <ProgressBar
+                android:id="@+id/pb_list"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_search_result_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="@{viewModel.loading ? View.GONE : View.VISIBLE}"
+                tools:listitem="@layout/list_item_search_result" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@{viewModel.statusMessage}"
+                android:visibility="@{viewModel.statusMessage != null ? View.VISIBLE : View.GONE}" />
+
+        </FrameLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="anime"
+            type="com.alexis.myanimecompanion.domain.Anime" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingVertical="4dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_list_item_image"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:imgUrl="@{anime.imageUrl}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.20"
+            tools:src="@drawable/ic_launcher_background" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_list_item_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:text="@{anime.title}"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/ib_list_item_decrement"
+            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_menu"
+            app:layout_constraintStart_toEndOf="@+id/iv_list_item_image"
+            app:layout_constraintTop_toTopOf="@+id/iv_list_item_image"
+            tools:text="Ousama Ranking" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_list_item_eps_watched"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:textSize="16sp"
+            app:episodesWatchedFormatted="@{anime}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/progressBar"
+            app:layout_constraintStart_toEndOf="@+id/ib_list_item_decrement"
+            app:layout_constraintTop_toBottomOf="@+id/progressBar"
+            tools:text="11/23 eps" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/ib_list_item_decrement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/shape_soft_rectangle_outline"
+            android:minWidth="44dp"
+            android:minHeight="44dp"
+            android:src="@drawable/ic_decrement"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_list_item_image"
+            app:layout_constraintEnd_toStartOf="@+id/progressBar"
+            app:layout_constraintStart_toEndOf="@+id/iv_list_item_image"
+            app:layout_constraintTop_toTopOf="@+id/iv_list_item_image" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/ib_list_item_increment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/shape_soft_rectangle_outline"
+            android:minWidth="44dp"
+            android:minHeight="44dp"
+            android:src="@drawable/ic_increment"
+            app:layout_constraintBottom_toBottomOf="@+id/ib_list_item_decrement"
+            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_menu"
+            app:layout_constraintStart_toEndOf="@id/progressBar"
+            app:layout_constraintTop_toTopOf="@+id/ib_list_item_decrement" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/ib_list_item_menu"
+            android:layout_width="40dp"
+            android:layout_height="98dp"
+            android:background="@color/none"
+            android:src="@drawable/ic_baseline_more_vert_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="18dp"
+            android:layout_marginHorizontal="4dp"
+            android:progressTint="?attr/colorPrimary"
+            android:scaleY="1.5"
+            app:layout_constraintBottom_toBottomOf="@+id/ib_list_item_decrement"
+            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_increment"
+            app:layout_constraintStart_toEndOf="@+id/ib_list_item_decrement"
+            app:layout_constraintTop_toTopOf="@+id/ib_list_item_decrement"
+            app:progress="@{anime}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">MyAnimeCompanion</string>
+
+    <string name="save">SAVE</string>
+    <string name="edit_dialog_title">EDIT</string>
+    <string name="edit_dialog_close_btn_description">Close</string>
+    <string name="edit_dialog_episodes_watched_title_text">Episodes watched</string>
+    <string name="tv_edit_dialog_status_title_text">Change status</string>
+    <string name="edit_dialog_rating_title_text">Rating</string>
+    <string name="search_hint">Search...</string>
+    <string name="network_error_occurred">An error occurred</string>
+    <string name="empty_search_results">No results</string>
+    <string name="empty_user_list">You haven\'t added any anime to your list yet</string>
 </resources>
