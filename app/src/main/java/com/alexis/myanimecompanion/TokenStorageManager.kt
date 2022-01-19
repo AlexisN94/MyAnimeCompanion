@@ -48,7 +48,6 @@ class TokenStorageManager private constructor() {
     companion object {
         private var INSTANCE: TokenStorageManager? = null
 
-
         fun getInstance(context: Context): TokenStorageManager {
             synchronized(this) {
                 return INSTANCE

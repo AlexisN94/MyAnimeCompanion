@@ -3,7 +3,6 @@ package com.alexis.myanimecompanion.data
 import android.content.Context
 import com.alexis.myanimecompanion.domain.Anime
 
-
 class AnimeRepository private constructor() {
     private lateinit var localDataSource: LocalDataSource
     private lateinit var remoteDataSource: RemoteDataSource

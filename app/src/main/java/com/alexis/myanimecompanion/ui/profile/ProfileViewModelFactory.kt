@@ -16,4 +16,3 @@ class ProfileViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-

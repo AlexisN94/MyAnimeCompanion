@@ -37,7 +37,7 @@ fun ProgressBar.setProgress(anime: Anime) {
     progress = if (anime.numEpisodes == null || anime.numEpisodes == 0) {
         0
     } else {
-        val percentage = anime.episodesWatched?.toDouble().div(anime.numEpisodes)
+        val percentage = anime.episodesWatched.toDouble().div(anime.numEpisodes)
         percentage.times(100).toInt()
     }
 }

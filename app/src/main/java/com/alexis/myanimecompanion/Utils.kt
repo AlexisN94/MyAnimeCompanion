@@ -94,7 +94,6 @@ fun Activity.dismissKeyboard() {
         inputMethodManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 }
 
-
 fun createEncryptedSharedPreferences(context: Context, fileName: String): EncryptedSharedPreferences {
     val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
