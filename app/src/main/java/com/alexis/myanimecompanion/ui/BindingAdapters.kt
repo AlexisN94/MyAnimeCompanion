@@ -4,7 +4,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
-import androidx.constraintlayout.widget.Group
 import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
@@ -12,7 +11,6 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.domain.Anime
-import com.alexis.myanimecompanion.ui.profile.ProfileViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
@@ -104,18 +102,9 @@ fun AppCompatEditText.setValueListener(listener: InverseBindingListener) {
     }
 }
 
-@BindingAdapter("showIfLoggedIn")
-fun Group.showIfLoggedIn(viewModel: ProfileViewModel) {
-    visibility = if (viewModel.user.value != null && !viewModel.loading.value!!) {
-        View.VISIBLE
-    } else {
-        View.GONE
-    }
-}
-
-@BindingAdapter("showIfNotLoggedIn")
-fun Group.showIfNotLoggedIn(viewModel: ProfileViewModel) {
-    visibility = if (viewModel.user.value == null && !viewModel.loading.value!!) {
+@BindingAdapter("visible")
+fun View.setVisibility(show: Boolean) {
+    visibility = if (show) {
         View.VISIBLE
     } else {
         View.GONE
