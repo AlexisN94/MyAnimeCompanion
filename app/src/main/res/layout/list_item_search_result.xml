@@ -22,11 +22,9 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:clickable="false"
             android:focusable="false"
-            android:gravity="center"
-            android:orientation="vertical"
             android:paddingVertical="4dp">
 
             <FrameLayout
@@ -65,14 +63,12 @@
                     tools:text="9.8" />
             </FrameLayout>
 
-
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_search_item_title"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="6dp"
+                android:layout_height="wrap_content"
+                android:gravity="center|bottom"
                 android:text="@{anime.title}"
-                android:textAlignment="center"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
