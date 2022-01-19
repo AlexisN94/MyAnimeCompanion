@@ -11,6 +11,8 @@ import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
 import retrofit2.HttpException
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.security.SecureRandom
 
 private const val TAG = "RemoteDataSource"
@@ -28,8 +30,13 @@ class RemoteDataSource private constructor() {
             return when (e.code()) {
                 HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
                 HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
+                HttpURLConnection.HTTP_BAD_REQUEST -> Result.failure(Error.BadRequest)
                 else -> Result.failure(Error.Network)
             }
+        } catch (e: SocketTimeoutException) {
+            return Result.failure(Error.Network)
+        } catch (e: UnknownHostException) {
+            return Result.failure(Error.Network)
         }
 
         return Result.success(requestResult)
@@ -167,7 +174,7 @@ class RemoteDataSource private constructor() {
         val token = getNonExpiredToken() ?: return Result.failure(Error.Authorization)
 
         return tryRequest {
-            myAnimeListApi.getUserAnimeList("Bearer ${token?.accessToken}")
+            myAnimeListApi.getUserAnimeList("Bearer ${token.accessToken}")
         }
     }
 
