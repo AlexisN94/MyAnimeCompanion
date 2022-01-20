@@ -42,7 +42,7 @@
                     android:minHeight="48dp"
                     android:padding="8dp"
                     android:paddingEnd="55dp"
-                    app:searchQuery="@={viewModel.searchQuery}" />
+                    app:searchQuery="@={viewModel.liveSearchQuery}" />
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/ib_search_bar_clear"
@@ -55,29 +55,39 @@
                     android:onClick="@{()->viewModel.clearQuery()}"
                     android:src="@drawable/ic_baseline_close_24"
                     android:tint="?android:attr/textColorHint"
-                    android:visibility="@{viewModel.searchQuery.length() > 0 ? View.VISIBLE : View.GONE}" />
+                    android:visibility="@{viewModel.liveSearchQuery.length() > 0 ? View.VISIBLE : View.GONE}" />
             </FrameLayout>
         </androidx.cardview.widget.CardView>
 
         <FrameLayout
             android:id="@+id/fl_rv_wrapper"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center">
-
-            <ProgressBar
-                android:id="@+id/pb_list"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
+            android:layout_height="match_parent">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_search_result_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.loading == false &amp;&amp; viewModel.statusMessage == null? View.VISIBLE : View.GONE}"
+                android:layout_gravity="center"
+                android:visibility="@{!viewModel.loading &amp;&amp; viewModel.statusMessage == null? View.VISIBLE : View.GONE}"
                 tools:listitem="@layout/list_item_search_result" />
+
+            <ProgressBar
+                android:id="@+id/pb_list_loading"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
+
+            <ProgressBar
+                android:id="@+id/pb_list_loading_more"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/shape_oval"
+                android:backgroundTint="?android:attr/colorBackground"
+                android:visibility="@{viewModel.loadingMore ? View.VISIBLE : View.GONE}" />
 
             <TextView
                 android:layout_width="wrap_content"

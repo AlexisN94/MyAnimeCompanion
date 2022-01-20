@@ -1,18 +1,15 @@
 package com.alexis.myanimecompanion.ui.search
 
-import android.content.Context
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentSearchBinding
 import com.alexis.myanimecompanion.dismissKeyboard
@@ -39,11 +36,12 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
         binding.rvSearchResultList.apply {
             this.adapter = adapter
             layoutManager = GridLayoutManager(requireContext(), 3)
+            addOnScrollListener(createOnScrollListener())
         }
         binding.etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    viewModel.search()
+                    viewModel.onSearchClick()
                     activity?.dismissKeyboard()
                     return true
                 }
@@ -65,5 +63,22 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
 
     override fun onStatusChange(anime: Anime) {
         TODO("Not yet implemented")
+    }
+
+    private fun createOnScrollListener(): RecyclerView.OnScrollListener {
+        return object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                recyclerView.adapter?.let { adapter ->
+                    val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+
+                    if (lastVisibleItemPosition == adapter.itemCount - 1) {
+                        viewModel.loadMore(lastVisibleItemPosition)
+                    }
+                }
+            }
+        }
     }
 }

@@ -16,8 +16,8 @@ class AnimeRepository private constructor() {
     private lateinit var localDataSource: LocalDataSource
     private lateinit var remoteDataSource: RemoteDataSource
 
-    suspend fun search(q: String): Result<List<Anime>?> {
-        val animeList = remoteDataSource.trySearch(q).let { result ->
+    suspend fun search(q: String, limit: Int, offset: Int): Result<List<Anime>?> {
+        val animeList = remoteDataSource.trySearch(q, limit, offset).let { result ->
             result.getOrNull()?.asListOfAnime() ?: return Result.failure(result.errorOrNull()!!)
         }
 
