@@ -42,6 +42,7 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
             resetResultList()
             currentSearchQuery = it
             currentPage = 0
+            mLastVisibleItemPosition = 0
             search()
         }
     }
@@ -49,11 +50,11 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
     fun loadMore(lastVisibleItemPosition: Int) {
         if (lastVisibleItemPosition > mLastVisibleItemPosition) {
             currentPage++
-            search()
+            search(lastVisibleItemPosition)
         }
     }
 
-    private fun search() {
+    private fun search(lastVisibleItemPosition: Int = 0) {
         viewModelScope.launch {
             if (currentPage == 0) setLoading() else updateLoadingMore(true)
             animeRepository.search(currentSearchQuery, PAGE_SIZE, offset = currentPage.times(PAGE_SIZE)).let { result ->
@@ -62,6 +63,8 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
                     handleError(result.errorOrNull()!!)
                 } else {
                     result.getOrNull()!!.also { list ->
+                        mLastVisibleItemPosition = lastVisibleItemPosition
+
                         if (list.isEmpty() && currentPage == 0) {
                             updateStatusMessage(resources.getString(R.string.no_results))
                         } else if (list.isNotEmpty()) {
