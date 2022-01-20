@@ -77,17 +77,9 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
-
-            <ProgressBar
-                android:id="@+id/pb_list_loading_more"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom|center"
-                android:layout_marginBottom="4dp"
                 android:background="@drawable/shape_oval"
                 android:backgroundTint="?android:attr/colorBackground"
-                android:visibility="@{viewModel.loadingMore ? View.VISIBLE : View.GONE}" />
+                android:visibility="@{viewModel.loading || viewModel.loadingMore ? View.VISIBLE : View.GONE}" />
 
             <TextView
                 android:layout_width="wrap_content"
