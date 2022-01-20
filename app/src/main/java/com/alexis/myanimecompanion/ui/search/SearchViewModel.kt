@@ -57,19 +57,19 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
         viewModelScope.launch {
             if (currentPage == 0) setLoading() else updateLoadingMore(true)
             animeRepository.search(currentSearchQuery, PAGE_SIZE, offset = currentPage.times(PAGE_SIZE)).let { result ->
-                    if (result.isFailure) {
-                        if (currentPage > 0) currentPage--
-                        handleError(result.errorOrNull()!!)
-                    } else {
-                        result.getOrNull()!!.also { list ->
-                            if (list.isEmpty() && currentPage == 0) {
-                                updateStatusMessage(resources.getString(R.string.no_results))
-                            } else if (list.isNotEmpty()) {
-                                appendToResultList(list)
-                                _resultList.postValue(_resultList.value)
-                            }
+                if (result.isFailure) {
+                    if (currentPage > 0) currentPage--
+                    handleError(result.errorOrNull()!!)
+                } else {
+                    result.getOrNull()!!.also { list ->
+                        if (list.isEmpty() && currentPage == 0) {
+                            updateStatusMessage(resources.getString(R.string.no_results))
+                        } else if (list.isNotEmpty()) {
+                            appendToResultList(list)
+                            _resultList.postValue(_resultList.value)
                         }
                     }
+                }
             }
             if (currentPage == 0) unsetLoading() else updateLoadingMore(false)
         }
