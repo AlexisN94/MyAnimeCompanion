@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
+import com.alexis.myanimecompanion.data.Result
 import com.alexis.myanimecompanion.domain.Anime
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 private const val PAGE_SIZE = 24
@@ -20,11 +22,11 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
     val resultList: LiveData<MutableList<Anime>?>
         get() = _resultList
 
-    private val _loading = MutableLiveData<Boolean>()
+    private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean>
         get() = _loading
 
-    private val _loadingMore = MutableLiveData<Boolean>()
+    private val _loadingMore = MutableLiveData(false)
     val loadingMore: LiveData<Boolean>
         get() = _loadingMore
 
@@ -47,44 +49,51 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
             currentSearchQuery = it
             currentPage = 0
             mLastVisibleItemPosition = 0
-            search()
+            loadMore(0)
         }
     }
 
     fun loadMore(lastVisibleItemPosition: Int) {
-        if (lastVisibleItemPosition > mLastVisibleItemPosition) {
-            currentPage++
-            search(lastVisibleItemPosition)
-        }
-    }
-
-    private fun search(lastVisibleItemPosition: Int = 0) {
         viewModelScope.launch {
-            if (currentPage == 0) setLoading() else updateLoadingMore(true)
-            animeRepository.search(currentSearchQuery, PAGE_SIZE, offset = currentPage.times(PAGE_SIZE)).let { result ->
-                if (result.isFailure) {
-                    if (currentPage > 0) currentPage--
-                    handleError(result.errorOrNull()!!)
-                } else {
-                    result.getOrNull()!!.also { list ->
-                        mLastVisibleItemPosition = lastVisibleItemPosition
+            if (loading.value!! || loadingMore.value!!) cancel()
 
-                        if (list.isEmpty() && currentPage == 0) {
+            val isFirstPage = currentPage == 0
+            if (isFirstPage) setLoading() else updateLoadingMore(true)
+
+            if (isFirstPage || !isFirstPage && lastVisibleItemPosition > mLastVisibleItemPosition) {
+                search().let { result ->
+                    if (result.isFailure) {
+                        handleError(result.errorOrNull()!!, isFirstPage)
+                    } else {
+                        val list = result.getOrNull()!!
+                        if (list.isEmpty() && isFirstPage) {
                             updateStatusMessage(resources.getString(R.string.no_results))
                         } else if (list.isNotEmpty()) {
-                            appendToResultList(list)
+                            appendToResultList(list, isFirstPage)
                             _resultList.postValue(_resultList.value)
                         }
+                        currentPage++
+                        mLastVisibleItemPosition = lastVisibleItemPosition
                     }
                 }
             }
-            if (currentPage == 0) unsetLoading() else updateLoadingMore(false)
+            if (isFirstPage) unsetLoading() else updateLoadingMore(false)
         }
     }
 
-    private fun appendToResultList(list: List<Anime>) {
+    private suspend fun search(): Result<List<Anime>> {
+        animeRepository.search(currentSearchQuery, PAGE_SIZE, offset = currentPage.times(PAGE_SIZE)).let { result ->
+            if (result.isFailure) {
+                return Result.failure(result.errorOrNull()!!)
+            } else {
+                return Result.success(result.getOrNull()!!)
+            }
+        }
+    }
+
+    private fun appendToResultList(list: List<Anime>, isFirstPage: Boolean) {
         if (_resultList.value == null) _resultList.value = mutableListOf()
-        _resultList.value?.addAll(list) ?: handleError(Error.Generic)
+        _resultList.value?.addAll(list) ?: handleError(Error.Generic, isFirstPage)
     }
 
     private fun resetResultList() {
