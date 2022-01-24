@@ -9,20 +9,25 @@ import com.alexis.myanimecompanion.data.Error.*
 import com.alexis.myanimecompanion.domain.Anime
 import kotlinx.coroutines.launch
 
-class DetailsViewModel(var anime: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
+class DetailsViewModel(val animeWithoutDetails: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
 
     val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    private val _anime = MutableLiveData<Anime>()
+    val anime: LiveData<Anime>
+        get() = _anime
+
     init {
+        _anime.value = animeWithoutDetails
         viewModelScope.launch {
-            refreshAnime()
+            fetchAnimeDetails()
         }
     }
 
-    suspend fun refreshAnime() {
-        animeRepository.getAnime(anime).let { result ->
+    private suspend fun fetchAnimeDetails() {
+        animeRepository.getAnime(animeWithoutDetails).let { result ->
             if (result.isFailure) {
                 when (result.errorOrNull()!!) {
                     Network -> setErrorMessage("A network error occurred")
@@ -31,9 +36,9 @@ class DetailsViewModel(var anime: Anime, private val animeRepository: AnimeRepos
                     Authorization -> TODO()
                     DatabaseQuery -> TODO()
                 }
+            } else {
+                _anime.value = result.getOrNull()!!
             }
-
-            anime = result.getOrNull()!!
         }
     }
 
