@@ -13,108 +13,130 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp">
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="18dp"
-            android:text="@{viewModel.anime.title}"
-            android:textAlignment="center"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/iv_details_cover"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Title" />
+        <ScrollView
+            android:id="@+id/sv_details"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="8dp"
+            app:layout_constraintBottom_toTopOf="@id/btn_add_to_list"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_details_cover"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:layout_marginTop="12dp"
-            app:imgUrl="@{viewModel.anime.imageUrl}"
-            app:layout_constraintEnd_toStartOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_details_title"
-            app:layout_constraintWidth_percent="0.4"
-            tools:src="@drawable/ic_baseline_broken_image_24" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_score"
-            android:layout_width="wrap_content"
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="18dp"
+                    android:text="@{viewModel.anime.title}"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/iv_details_cover"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Title" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_details_cover"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:adjustViewBounds="true"
+                    app:imgUrl="@{viewModel.anime.imageUrl}"
+                    app:layout_constraintEnd_toStartOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_details_title"
+                    app:layout_constraintWidth_percent="0.4"
+                    tools:src="@drawable/ic_baseline_broken_image_24" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_score"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorPrimary"
+                    android:padding="4dp"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:doubleToInt="@{viewModel.anime.details.globalScore}"
+                    app:layout_constraintEnd_toEndOf="@id/iv_details_cover"
+                    app:layout_constraintTop_toTopOf="@id/iv_details_cover"
+                    tools:text="9.8" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_alt_titles_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="@string/alternative_titles_label"
+                    android:textAlignment="viewStart"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iv_details_cover"
+                    app:layout_constraintTop_toTopOf="@id/iv_details_cover" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_alt_titles"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@{viewModel.anime.details.alternativeTitles}"
+                    app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles_label"
+                    tools:text="Alternative Title1, Alternative Title2" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_genres_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/genres_label"
+                    android:textAlignment="viewStart"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_genres"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@{viewModel.anime.details.genres}"
+                    app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
+                    app:layout_constraintTop_toBottomOf="@id/tv_details_genres_label"
+                    tools:text="Genre1, Genre2" />
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_details_synopsis"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="@{viewModel.anime.details.synopsis}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/iv_details_cover"
+                    tools:text="Synopsis" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_add_to_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:padding="4dp"
-            app:doubleToInt="@{viewModel.anime.details.globalScore}"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:text="9.8"
-            app:layout_constraintEnd_toEndOf="@id/iv_details_cover"
-            app:layout_constraintTop_toTopOf="@id/iv_details_cover"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_alt_titles_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:text="Alternative Titles:"
-            android:textAlignment="viewStart"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="@id/iv_details_cover"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_details_cover"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_alt_titles"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="@{viewModel.anime.details.alternativeTitles}"
-            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
-            tools:text="Alternative Title1, Alternative Title2"
-            />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_genres_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Genres:"
-            android:textAlignment="viewStart"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintTop_toBottomOf="@id/tv_details_alt_titles"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_genres"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="@{viewModel.anime.details.genres}"
-            app:layout_constraintStart_toStartOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintEnd_toEndOf="@id/tv_details_alt_titles_label"
-            app:layout_constraintTop_toBottomOf="@id/tv_details_genres_label"/>
-
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_details_synopsis"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@{viewModel.anime.details.synopsis}"
-            tools:text="Synopsis"
-            app:layout_constraintTop_toBottomOf="@id/iv_details_cover"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
+            android:text="@string/add_to_list"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sv_details" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

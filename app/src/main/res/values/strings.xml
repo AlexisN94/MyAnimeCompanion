@@ -14,4 +14,7 @@
     <string name="no_results">No results</string>
     <string name="query_too_short">Search query is too short (min. 3 characters)</string>
     <string name="invalid_search_query">Invalid search query</string>
+    <string name="add_to_list">ADD TO LIST</string>
+    <string name="genres_label">Genres:</string>
+    <string name="alternative_titles_label">Alternative Titles:</string>
 </resources>
