@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.domain.Anime
 import kotlinx.coroutines.launch
 
@@ -18,13 +19,21 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
 
     init {
         viewModelScope.launch {
-            animeRepository.getAnime(anime)?.let {
-                TODO("anime <- Result.anime")
-                episodesWatched.value = anime.myListStatus?.episodesWatched
-                currentStatus.value = anime.myListStatus?.status
-                userScore.value = anime.myListStatus?.score
+            animeRepository.getAnime(anime)?.let { result ->
+                if(result.isFailure){
+                    handleError(result.errorOrNull()!!)
+                } else {
+                    val anime = result.getOrNull()!!
+                    episodesWatched.value = anime.myListStatus?.episodesWatched
+                    currentStatus.value = anime.myListStatus?.status
+                    userScore.value = anime.myListStatus?.score
+                }
             }
         }
+    }
+
+    private fun handleError(error: Error) {
+        TODO("Not yet implemented")
     }
 
     fun onSave() {

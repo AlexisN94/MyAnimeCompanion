@@ -16,13 +16,17 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    private val _evtEdit = MutableLiveData(false)
+    val evtEdit: LiveData<Boolean>
+        get() = _evtEdit
+
     private val _anime = MutableLiveData<Anime>()
     val anime: LiveData<Anime>
         get() = _anime
 
     init {
-        _anime.value = animeWithoutDetails
         viewModelScope.launch {
+            _anime.value = animeWithoutDetails
             fetchAnimeDetails()
         }
     }
@@ -45,6 +49,14 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
             Authorization -> TODO()
             DatabaseQuery -> TODO()
         }
+    }
+
+    fun onEditClick() {
+        _evtEdit.value = true
+    }
+
+    fun doneShowingEditDialog() {
+        _evtEdit.value = false
     }
 
     private fun setErrorMessage(msg: String) {

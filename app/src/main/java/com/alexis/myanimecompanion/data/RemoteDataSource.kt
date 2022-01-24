@@ -27,6 +27,7 @@ class RemoteDataSource private constructor() {
         val requestResult = try {
             request()
         } catch (e: HttpException) {
+            Log.e(TAG, e.printStackTrace().toString())
             return when (e.code()) {
                 HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
                 HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
@@ -34,8 +35,10 @@ class RemoteDataSource private constructor() {
                 else -> Result.failure(Error.Network)
             }
         } catch (e: SocketTimeoutException) {
+            Log.e(TAG, e.printStackTrace().toString())
             return Result.failure(Error.Network)
         } catch (e: UnknownHostException) {
+            Log.e(TAG, e.printStackTrace().toString())
             return Result.failure(Error.Network)
         }
 
