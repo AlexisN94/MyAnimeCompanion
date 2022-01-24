@@ -5,6 +5,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -28,6 +29,12 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
         viewModel.resultList.observe(viewLifecycleOwner, { animeList ->
             animeList?.let {
                 adapter.submitList(animeList)
+            }
+        })
+        viewModel.toastMessage.observe(viewLifecycleOwner, { message ->
+            message?.let {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                viewModel.doneShowingToast()
             }
         })
 

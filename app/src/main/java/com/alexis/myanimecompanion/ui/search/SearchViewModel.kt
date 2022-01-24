@@ -32,7 +32,11 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
     val statusMessage: LiveData<String?>
         get() = _statusMessage
 
-    lateinit var currentSearchQuery: String
+    private val _toastMessage = MutableLiveData<String?>()
+    val toastMessage: LiveData<String?>
+        get() = _toastMessage
+
+    private lateinit var currentSearchQuery: String
     private var currentPage = 0
     private var mLastVisibleItemPosition = 0
 
@@ -99,15 +103,24 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
         _loading.value = false
     }
 
-    private fun handleError(error: Error) {
-        when (error) {
-            Error.Network -> updateStatusMessage(resources.getString(R.string.network_error_occurred))
-            Error.EmptyList -> updateStatusMessage(resources.getString(R.string.empty_user_list))
-            Error.BadRequest -> updateStatusMessage(resources.getString(R.string.invalid_search_query))
-            else -> updateStatusMessage(resources.getString(R.string.generic_error_occurred))
-        }
+    private fun handleError(error: Error, isFirstPage: Boolean) {
+        if (isFirstPage) {
+            when (error) {
+                Error.Network -> updateStatusMessage(resources.getString(R.string.network_error_occurred))
+                Error.EmptyList -> updateStatusMessage(resources.getString(R.string.empty_user_list))
+                Error.BadRequest -> updateStatusMessage(resources.getString(R.string.invalid_search_query))
+                else -> updateStatusMessage(resources.getString(R.string.generic_error_occurred))
+            }
 
-        resetResultList()
+            resetResultList()
+        } else {
+            when (error) {
+                Error.Network -> updateToastMessage(resources.getString(R.string.network_error_occurred))
+                Error.EmptyList -> updateToastMessage(resources.getString(R.string.empty_user_list))
+                Error.BadRequest -> updateToastMessage(resources.getString(R.string.invalid_search_query))
+                else -> updateToastMessage(resources.getString(R.string.generic_error_occurred))
+            }
+        }
     }
 
     private fun updateStatusMessage(value: String?) {
@@ -116,5 +129,13 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
 
     private fun updateLoadingMore(value: Boolean) {
         _loadingMore.value = value
+    }
+
+    private fun updateToastMessage(text: String?) {
+        _toastMessage.value = text
+    }
+
+    fun doneShowingToast() {
+        updateToastMessage(null)
     }
 }
