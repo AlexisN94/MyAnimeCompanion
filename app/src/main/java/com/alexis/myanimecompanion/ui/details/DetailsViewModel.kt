@@ -5,13 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.data.Error.*
 import com.alexis.myanimecompanion.domain.Anime
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(val animeWithoutDetails: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
 
-    val _errorMessage = MutableLiveData<String?>()
+    private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
@@ -29,16 +30,20 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
     private suspend fun fetchAnimeDetails() {
         animeRepository.getAnime(animeWithoutDetails).let { result ->
             if (result.isFailure) {
-                when (result.errorOrNull()!!) {
-                    Network -> setErrorMessage("A network error occurred")
-                    Generic -> setErrorMessage("An error occurred")
-                    NullUserStatus -> setErrorMessage("Failed to get your status")
-                    Authorization -> TODO()
-                    DatabaseQuery -> TODO()
-                }
+                handleError(result.errorOrNull()!!)
             } else {
                 _anime.value = result.getOrNull()!!
             }
+        }
+    }
+
+    private fun handleError(error: Error) {
+        when (error) {
+            Network -> setErrorMessage("A network error occurred")
+            Generic -> setErrorMessage("An error occurred")
+            NullUserStatus -> setErrorMessage("Failed to get your status")
+            Authorization -> TODO()
+            DatabaseQuery -> TODO()
         }
     }
 
