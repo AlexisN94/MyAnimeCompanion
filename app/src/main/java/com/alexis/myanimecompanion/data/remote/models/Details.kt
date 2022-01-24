@@ -47,7 +47,7 @@ fun Details.asDomainModel(): Anime? {
     val genreList: String = this.genres.joinToString(", ") { it.name }
     val parsedStartDate: Date? = startDate.toMALDate()
     val alternativeTitlesStr =
-        "alternativeTitles.en" + ", " + "alternativeTitles.ja" + ", " + alternativeTitles.synonyms.joinToString(", ")
+        "${alternativeTitles.en}" + ", " + "${alternativeTitles.ja}" + ", " + alternativeTitles.synonyms.joinToString(", ")
 
     val userStatus = myListStatus?.let {
         val parsedMyUpdatedAt = it.updatedAt.toMALDate() ?: return null
