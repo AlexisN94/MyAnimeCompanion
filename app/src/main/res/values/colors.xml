@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <!-- Day -->
-    <color name="primary_light">#FFA000</color>
+    <color name="primary_light">#FDA41D</color>
     <color name="primary_variant_light">#FFECB3</color>
     <color name="text_primary_light">#323232</color>
     <color name="color_on_primary_light">#FFFFFF</color>
@@ -13,14 +13,14 @@
     <color name="color_on_secondary_light">#FFECB3</color>
     <color name="divider_light">#BDBDBD</color>
     <!-- Night -->
-    <color name="primary_dark">#1D289F</color>
-    <color name="primary_variant_dark">#2130D5</color>
+    <color name="primary_dark">#4450DA</color>
+    <color name="primary_variant_dark">#7289FF</color>
     <color name="text_primary_dark">#CDCDCD</color>
-    <color name="color_on_primary_dark">#FFA000</color>
-    <color name="secondary_dark">#FFA000</color>
-    <color name="secondary_variant_dark">#FFC86C</color>
+    <color name="color_on_primary_dark">#FFEDE7</color>
+    <color name="secondary_dark">#B5343E</color>
+    <color name="secondary_variant_dark">#fe969e</color>
     <color name="text_secondary_dark">#B8B8B8</color>
-    <color name="color_on_secondary_dark">#2130D5</color>
+    <color name="color_on_secondary_dark">#EEFFEC</color>
     <color name="divider_dark">#757575</color>
     <color name="none">#00FFFFFF</color>
 </resources>
