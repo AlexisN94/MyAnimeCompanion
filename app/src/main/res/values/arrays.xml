@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="anime_status">
-        <item>Watching</item>
-        <item>Completed</item>
-        <item>Plan to Watch</item>
-        <item>On Hold</item>
-        <item>Dropped</item>
+        <item>watching</item>
+        <item>completed</item>
+        <item>plan_to_watch</item>
+        <item>on_hold</item>
+        <item>dropped</item>
     </array>
 </resources>
