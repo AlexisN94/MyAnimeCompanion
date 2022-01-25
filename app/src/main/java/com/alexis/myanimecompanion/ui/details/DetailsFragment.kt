@@ -42,7 +42,7 @@ class DetailsFragment : Fragment() {
         })
 
         viewModel.evtShowStatus.observe(viewLifecycleOwner, {
-            binding.statusGroup.visibility = if (it) View.VISIBLE else View.GONE
+            binding.clStatusContents.visibility = if (it) View.VISIBLE else View.GONE
         })
 
         return binding.root

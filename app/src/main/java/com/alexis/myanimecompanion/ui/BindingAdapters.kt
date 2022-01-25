@@ -54,6 +54,11 @@ fun TextView.setEpisodesWatched(anime: Anime?) {
     text = "${anime?.myListStatus?.episodesWatched ?: 0}/${anime?.details?.numEpisodes ?: "?"}"
 }
 
+@BindingAdapter("visibility")
+fun View.visibility(value: Boolean) {
+    visibility = if (value) View.VISIBLE else View.GONE
+}
+
 @BindingAdapter("userScoreFormatted")
 fun TextView.setUserScore(anime: Anime) {
     text = "${anime?.myListStatus?.score ?: 0}/10"

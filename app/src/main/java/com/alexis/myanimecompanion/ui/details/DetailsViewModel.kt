@@ -74,4 +74,8 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
     fun toggleStatus() {
         _evtShowStatus.value = _evtShowStatus.value?.let { !it } ?: true
     }
+
+    fun addToList() {
+        _errorMessage.value = "Not yet implemented"
+    }
 }
