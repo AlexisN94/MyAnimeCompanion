@@ -51,7 +51,12 @@ fun TextView.setValue(value: Double?) {
 
 @BindingAdapter("episodesWatchedFormatted")
 fun TextView.setEpisodesWatched(anime: Anime?) {
-    text = "${anime?.myListStatus?.episodesWatched ?: 0}/${anime?.details?.numEpisodes ?: "?"} eps"
+    text = "${anime?.myListStatus?.episodesWatched ?: 0}/${anime?.details?.numEpisodes ?: "?"}"
+}
+
+@BindingAdapter("userScoreFormatted")
+fun TextView.setUserScore(anime: Anime) {
+    text = "${anime?.myListStatus?.score ?: 0}/10"
 }
 
 @BindingAdapter("epsReleased")
@@ -103,4 +108,3 @@ fun AppCompatEditText.setValueListener(listener: InverseBindingListener) {
         listener.onChange()
     }
 }
-

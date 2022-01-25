@@ -20,6 +20,10 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
     val evtEdit: LiveData<Boolean>
         get() = _evtEdit
 
+    private val _evtShowStatus = MutableLiveData(false)
+    val evtShowStatus: LiveData<Boolean>
+        get() = _evtShowStatus
+
     private val _anime = MutableLiveData<Anime>()
     val anime: LiveData<Anime>
         get() = _anime
@@ -65,5 +69,9 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
 
     fun doneShowingErrorMessage() {
         _errorMessage.value = null
+    }
+
+    fun toggleStatus() {
+        _evtShowStatus.value = _evtShowStatus.value?.let { !it } ?: true
     }
 }
