@@ -13,19 +13,18 @@ import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentDetailsBinding
 
 class DetailsFragment : Fragment() {
-//    lateinit var viewModel: DetailsViewModel
+    lateinit var viewModel: DetailsViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentDetailsBinding.inflate(inflater)
         val args: DetailsFragmentArgs by navArgs()
         val animeRepository = AnimeRepository.getInstance(requireContext())
         val viewModelFactory = DetailsViewModelFactory(args.anime, animeRepository)
-        val viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[DetailsViewModel::class.java]
-//        viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[DetailsViewModel::class.java]
+        viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[DetailsViewModel::class.java]
 
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
-            this.viewModel = viewModel
+            viewModel = this@DetailsFragment.viewModel
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner, { msg ->
@@ -37,7 +36,7 @@ class DetailsFragment : Fragment() {
 
         viewModel.evtEdit.observe(viewLifecycleOwner, {
             if (it) {
-                showEditStatusDialog(viewModel)
+                showEditStatusDialog()
                 viewModel.doneShowingEditDialog()
             }
         })
@@ -45,7 +44,7 @@ class DetailsFragment : Fragment() {
         return binding.root
     }
 
-    private fun showEditStatusDialog(viewModel: DetailsViewModel) {
+    private fun showEditStatusDialog() {
         viewModel.anime.value?.let { anime ->
             val direction = DetailsFragmentDirections.actionDetailsFragmentToEditFragment(anime)
             findNavController().navigate(direction)
