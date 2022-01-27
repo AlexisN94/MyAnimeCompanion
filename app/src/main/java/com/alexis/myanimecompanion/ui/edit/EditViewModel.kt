@@ -27,9 +27,9 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
         }
     }
 
-    fun onSave() {
+    fun save() {
         viewModelScope.launch {
-            anime?.let {
+            anime.let {
                 it.userStatus = currentStatus.value
                 it.userScore = userScore.value
                 it.episodesWatched = episodesWatched.value ?: 0

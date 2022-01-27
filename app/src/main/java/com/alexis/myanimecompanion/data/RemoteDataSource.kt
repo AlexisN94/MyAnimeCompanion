@@ -1,41 +1,43 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Log
 import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
+import com.alexis.myanimecompanion.data.remote.models.RemoteToken
 import com.alexis.myanimecompanion.data.remote.models.asAnime
 import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
 import com.alexis.myanimecompanion.data.remote.models.asDomainModel
 import com.alexis.myanimecompanion.data.remote.models.asListOfAnime
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.DomainToken
+import retrofit2.HttpException
 import java.security.SecureRandom
 
 private const val TAG = "RemoteDataSource"
 
 class RemoteDataSource private constructor() {
     private var myAnimeListApi: MyAnimeListAPI = APIClient.myAnimeListApi
-    private lateinit var codeVerifier: String
-    private lateinit var codeChallenge: String
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var tokenStorageManager: TokenStorageManager
     private var token: DomainToken? = null // null if not logged in
 
-    /**
-     * Since search results aren't stored in the database, we use them directly by returning List<Anime>
-     */
-    suspend fun search(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
+    suspend fun search(query: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
         return try {
             val searchResult = myAnimeListApi.search(q, limit, offset, fields)
             val listOfAnime = searchResult.asListOfAnime()
             listOfAnime.map {
                 getAnimeDetails(it)
             }
-            return listOfAnime
-        } catch (e: Exception) {
+            listOfAnime
+        } catch (e: HttpException) {
             Log.e(TAG, e.toString())
             null
         }
@@ -45,16 +47,10 @@ class RemoteDataSource private constructor() {
         return getAnimeDetails(anime.id)
     }
 
-    /**
-     * Since anime details aren't stored in the database, we use them directly by returning Anime
-     */
-    suspend fun getAnimeDetails(animeId: Int): Anime? {
+    suspend fun getAnimeDetails(animeId: Int?): Anime? {
         return try {
-            myAnimeListApi.getAnimeDetails(
-                token?.accessToken,
-                animeId
-            ).asAnime()
-        } catch (e: Exception) {
+            myAnimeListApi.getAnimeDetails(token?.accessToken, animeId).asAnime()
+        } catch (e: HttpException) {
             Log.e(TAG, e.toString())
             null
         }
@@ -73,6 +69,7 @@ class RemoteDataSource private constructor() {
     }
 
     private suspend fun getAccessToken(authorizationCode: String) {
+        val codeVerifier = sharedPreferences.getString("codeVerifier", null) ?: return
         val params = mutableMapOf<String, String>()
 
         params.apply {
@@ -91,7 +88,10 @@ class RemoteDataSource private constructor() {
     }
 
     fun getAuthorizationUrl(): String {
-        newCodeVerifierAndChallenge()
+        val codeVerifier = generateCodeVerifier()
+        val codeChallenge = generateCodeChallenge(codeVerifier)
+
+        sharedPreferences.edit().putString("codeVerifier", codeVerifier)
 
         return MyAnimeListAPI.BASE_AUTHORIZATION_URL +
                 "?response_type=code" +
@@ -99,14 +99,16 @@ class RemoteDataSource private constructor() {
                 "&code_challenge=$codeChallenge"
     }
 
-    private fun newCodeVerifierAndChallenge() {
+    private fun generateCodeVerifier(): String {
         val secureRandom = SecureRandom()
         val bytes = ByteArray(32)
         secureRandom.nextBytes(bytes)
-        codeVerifier = Base64.encodeToString(bytes, Base64.NO_PADDING or Base64.URL_SAFE or Base64.NO_WRAP)
+        return Base64.encodeToString(bytes, Base64.NO_PADDING or Base64.URL_SAFE or Base64.NO_WRAP)
+    }
 
-        // Only the 'plain' method is supported by MyAnimeList, so code challenge = code verifier
-        codeChallenge = codeVerifier
+    private fun generateCodeChallenge(codeVerifier: String): String {
+        // Currently MyAnimeList only supports the 'plain' code challenge method, so the code challenge = code verifier
+        return codeVerifier
     }
 
     private suspend fun refreshAccessToken() {
@@ -159,6 +161,16 @@ class RemoteDataSource private constructor() {
                     val tokenStorageManager = TokenStorageManager.getInstance(context)
                     instance.tokenStorageManager = tokenStorageManager
                     instance.token = tokenStorageManager.fetchToken()
+                    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+
+                    instance.sharedPreferences = EncryptedSharedPreferences.create(
+                        "secret_shared_prefs",
+                        masterKeyAlias,
+                        context,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                    )
+
                     INSTANCE = instance
                 }
             }

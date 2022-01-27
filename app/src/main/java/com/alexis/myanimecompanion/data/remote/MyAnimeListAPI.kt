@@ -23,12 +23,12 @@ interface MyAnimeListAPI {
     @GET("users/{user_name}/animelist")
     suspend fun getUserAnimeList(
         @Path("user_name") username: String
-    ): UserAnimeList
+    ): RemoteUserAnimeList
 
     @GET("users/@me")
     suspend fun getUserProfile(
         @Header("Authorization") accessToken: String
-    ): User
+    ): RemoteUser
 
     @DELETE("anime/{anime_id}/my_list_status")
     suspend fun deleteAnime(
@@ -44,19 +44,19 @@ interface MyAnimeListAPI {
         @Field("status") status: String? = null,
         @Field("num_watched_episodes") numWatchedEpisodes: Int? = null,
         @Field("score") score: Int? = null
-    ): MyListStatus
+    ): RemoteMyListStatus
 
     @FormUrlEncoded
     @POST(BASE_TOKEN_URL)
     suspend fun getAccessToken(
         @FieldMap params: Map<String, String>
-    ): Token
+    ): RemoteToken
 
     @FormUrlEncoded
     @POST(BASE_TOKEN_URL)
     suspend fun refreshAccessToken(
         @FieldMap params: Map<String, String>
-    ): Token
+    ): RemoteToken
 
     companion object {
         const val BASE_AUTHORIZATION_URL = "https://myanimelist.net/v1/oauth2/authorize"

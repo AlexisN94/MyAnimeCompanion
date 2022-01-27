@@ -31,22 +31,24 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
             }
         })
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
-        binding.rvSearchResultList.apply {
-            this.adapter = adapter
-            layoutManager = GridLayoutManager(requireContext(), 3)
-        }
-        binding.etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
-            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    viewModel.search()
-                    activity?.dismissKeyboard()
-                    return true
-                }
-                return false
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = viewModel
+            rvSearchResultList.apply {
+                this.adapter = adapter
+                layoutManager = GridLayoutManager(requireContext(), 3)
             }
-        })
+            etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
+                override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+                    if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                        viewModel.search()
+                        activity?.dismissKeyboard()
+                        return true
+                    }
+                    return false
+                }
+            })
+        }
 
         return binding.root
     }

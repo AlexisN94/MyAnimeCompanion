@@ -83,9 +83,7 @@ fun AppCompatSpinner.setValueListener(listener: InverseBindingListener) {
 
 @InverseBindingAdapter(attribute = "searchQuery")
 fun AppCompatEditText.getValue(): String {
-    val a = text
-    val b = text.toString()
-    return b
+    return text.toString()
 }
 
 @BindingAdapter("searchQuery")

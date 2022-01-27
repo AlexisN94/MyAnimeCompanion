@@ -102,9 +102,9 @@
                     android:id="@+id/spn_edit_dialog_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:spinnerMode="dialog"
-                    app:spinnerValue="@={viewModel.currentStatus}"
-                    android:minHeight="48dp" />
+                    app:spinnerValue="@={viewModel.currentStatus}" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -133,7 +133,7 @@
                         android:layout_weight="5"
                         android:gravity="end"
                         app:epsReleased="@{viewModel.anime}"
-                        tools:text="Eps. Released: 10"/>
+                        tools:text="Eps. Released: 10" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <androidx.appcompat.widget.LinearLayoutCompat
@@ -146,9 +146,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="5"
+                        android:minHeight="48dp"
                         android:spinnerMode="dialog"
-                        app:spinnerValue="@={viewModel.episodesWatched}"
-                        android:minHeight="48dp" />
+                        app:spinnerValue="@={viewModel.episodesWatched}" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -172,9 +172,9 @@
                     android:id="@+id/spn_edit_dialog_rating"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="48dp"
                     android:spinnerMode="dialog"
-                    app:spinnerValue="@={viewModel.userScore}"
-                    android:minHeight="48dp" />
+                    app:spinnerValue="@={viewModel.userScore}" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,14 +28,14 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
     fun search() {
         viewModelScope.launch {
             searchQuery.value?.let {
-                unsetStatusMessage()
-                setLoading()
+                updateStatusMessage(null)
+                updateLoading(true)
                 val searchResults: List<Anime>? = animeRepository.search(it)
                 searchResults?.let {
                     _resultList.value = searchResults
                 }
-                unsetLoading()
-                setStatusMessage(searchResults)
+                updateLoading(false)
+                updateStatusMessage(searchResults)
             }
         }
     }
@@ -44,15 +44,11 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
         searchQuery.value = ""
     }
 
-    private fun setLoading() {
-        _loading.value = true
+    private fun updateLoading(value: Boolean) {
+        _loading.value = value
     }
 
-    private fun unsetLoading() {
-        _loading.value = false
-    }
-
-    private fun setStatusMessage(searchResults: List<Anime>?) {
+    private fun updateStatusMessage(searchResults: List<Anime>?) {
         when {
             searchResults == null -> {
                 _statusMessage.value = resources.getString(R.string.network_error_occurred)
@@ -61,9 +57,5 @@ class SearchViewModel(val animeRepository: AnimeRepository, private val resource
                 _statusMessage.value = resources.getString(R.string.empty_search_results)
             }
         }
-    }
-
-    private fun unsetStatusMessage() {
-        _statusMessage.value = null
     }
 }
