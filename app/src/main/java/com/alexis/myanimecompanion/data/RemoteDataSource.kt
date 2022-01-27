@@ -1,17 +1,13 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
-import android.content.Context
-import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Log
 import com.alexis.myanimecompanion.TokenStorageManager
+import com.alexis.myanimecompanion.createEncryptedSharedPreferences
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
-import com.alexis.myanimecompanion.data.remote.models.RemoteToken
 import com.alexis.myanimecompanion.data.remote.models.asAnime
 import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
 import com.alexis.myanimecompanion.data.remote.models.asDomainModel
@@ -31,7 +27,7 @@ class RemoteDataSource private constructor() {
 
     suspend fun search(query: String, limit: Int = 24, offset: Int = 0, fields: String = ""): List<Anime>? {
         return try {
-            val searchResult = myAnimeListApi.search(q, limit, offset, fields)
+            val searchResult = myAnimeListApi.search(query, limit, offset, fields)
             val listOfAnime = searchResult.asListOfAnime()
             listOfAnime.map {
                 getAnimeDetails(it)
@@ -47,7 +43,7 @@ class RemoteDataSource private constructor() {
         return getAnimeDetails(anime.id)
     }
 
-    suspend fun getAnimeDetails(animeId: Int?): Anime? {
+    suspend fun getAnimeDetails(animeId: Int): Anime? {
         return try {
             myAnimeListApi.getAnimeDetails(token?.accessToken, animeId).asAnime()
         } catch (e: HttpException) {
@@ -161,15 +157,7 @@ class RemoteDataSource private constructor() {
                     val tokenStorageManager = TokenStorageManager.getInstance(context)
                     instance.tokenStorageManager = tokenStorageManager
                     instance.token = tokenStorageManager.fetchToken()
-                    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-
-                    instance.sharedPreferences = EncryptedSharedPreferences.create(
-                        "secret_shared_prefs",
-                        masterKeyAlias,
-                        context,
-                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                    )
+                    instance.sharedPreferences = createEncryptedSharedPreferences(context, "secret_shared_prefs")
 
                     INSTANCE = instance
                 }

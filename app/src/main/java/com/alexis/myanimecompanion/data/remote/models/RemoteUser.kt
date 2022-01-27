@@ -1,5 +1,7 @@
 package com.alexis.myanimecompanion.data.remote.models
 
+import com.alexis.myanimecompanion.data.local.models.DatabaseUser
+
 data class RemoteUser(
     val anime_statistics: RemoteAnimeStatistics,
     val id: Int,
@@ -7,3 +9,7 @@ data class RemoteUser(
     val location: String,
     val name: String
 )
+
+fun RemoteUser.asDatabaseModel(): DatabaseUser? {
+    return DatabaseUser(id, name, lastUpdate = null, isOnlineAccount = true)
+}

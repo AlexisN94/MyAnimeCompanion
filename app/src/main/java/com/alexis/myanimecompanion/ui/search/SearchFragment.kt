@@ -33,7 +33,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
 
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
-            viewModel = viewModel
+            viewModel = this@SearchFragment.viewModel
             rvSearchResultList.apply {
                 this.adapter = adapter
                 layoutManager = GridLayoutManager(requireContext(), 3)
@@ -41,7 +41,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
             etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
                 override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
                     if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                        viewModel.search()
+                        this@SearchFragment.viewModel.search()
                         activity?.dismissKeyboard()
                         return true
                     }
