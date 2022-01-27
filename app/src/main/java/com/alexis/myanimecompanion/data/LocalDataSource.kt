@@ -19,8 +19,8 @@ class LocalDataSource private constructor() {
         animeDatabase.userDao.delete(user)
     }
 
-    fun updateUser(user: DatabaseUser) {
-        animeDatabase.userDao.update(user)
+    fun updateUser(user: DatabaseUser): Int {
+        return animeDatabase.userDao.update(user)
     }
 
     companion object {

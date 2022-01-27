@@ -3,7 +3,7 @@ package com.alexis.myanimecompanion.data.remote.models
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 
 data class RemoteUser(
-    val anime_statistics: RemoteAnimeStatistics,
+    val anime_statistics: RemoteAnimeStatistics? = null,
     val id: Int,
     val joined_at: String,
     val location: String,

@@ -87,8 +87,7 @@ class RemoteDataSource private constructor() {
         val codeVerifier = generateCodeVerifier()
         val codeChallenge = generateCodeChallenge(codeVerifier)
 
-        sharedPreferences.edit().putString("codeVerifier", codeVerifier)
-
+        sharedPreferences.edit().putString("codeVerifier", codeVerifier).apply()
         return MyAnimeListAPI.BASE_AUTHORIZATION_URL +
                 "?response_type=code" +
                 "&client_id=${APIClient.MAL_CLIENT_ID}" +

@@ -25,7 +25,7 @@ class ProfileFragment : Fragment() {
 
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
-            viewModel = viewModel
+            viewModel = this@ProfileFragment.viewModel
         }
 
         viewModel.evtStartLogin.observe(viewLifecycleOwner, { startLogin ->

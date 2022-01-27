@@ -26,7 +26,9 @@ class UserRepository private constructor() {
             } else {
                 // Logged in
                 updateCurrentUserId(remoteUser.id)
-                localDataSource.updateUser(remoteUser)
+                if (localDataSource.updateUser(remoteUser) == 0) {
+                    localDataSource.insertUser(remoteUser)
+                }
                 localDataSource.getUser(remoteUser.id)
             }
 
@@ -67,7 +69,6 @@ class UserRepository private constructor() {
                     .also { instance ->
                         instance.localDataSource = LocalDataSource.getInstance(context)
                         instance.remoteDataSource = RemoteDataSource.getInstance(context)
-
                         instance.sharedPreferences = createEncryptedSharedPreferences(context, USER_SP_FILENAME)
 
                         INSTANCE = instance
