@@ -8,6 +8,7 @@ import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.data.Error.*
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.ui.edit.EditEvent
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(val animeWithoutDetails: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
@@ -77,5 +78,15 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
 
     fun addToList() {
         _errorMessage.value = "Not yet implemented"
+    }
+
+    fun onAnimeEdit(editEvent: EditEvent) {
+        if (editEvent.isDelete) {
+            _anime.value?.myListStatus = null
+            _anime.postValue(_anime.value)
+        } else {
+            _anime.value = editEvent.anime!!
+            _anime.postValue(_anime.value)
+        }
     }
 }
