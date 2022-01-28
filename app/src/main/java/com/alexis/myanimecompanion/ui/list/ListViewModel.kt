@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.ui.edit.EditEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -52,13 +54,19 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
         if (animeList != null) {
             for ((index, anime) in animeList.withIndex()) {
                 animeRepository.getAnime(anime).let { result ->
-                    if (result.isSuccess) {
+                    if (result.isFailure) {
+                        handleError(result.errorOrNull()!!)
+                    } else {
                         _animeList.value?.elementAt(index)?.details = result.getOrNull()!!.details
                         _animeList.postValue(_animeList.value)
                     }
                 }
             }
         }
+    }
+
+    private fun handleError(error: Error) {
+        TODO()
     }
 
     private fun setLoading() {
@@ -124,6 +132,22 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
                     if (it.id == anime.id) {
                         anime
                     }
+                }
+            }
+        }
+    }
+
+    fun onAnimeEdit(editEvent: EditEvent) {
+        if (editEvent.isDelete) {
+            _animeList.value = _animeList.value?.filter { anime ->
+                anime.id != editEvent.animeId
+            }
+        } else {
+            _animeList.value?.map { anime ->
+                if (anime.id == editEvent.animeId) {
+                    editEvent.anime
+                } else {
+                    anime
                 }
             }
         }

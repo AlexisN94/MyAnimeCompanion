@@ -193,6 +193,11 @@ class AnimeRepository private constructor() {
         return remoteDataSource.onAuthorizationCodeReceived(authorizationCode)
     }
 
+    suspend fun deleteAnime(animeId: Int): Result<Unit> {
+        // TODO
+        return Result.success()
+    }
+
     companion object {
         private var INSTANCE: AnimeRepository? = null
 
