@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 
 class ListViewModel(private val animeRepository: AnimeRepository, private val resources: Resources) : ViewModel() {
 
-    private val _animeList = MutableLiveData<List<Anime>>()
+    private val _animeList = MutableLiveData<MutableList<Anime>>()
     val animeList: LiveData<List<Anime>>
-        get() = _animeList
+        get() = _animeList as LiveData<List<Anime>>
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
@@ -44,21 +44,20 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
             if (result.isFailure) {
                 _statusMessage.postValue(result.errorOrNull()!!.name)
             } else {
-                _animeList.postValue(result.getOrNull()!!)
+                _animeList.postValue(result.getOrNull()!! as MutableList<Anime>)
             }
         }
     }
 
     private suspend fun setAnimeDetails() {
-        val animeList = _animeList.value?.iterator()
+        val animeList = _animeList.value
         if (animeList != null) {
             for ((index, anime) in animeList.withIndex()) {
                 animeRepository.getAnime(anime).let { result ->
                     if (result.isFailure) {
                         handleError(result.errorOrNull()!!)
                     } else {
-                        _animeList.value?.elementAt(index)?.details = result.getOrNull()!!.details
-                        _animeList.postValue(_animeList.value)
+                        _animeList.value?.set(index, result.getOrNull()!!)
                     }
                 }
             }
@@ -93,47 +92,42 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
         _statusMessage.postValue(null)
     }
 
-    fun incrementWatchedEpisodes(anime: Anime) {
-        viewModelScope.launch {
-            var animeDetails = anime.details
-            if (animeDetails == null
-                || anime.myListStatus == null
-                || animeDetails.numEpisodes == null
-                || animeDetails.numEpisodes == 0
-            )
-                TODO("end coroutine")
-            else if (anime.myListStatus.episodesWatched!! < animeDetails.numEpisodes) {
-                anime.myListStatus.episodesWatched++
-                animeRepository.insertOrUpdateAnimeStatus(anime)
-                _animeList.value?.map {
-                    if (it.id == anime.id)
-                        anime
+    fun editWatchedEpisodes(anime: Anime, editType: WatchedEpisodesEditType) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val animeIndex = _animeList.value?.indexOf(anime)
+
+            if (animeIndex == null) {
+                cancel()
+            }
+
+            if (canEditWatchedEpisodes(anime, editType)) {
+                when (editType) {
+                    WatchedEpisodesEditType.DECREMENT -> anime.myListStatus!!.episodesWatched--
+                    WatchedEpisodesEditType.INCREMENT -> anime.myListStatus!!.episodesWatched++
+                }
+
+                animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->
+                    if (result.isFailure) {
+                        handleError(result.errorOrNull()!!)
+                    } else {
+                        _animeList.value?.set(animeIndex!!, anime)
+                    }
                 }
             }
         }
     }
 
-    fun decrementWatchedEpisodes(anime: Anime) {
-        viewModelScope.launch {
-            var animeDetails = anime.details
-            if (animeDetails == null
-                || anime.myListStatus == null
-                || animeDetails.numEpisodes == null
-                || animeDetails.numEpisodes == 0
-            )
-                cancel()
-            else if (anime.myListStatus.episodesWatched > 0) {
-                anime.myListStatus.episodesWatched++
-                /*TODO updateAnimeStatus should return boolean for status check.
-                   If all good, apply change to _animeList. Else, display failure to update error message.
-                   Also, assert that remote values haven't changed before pushing update. */
-                animeRepository.insertOrUpdateAnimeStatus(anime)
-                _animeList.value?.map {
-                    if (it.id == anime.id) {
-                        anime
-                    }
-                }
+    private fun canEditWatchedEpisodes(anime: Anime, editType: WatchedEpisodesEditType): Boolean {
+        val animeDetails = anime.details
+        val myListStatus = anime.myListStatus
+
+        return if (animeDetails != null && myListStatus != null && animeDetails.numEpisodes != 0) {
+            when (editType) {
+                WatchedEpisodesEditType.INCREMENT -> myListStatus.episodesWatched < animeDetails.numEpisodes
+                WatchedEpisodesEditType.DECREMENT -> myListStatus.episodesWatched > 0
             }
+        } else {
+            false
         }
     }
 
@@ -141,7 +135,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
         if (editEvent.isDelete) {
             _animeList.value = _animeList.value?.filter { anime ->
                 anime.id != editEvent.animeId
-            }
+            } as MutableList<Anime>?
         } else {
             _animeList.value?.map { anime ->
                 if (anime.id == editEvent.animeId) {
@@ -151,5 +145,9 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
                 }
             }
         }
+    }
+
+    enum class WatchedEpisodesEditType {
+        INCREMENT, DECREMENT
     }
 }

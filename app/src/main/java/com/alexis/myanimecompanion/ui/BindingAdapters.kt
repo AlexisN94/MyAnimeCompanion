@@ -33,11 +33,12 @@ fun ImageView.setImage(url: String?) {
 @BindingAdapter("progress")
 fun ProgressBar.setProgress(anime: Anime) {
     var animeDetails = anime.details
+    val myListStatus = anime.myListStatus
     progress =
-        if (anime.myListStatus?.episodesWatched == null || animeDetails == null || animeDetails.numEpisodes == 0) {
+        if (myListStatus?.episodesWatched == null || animeDetails == null || animeDetails.numEpisodes == 0) {
             0
         } else {
-            val percentage = anime.myListStatus.episodesWatched?.toDouble().div(animeDetails.numEpisodes)
+            val percentage = myListStatus.episodesWatched?.toDouble().div(animeDetails.numEpisodes)
             percentage.times(100).toInt()
         }
 }

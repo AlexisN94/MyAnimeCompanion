@@ -86,12 +86,12 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
     }
 
     override fun onIncrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit) {
-        viewModel.incrementWatchedEpisodes(anime)
+        viewModel.editWatchedEpisodes(anime, ListViewModel.WatchedEpisodesEditType.INCREMENT)
         notifyDatasetChanged()
     }
 
     override fun onDecrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit) {
-        viewModel.decrementWatchedEpisodes(anime)
+        viewModel.editWatchedEpisodes(anime, ListViewModel.WatchedEpisodesEditType.DECREMENT)
         notifyDatasetChanged()
     }
 }

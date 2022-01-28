@@ -10,12 +10,12 @@ data class Anime(
     val id: Int,
     val title: String,
     val imageUrl: String,
-    val myListStatus: AnimeStatus? = null,
+    var myListStatus: AnimeStatus? = null,
     var details: AnimeDetails? = null
 ) : Parcelable
 
 fun Anime.asDatabaseModel(): DatabaseAnimeWithStatus? {
-    return myListStatus?.let {
+    return myListStatus?.let { myListStatus ->
         DatabaseAnimeWithStatus(
             DatabaseAnime(id, title, imageUrl),
             myListStatus.asDatabaseModel(id)

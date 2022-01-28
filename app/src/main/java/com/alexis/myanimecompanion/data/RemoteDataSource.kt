@@ -83,9 +83,9 @@ class RemoteDataSource private constructor() {
             myAnimeListApi.updateAnimeStatus(
                 token.accessToken,
                 anime.id,
-                anime.myListStatus.status,
-                anime.myListStatus.episodesWatched,
-                anime.myListStatus.score
+                anime.myListStatus!!.status,
+                anime.myListStatus!!.episodesWatched,
+                anime.myListStatus!!.score
             )
         }
     }
