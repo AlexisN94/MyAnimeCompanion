@@ -23,4 +23,9 @@
     <color name="color_on_secondary_dark">#EEFFEC</color>
     <color name="divider_dark">#757575</color>
     <color name="none">#00FFFFFF</color>
+
+    <color name="color_error">#AA2731</color>
+    <color name="color_on_error">#FFE0E3</color>
+    <color name="color_error_dark">#B50202</color>
+    <color name="color_on_error_dark">#FFCCCC</color>
 </resources>
