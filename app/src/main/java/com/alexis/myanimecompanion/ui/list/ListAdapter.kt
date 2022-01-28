@@ -13,7 +13,7 @@ class ListAdapter(private val itemClickListener: ClickListener) :
 
     interface ClickListener {
         fun onItemClick(anime: Anime)
-        fun onOptionsMenuClick(anime: Anime, view: View)
+        fun onEditClick(anime: Anime, view: View)
         fun onIncrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit)
         fun onDecrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit)
     }
@@ -36,8 +36,8 @@ class ListAdapter(private val itemClickListener: ClickListener) :
                 root.setOnClickListener {
                     clickListener.onItemClick(anime)
                 }
-                ibListItemMenu.setOnClickListener { view ->
-                    clickListener.onOptionsMenuClick(anime, view)
+                ibListItemEdit.setOnClickListener { view ->
+                    clickListener.onEditClick(anime, view)
                 }
                 ibListItemIncrement.setOnClickListener {
                     clickListener.onIncrementWatchedClick(anime, notifyDatasetChanged)

@@ -39,7 +39,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/ib_list_item_decrement"
-            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_menu"
+            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_edit"
             app:layout_constraintStart_toEndOf="@+id/iv_list_item_image"
             app:layout_constraintTop_toTopOf="@+id/iv_list_item_image"
             tools:text="Ousama Ranking" />
@@ -80,16 +80,17 @@
             android:minHeight="44dp"
             android:src="@drawable/ic_increment"
             app:layout_constraintBottom_toBottomOf="@+id/ib_list_item_decrement"
-            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_menu"
+            app:layout_constraintEnd_toStartOf="@+id/ib_list_item_edit"
             app:layout_constraintStart_toEndOf="@id/progressBar"
             app:layout_constraintTop_toTopOf="@+id/ib_list_item_decrement" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/ib_list_item_menu"
+            android:id="@+id/ib_list_item_edit"
             android:layout_width="40dp"
             android:layout_height="98dp"
             android:background="@color/none"
-            android:src="@drawable/ic_baseline_more_vert_24"
+            android:src="@drawable/ic_baseline_edit_24"
+            android:tint="?attr/colorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

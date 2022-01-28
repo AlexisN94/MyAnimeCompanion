@@ -53,33 +53,12 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
         findNavController().navigate(directions)
     }
 
-    private fun showItemMenuOptions(view: View, anime: Anime) {
-        PopupMenu(context, view).apply {
-            inflate(R.menu.rv_user_list_item_menu)
-            setOnMenuItemClickListener { item ->
-                when (item?.itemId) {
-                    R.id.rv_user_list_item_menu_edit -> {
-                        navigateToEditFragment(anime)
-                        true
-                    }
-                    R.id.rv_user_list_item_menu_remove -> {
-                        // TODO viewModel.remove(anime)
-                        Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show()
-                        true
-                    }
-                    else -> false
-                }
-            }
-            show()
-        }
-    }
-
     override fun onItemClick(anime: Anime) {
         navigateToDetailsFragment(anime)
     }
 
-    override fun onOptionsMenuClick(anime: Anime, view: View) {
-        showItemMenuOptions(view, anime)
+    override fun onEditClick(anime: Anime, view: View) {
+        navigateToEditFragment(anime)
     }
 
     override fun onIncrementWatchedClick(anime: Anime, notifyDatasetChanged: () -> Unit) {
