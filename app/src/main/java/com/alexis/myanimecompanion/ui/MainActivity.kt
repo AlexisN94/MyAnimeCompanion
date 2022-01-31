@@ -20,7 +20,12 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
-        findViewById<BottomNavigationView>(R.id.bottom_nav).setupWithNavController(navController)
+        findViewById<BottomNavigationView>(R.id.bottom_nav).apply {
+            setupWithNavController(navController)
+            setOnItemReselectedListener { reselectedDestination ->
+                navController.popBackStack(reselectedDestination.itemId, inclusive = false)
+            }
+        }
     }
 
     override fun onResume() {
