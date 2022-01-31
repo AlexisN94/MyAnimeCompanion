@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -18,13 +19,14 @@ private const val TAG = "EditFragment"
 const val EDIT_EVENT = "edit_event"
 
 class EditFragment : BottomSheetDialogFragment() {
+    lateinit var viewModel: EditViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentEditBinding.inflate(inflater)
         val args: EditFragmentArgs by navArgs()
         val animeRepository = AnimeRepository.getInstance(requireNotNull(context))
         val viewModelFactory = EditViewModelFactory(args.anime, animeRepository)
-        val viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[EditViewModel::class.java]
+        viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[EditViewModel::class.java]
 
         viewModel.editEvent.observe(viewLifecycleOwner) { editEvent ->
             if (editEvent != null) {
@@ -34,7 +36,12 @@ class EditFragment : BottomSheetDialogFragment() {
             }
         }
 
+        viewModel.deleteClickEvent.observe(viewLifecycleOwner) { deleteClickEvent ->
+            if (deleteClickEvent) showDeleteConfirmationDialog()
+        }
+
         binding.apply {
+            val viewModel = this@EditFragment.viewModel
             lifecycleOwner = viewLifecycleOwner
             this.viewModel = viewModel
 
@@ -60,9 +67,22 @@ class EditFragment : BottomSheetDialogFragment() {
                 dialog?.cancel()
             }
             btnEditDialogDelete.setOnClickListener {
-                viewModel.deleteAnime()
+                viewModel.onDeleteClick()
             }
         }
         return binding.root
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setMessage(getString(R.string.confirm_delete))
+            .setPositiveButton(getString(R.string.confirm_text)) { _, _ ->
+                viewModel.onConfirmDelete()
+            }
+            .setNegativeButton(getString(R.string.cancel_text)) { _, _ ->
+                viewModel.onCancelDelete()
+            }
+            .create()
+            .show()
     }
 }

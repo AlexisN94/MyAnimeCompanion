@@ -24,6 +24,9 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
     private val _editEvent = MutableLiveData<EditEvent>()
     val editEvent: LiveData<EditEvent> get() = _editEvent
 
+    private val _deleteClickEvent = MutableLiveData(false)
+    val deleteClickEvent: LiveData<Boolean> get() = _deleteClickEvent
+
     init {
         viewModelScope.launch {
             animeRepository.getAnime(anime)?.let { result ->
@@ -62,6 +65,19 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
                 }
             }
         }
+    }
+
+    fun onDeleteClick() {
+        _deleteClickEvent.value = true
+    }
+
+    fun onCancelDelete() {
+        _deleteClickEvent.value = false
+    }
+
+    fun onConfirmDelete() {
+        _deleteClickEvent.value = false
+        deleteAnime()
     }
 
     fun deleteAnime() {

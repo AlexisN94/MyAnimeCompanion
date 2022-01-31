@@ -19,4 +19,7 @@
     <string name="alternative_titles_label">Alternative Titles:</string>
     <string name="status_label">Status</string>
     <string name="remove_from_list">Delete</string>
+    <string name="confirm_delete">Remove anime from your list?</string>
+    <string name="confirm_text">Confirm</string>
+    <string name="cancel_text">Cancel</string>
 </resources>
