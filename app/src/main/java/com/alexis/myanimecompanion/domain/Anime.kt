@@ -2,7 +2,7 @@ package com.alexis.myanimecompanion.domain
 
 import android.os.Parcelable
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeWithStatus
+import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -14,11 +14,12 @@ data class Anime(
     var details: AnimeDetails? = null
 ) : Parcelable
 
-fun Anime.asDatabaseModel(): DatabaseAnimeWithStatus? {
-    return myListStatus?.let { myListStatus ->
-        DatabaseAnimeWithStatus(
-            DatabaseAnime(id, title, imageUrl),
-            myListStatus.asDatabaseModel(id)
-        )
-    }
+fun Anime.asDatabaseModel(): DatabaseCompleteAnime? {
+    if (myListStatus == null || details == null) return null
+
+    return DatabaseCompleteAnime(
+        DatabaseAnime(id, title, imageUrl),
+        myListStatus!!.asDatabaseModel(id),
+        details!!.asDatabaseModel(id)
+    )
 }

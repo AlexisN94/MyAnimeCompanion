@@ -1,6 +1,7 @@
 package com.alexis.myanimecompanion.ui.list
 
 import android.content.res.Resources
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,16 +10,15 @@ import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.domain.Anime
-import com.alexis.myanimecompanion.ui.edit.EditEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+private const val TAG = "ListViewModel"
+
 class ListViewModel(private val animeRepository: AnimeRepository, private val resources: Resources) : ViewModel() {
 
-    private val _animeList = MutableLiveData<MutableList<Anime>>()
-    val animeList: LiveData<List<Anime>>
-        get() = _animeList as LiveData<List<Anime>>
+    val animeList = animeRepository.getAnimeList()
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
@@ -32,33 +32,18 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
         viewModelScope.launch(Dispatchers.IO) {
             unsetStatusMessage()
             setLoading()
-            setAnimeList()
+            refreshAnimeList()
             unsetLoading()
-            setAnimeDetails()
             // setStatusMessage()
         }
     }
 
-    private suspend fun setAnimeList() {
-        animeRepository.getAnimeList().let { result ->
-            if (result.isFailure) {
-                _statusMessage.postValue(result.errorOrNull()!!.name)
-            } else {
-                _animeList.postValue(result.getOrNull()!! as MutableList<Anime>)
-            }
-        }
-    }
-
-    private suspend fun setAnimeDetails() {
-        val animeList = _animeList.value
-        if (animeList != null) {
-            for ((index, anime) in animeList.withIndex()) {
-                animeRepository.getAnime(anime).let { result ->
-                    if (result.isFailure) {
-                        handleError(result.errorOrNull()!!)
-                    } else {
-                        _animeList.value?.set(index, result.getOrNull()!!)
-                    }
+    fun refreshAnimeList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "Test " + "refreshAnimeList() called")
+            animeRepository.refreshAnimeList().let { result ->
+                if (result.isFailure) {
+                    _statusMessage.postValue(result.errorOrNull()!!.name)
                 }
             }
         }
@@ -77,7 +62,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
     }
 
     private fun setStatusMessage() {
-        val list = _animeList.value
+        val list = animeList.value
         when {
             list == null -> {
                 _statusMessage.postValue(resources.getString(R.string.network_error_occurred))
@@ -94,7 +79,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
 
     fun editWatchedEpisodes(anime: Anime, editType: WatchedEpisodesEditType) {
         viewModelScope.launch(Dispatchers.IO) {
-            val animeIndex = _animeList.value?.indexOf(anime)
+            val animeIndex = animeList.value?.indexOf(anime)
 
             if (animeIndex == null) {
                 cancel()
@@ -109,8 +94,6 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
                 animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->
                     if (result.isFailure) {
                         handleError(result.errorOrNull()!!)
-                    } else {
-                        _animeList.value?.set(animeIndex!!, anime)
                     }
                 }
             }
@@ -128,22 +111,6 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
             }
         } else {
             false
-        }
-    }
-
-    fun onAnimeEdit(editEvent: EditEvent) {
-        if (editEvent.isDelete) {
-            _animeList.value = _animeList.value?.filter { anime ->
-                anime.id != editEvent.animeId
-            } as MutableList<Anime>?
-        } else {
-            _animeList.value?.map { anime ->
-                if (anime.id == editEvent.animeId) {
-                    editEvent.anime
-                } else {
-                    anime
-                }
-            }
         }
     }
 

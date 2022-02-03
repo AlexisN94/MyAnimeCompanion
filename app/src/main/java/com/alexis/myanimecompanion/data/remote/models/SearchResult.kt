@@ -3,7 +3,7 @@ package com.alexis.myanimecompanion.data.remote.models
 import com.alexis.myanimecompanion.domain.Anime
 
 data class SearchResult(
-    val data: List<Data> = listOf(),
+    val data: List<SearchResultData> = listOf(),
     // TODO use paging
     val paging: Paging = Paging()
 )

@@ -1,12 +1,13 @@
 package com.alexis.myanimecompanion.data.local.daos
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeWithStatus
+import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
 
 @Dao
 interface AnimeDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(databaseAnime: DatabaseAnime)
 
     @Update
@@ -17,7 +18,10 @@ interface AnimeDao {
 
     @Transaction
     @Query("SELECT * FROM DatabaseAnime WHERE id = :animeId")
-    fun getById(animeId: Int): DatabaseAnimeWithStatus
+    fun getById(animeId: Int): DatabaseCompleteAnime
+
+    @Query("DELETE FROM DatabaseAnime WHERE id = :animeId")
+    fun deleteById(animeId: Int)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -25,6 +29,5 @@ interface AnimeDao {
 
     @Transaction
     @Query("SELECT * FROM DatabaseAnime")
-    fun getAll(): List<DatabaseAnimeWithStatus>
-
+    fun getAll(): LiveData<List<DatabaseCompleteAnime>>
 }

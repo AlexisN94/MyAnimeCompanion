@@ -1,7 +1,10 @@
 package com.alexis.myanimecompanion.data
 
 import android.content.Context
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeWithStatus
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
 import com.alexis.myanimecompanion.data.local.models.asDomainModel
 import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
 import com.alexis.myanimecompanion.data.remote.models.asDomainModel
@@ -11,6 +14,7 @@ import com.alexis.myanimecompanion.domain.DomainUser
 import com.alexis.myanimecompanion.domain.asDatabaseModel
 import com.alexis.myanimecompanion.toMALDate
 
+private const val TAG = "AnimeRepository"
 
 class AnimeRepository private constructor() {
     private lateinit var localDataSource: LocalDataSource
@@ -113,11 +117,24 @@ class AnimeRepository private constructor() {
     }
      */
 
+    fun getAnimeList(): LiveData<List<Anime>> {
+        val animeListLiveData = localDataSource.getAnimeList()
+
+        animeListLiveData?.let { animeListLiveData ->
+            return Transformations.map(animeListLiveData) { animeList ->
+                animeList.map { anime ->
+                    anime.asDomainModel()
+                }
+            }
+        }
+    }
+
     /**
      * Errors – [Network][Error.Network], [Authorization][Error.Authorization]
      */
-    suspend fun getAnimeList(): Result<List<Anime>> {
+    suspend fun refreshAnimeList(): Result<Unit> {
         if (isLoggedIn()) {
+            Log.d(TAG, "Test " + "refreshAnimeList() called")
             trySaveRemoteListToDatabase().let { result ->
                 if (result.isFailure) {
                     return Result.failure(result.errorOrNull()!!)
@@ -125,19 +142,14 @@ class AnimeRepository private constructor() {
             }
         }
 
-        val animeList = localDataSource.getAnimeList().asDomainModel()
-
-        animeList?.let {
-            return Result.success(animeList)
-        } ?: return Result.failure(Error.Generic)
-
+        return Result.success()
     }
 
 
     /**
      * Errors – [Network][Error.Network], [Authorization][Error.Authorization]
      */
-    private suspend fun tryGetRemoteAnimeList(): Result<List<DatabaseAnimeWithStatus>> {
+    private suspend fun tryGetRemoteAnimeList(): Result<List<DatabaseCompleteAnime>> {
         val animeList = remoteDataSource.tryGetAnimeList().let { result ->
             result.getOrNull() ?: return Result.failure(result.errorOrNull()!!)
         }
@@ -194,7 +206,7 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun deleteAnime(animeId: Int): Result<Unit> {
-        // TODO
+        localDataSource.deleteAnime(animeId)
         return Result.success()
     }
 

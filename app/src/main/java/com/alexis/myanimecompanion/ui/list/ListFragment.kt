@@ -1,12 +1,11 @@
 package com.alexis.myanimecompanion.ui.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -14,8 +13,8 @@ import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentListBinding
 import com.alexis.myanimecompanion.domain.Anime
-import com.alexis.myanimecompanion.ui.edit.EDIT_EVENT
-import com.alexis.myanimecompanion.ui.edit.EditEvent
+
+private const val TAG = "ListFragment"
 
 class ListFragment : Fragment(), ListAdapter.ClickListener {
     private lateinit var viewModel: ListViewModel
@@ -31,6 +30,7 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
             animeList?.let {
                 adapter.submitList(animeList)
             }
+            Log.d(TAG, "Test onCreateView() called with: animeList = $animeList")
         }
 
         binding.viewModel = viewModel
@@ -43,26 +43,16 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume() called")
+        viewModel.refreshAnimeList()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val navBackStackEntry = findNavController().getBackStackEntry(R.id.ListFragment)
-        val observer = LifecycleEventObserver { _, lifecycleEvent ->
-            if (lifecycleEvent == Lifecycle.Event.ON_RESUME && navBackStackEntry.savedStateHandle.contains(EDIT_EVENT)) {
-                navBackStackEntry.savedStateHandle.get<EditEvent>(EDIT_EVENT).let { editEvent ->
-                    if (editEvent != null) {
-                        viewModel.onAnimeEdit(editEvent)
-                    }
-                }
-            }
-        }
-        navBackStackEntry.lifecycle.addObserver(observer)
-
-        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, lifecycleEvent ->
-            if (lifecycleEvent == Lifecycle.Event.ON_DESTROY) {
-                navBackStackEntry.lifecycle.removeObserver(observer)
-            }
-        })
     }
 
     private fun navigateToDetailsFragment(anime: Anime) {

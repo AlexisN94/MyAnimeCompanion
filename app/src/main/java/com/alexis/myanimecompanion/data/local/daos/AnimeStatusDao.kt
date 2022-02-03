@@ -5,7 +5,7 @@ import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeStatus
 
 @Dao
 interface AnimeStatusDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(animeStatus: DatabaseAnimeStatus)
 
     @Update
@@ -13,6 +13,9 @@ interface AnimeStatusDao {
 
     @Delete
     fun delete(animeStatus: DatabaseAnimeStatus)
+
+    @Query("DELETE FROM DatabaseAnimeStatus WHERE animeId = :animeId")
+    fun deleteByAnimeId(animeId: Int)
 
     @Query("SELECT * FROM DatabaseAnimeStatus WHERE animeId = :animeId")
     fun getStatusByAnimeId(animeId: Int): DatabaseAnimeStatus

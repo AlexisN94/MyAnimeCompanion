@@ -3,6 +3,7 @@ package com.alexis.myanimecompanion.data
 import android.content.Context
 import android.util.Base64
 import android.util.Log
+import com.alexis.myanimecompanion.QueryFieldsBuilder
 import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.remote.APIClient
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
@@ -28,6 +29,16 @@ class RemoteDataSource private constructor() {
             request()
         } catch (e: HttpException) {
             Log.e(TAG, e.printStackTrace().toString())
+            /*
+            when (e.code() / 100) {
+                1 -> { /* informational response */ }
+                2 -> { /* success response */ }
+                3 -> { /* redirection response */ }
+                4 -> { /* client error response */ }
+                5 -> { /* server error response */ }
+                else -> { /* bad response code */ }
+            }
+            */
             return when (e.code()) {
                 HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
                 HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
@@ -177,7 +188,10 @@ class RemoteDataSource private constructor() {
         val token = getNonExpiredToken() ?: return Result.failure(Error.Authorization)
 
         return tryRequest {
-            myAnimeListApi.getUserAnimeList("Bearer ${token.accessToken}")
+            myAnimeListApi.getUserAnimeList(
+                "Bearer ${token.accessToken}",
+                QueryFieldsBuilder.fieldsForAnimeDetails().done()
+            )
         }
     }
 

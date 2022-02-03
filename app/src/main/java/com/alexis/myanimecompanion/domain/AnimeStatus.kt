@@ -8,10 +8,10 @@ import java.util.*
 
 @Parcelize
 data class AnimeStatus(
-    var score: Int?,
-    var status: String,
+    var score: Int = 0,
+    var status: String = "watching",
     var episodesWatched: Int = 0,
-    val updatedAt: Date
+    val updatedAt: Date? = null
 ) : Parcelable
 
 fun AnimeStatus.asDatabaseModel(animeId: Int): DatabaseAnimeStatus {
@@ -20,6 +20,6 @@ fun AnimeStatus.asDatabaseModel(animeId: Int): DatabaseAnimeStatus {
         score,
         status,
         episodesWatched,
-        updatedAt.toMALDateString()
+        updatedAt?.toMALDateString()
     )
 }

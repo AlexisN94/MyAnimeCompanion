@@ -1,8 +1,8 @@
 package com.alexis.myanimecompanion.data.remote.models
 
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeStatus
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeWithStatus
+import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeDetails
+import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.AnimeDetails
 import com.alexis.myanimecompanion.domain.AnimeStatus
@@ -51,7 +51,7 @@ fun Details.asDomainModel(): Anime? {
 
     val userStatus = myListStatus?.let {
         val parsedMyUpdatedAt = it.updatedAt.toMALDate() ?: return null
-        AnimeStatus(it.score, it.status, it.numEpisodesWatched, parsedMyUpdatedAt)
+        AnimeStatus(it.score, it.status, it.numEpisodesWatched ?: it.numWatchedEpisodes ?: 0, parsedMyUpdatedAt)
     }
 
     val details = AnimeDetails(synopsis, genreList, parsedStartDate, mean, numEpisodes, status, alternativeTitlesStr)
@@ -63,19 +63,25 @@ fun Details.asDomainModel(): Anime? {
  * @return null if [myListStatus][Details.myListStatus] is null.
  * This may happen if an user authorization problem occurs.
  */
-fun Details.asDatabaseModel(): DatabaseAnimeWithStatus? {
-    if (myListStatus == null) {
-        return null
-    }
+fun Details.asDatabaseModel(listStatus: MyListStatus? = null): DatabaseCompleteAnime? {
+    val nonNullListStatus = myListStatus ?: listStatus ?: return null
 
-    return DatabaseAnimeWithStatus(
+    val genreList: String = this.genres.joinToString(", ") { it.name }
+    val alternativeTitlesStr =
+        "${alternativeTitles.en}" + ", " + "${alternativeTitles.ja}" + ", " + alternativeTitles.synonyms.joinToString(", ")
+
+    return DatabaseCompleteAnime(
         DatabaseAnime(id, title, mainPicture.large),
-        DatabaseAnimeStatus(
+        nonNullListStatus.asDatabaseModel(id),
+        DatabaseAnimeDetails(
             id,
-            myListStatus.score,
-            myListStatus.status,
-            myListStatus.numEpisodesWatched,
-            myListStatus.updatedAt
+            synopsis,
+            genreList,
+            startDate,
+            mean,
+            numEpisodes,
+            status,
+            alternativeTitlesStr
         )
     )
 }
@@ -84,8 +90,8 @@ fun Details.asDatabaseModel(): DatabaseAnimeWithStatus? {
  * @return null when [myListStatus][Details.myListStatus] is null for any list item.
  * This may happen if an user authorization problem occurs.
  */
-fun List<Details>.asDatabaseModel(): List<DatabaseAnimeWithStatus>? {
-    val databaseAnimeList = mutableListOf<DatabaseAnimeWithStatus>()
+fun List<Details>.asDatabaseModel(): List<DatabaseCompleteAnime>? {
+    val databaseAnimeList = mutableListOf<DatabaseCompleteAnime>()
     for (item in this) {
         val databaseAnimeWithStatus = item.asDatabaseModel() ?: return null
         databaseAnimeList.add(databaseAnimeWithStatus)

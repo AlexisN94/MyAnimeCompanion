@@ -1,6 +1,8 @@
 package com.alexis.myanimecompanion.domain
 
 import android.os.Parcelable
+import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeDetails
+import com.alexis.myanimecompanion.toMALDateString
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
@@ -14,3 +16,16 @@ data class AnimeDetails(
     val status: String,
     val alternativeTitles: String,
 ) : Parcelable
+
+fun AnimeDetails.asDatabaseModel(animeId: Int): DatabaseAnimeDetails {
+    return DatabaseAnimeDetails(
+        animeId,
+        synopsis,
+        genres,
+        releaseDate?.toMALDateString(),
+        globalScore,
+        numEpisodes,
+        status,
+        alternativeTitles
+    )
+}

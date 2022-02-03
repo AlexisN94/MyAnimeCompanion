@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.domain.AnimeStatus
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
 
     init {
         viewModelScope.launch {
-            animeRepository.getAnime(anime)?.let { result ->
+            animeRepository.getAnime(anime).let { result ->
                 if (result.isFailure) {
                     handleError(result.errorOrNull()!!)
                 } else {
@@ -40,9 +41,11 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
     }
 
     private fun updateUIValues(anime: Anime) {
-        episodesWatched.value = anime.myListStatus?.episodesWatched
-        currentStatus.value = anime.myListStatus?.status
-        userScore.value = anime.myListStatus?.score
+        anime.myListStatus = anime.myListStatus ?: AnimeStatus()
+
+        episodesWatched.value = anime.myListStatus!!.episodesWatched
+        currentStatus.value = anime.myListStatus!!.status
+        userScore.value = anime.myListStatus!!.score
     }
 
     private fun handleError(error: Error) {
@@ -55,7 +58,7 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
                 if (result.isFailure) {
                     handleError(result.errorOrNull()!!)
                 } else {
-                    anime?.myListStatus?.let {
+                    anime.myListStatus?.let {
                         it.status = currentStatus.value ?: it.status
                         it.score = userScore.value ?: it.score
                         it.episodesWatched = episodesWatched.value ?: it.episodesWatched
@@ -97,6 +100,9 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
     }
 }
 
+/**
+ * EditEvent is used to communicate to the previous fragment which kind of operation was performed on which anime.
+ */
 @Parcelize
 class EditEvent private constructor(private val editType: EditType, val animeId: Int, val anime: Anime? = null) :
     Parcelable {

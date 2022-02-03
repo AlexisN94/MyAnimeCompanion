@@ -9,22 +9,20 @@ import com.alexis.myanimecompanion.toMALDate
 data class DatabaseAnimeStatus(
     @PrimaryKey
     val animeId: Int,
-    val score: Int?,
+    val score: Int,
     val status: String,
     val episodesWatched: Int,
-    val updatedAt: String
+    val updatedAt: String? = null
 )
 
 /**
  * @return null when fails to parse [updatedAt][DatabaseAnimeStatus.updatedAt] to [Date][java.util.Date]
  */
-fun DatabaseAnimeStatus.asDomainModel(): AnimeStatus? {
-    updatedAt.toMALDate()?.let { parsedUpdatedAt ->
-        return AnimeStatus(
-            score,
-            status,
-            episodesWatched,
-            parsedUpdatedAt
-        )
-    } ?: return null
+fun DatabaseAnimeStatus.asDomainModel(): AnimeStatus {
+    return AnimeStatus(
+        score,
+        status,
+        episodesWatched,
+        updatedAt?.toMALDate()
+    )
 }
