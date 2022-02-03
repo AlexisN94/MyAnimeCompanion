@@ -7,12 +7,40 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.alexis.myanimecompanion.data.RemoteDataSource
+import androidx.lifecycle.ViewModelProvider
+import com.alexis.myanimecompanion.data.AnimeRepository
+import com.alexis.myanimecompanion.data.UserRepository
+import com.alexis.myanimecompanion.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {
+    lateinit var viewModel: ProfileViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        TODO("If user is logged in, proceed. Otherwise, offer button to redirect to login fragment")
-        return super.onCreateView(inflater, container, savedInstanceState)
+        val binding = FragmentProfileBinding.inflate(inflater)
+        val userRepository = UserRepository.getInstance(requireContext())
+        val animeRepository = AnimeRepository.getInstance(requireContext())
+
+        val viewModelFactory = ProfileViewModelFactory(animeRepository, userRepository)
+        viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ProfileViewModel::class.java]
+
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = this@ProfileFragment.viewModel
+        }
+
+        viewModel.evtStartLogin.observe(viewLifecycleOwner, { startLogin ->
+            if (startLogin) {
+                onStartLogin()
+            }
+        })
+
+        return binding.root
+    }
+
+    private fun onStartLogin() {
+        val authorizationUrl = viewModel.getAuthorizationUrl()
+        val browse = Intent(Intent.ACTION_VIEW, Uri.parse(authorizationUrl))
+        startActivity(browse)
+        viewModel.onStartLoginHandled()
     }
 }

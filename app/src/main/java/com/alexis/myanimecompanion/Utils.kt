@@ -3,6 +3,8 @@ package com.alexis.myanimecompanion
 import android.app.Activity
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 
 /**
  * Utility singleton to create a list of filter fields for api queries; e.g. Only get the objet's id and synopsis in
@@ -90,4 +92,17 @@ fun Activity.dismissKeyboard() {
     val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     if (inputMethodManager.isAcceptingText)
         inputMethodManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+}
+
+fun createEncryptedSharedPreferences(context: Context, fileName: String): EncryptedSharedPreferences {
+    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+
+    return EncryptedSharedPreferences
+        .create(
+            fileName,
+            masterKeyAlias,
+            context.applicationContext,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        ) as EncryptedSharedPreferences
 }

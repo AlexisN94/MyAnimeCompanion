@@ -1,7 +1,6 @@
 package com.alexis.myanimecompanion.ui
 
 import android.view.View
-import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
@@ -14,11 +13,6 @@ import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.domain.Anime
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-
-@BindingAdapter("loadUrl")
-fun WebView.loadUrl(url: String) {
-    this.loadUrl(url)
-}
 
 @BindingAdapter("imgUrl")
 fun ImageView.setImage(url: String?) {
@@ -103,5 +97,14 @@ fun AppCompatEditText.setValue(value: String?) {
 fun AppCompatEditText.setValueListener(listener: InverseBindingListener) {
     doOnTextChanged { _, _, _, _ ->
         listener.onChange()
+    }
+}
+
+@BindingAdapter("visible")
+fun View.setVisibility(show: Boolean) {
+    visibility = if (show) {
+        View.VISIBLE
+    } else {
+        View.GONE
     }
 }

@@ -43,11 +43,14 @@ fun Details.asAnime(): Anime {
     } catch (e: Exception) {
         null
     }
-    val parsedUpdatedAt: Date? = try {
-        dateFormat.parse(myListStatus?.updatedAt)
-    } catch (e: ParseException) {
-        null
+    val parsedUpdatedAt: Date? = myListStatus?.let {
+        try {
+            dateFormat.parse(it.updatedAt)
+        } catch (e: ParseException) {
+            null
+        }
     }
+
     val alternativeTitlesStr = "${alternativeTitles.en + ", "}" +
             "${alternativeTitles.ja + ", "}${alternativeTitles.synonyms.joinToString(", ")}"
 

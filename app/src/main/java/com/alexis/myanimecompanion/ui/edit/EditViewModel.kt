@@ -20,9 +20,9 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
         viewModelScope.launch {
             animeRepository.getAnime(anime)?.let {
                 anime = it
-                episodesWatched.value = it.episodesWatched
-                currentStatus.value = it.userStatus
-                userScore.value = it.userScore
+                episodesWatched.value = anime.episodesWatched
+                currentStatus.value = anime.userStatus
+                userScore.value = anime.userScore
             }
         }
     }

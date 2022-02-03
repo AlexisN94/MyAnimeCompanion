@@ -20,6 +20,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentSearchBinding.inflate(inflater)
         val animeRepository = AnimeRepository.getInstance(requireContext())
+
         val viewModelFactory = SearchViewModelFactory(animeRepository, resources)
         val adapter = SearchListAdapter(this)
 
@@ -32,7 +33,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
 
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
-            viewModel = viewModel
+            viewModel = this@SearchFragment.viewModel
             rvSearchResultList.apply {
                 this.adapter = adapter
                 layoutManager = GridLayoutManager(requireContext(), 3)
@@ -40,7 +41,7 @@ class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
             etSearchQuery.setOnKeyListener(object : View.OnKeyListener {
                 override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
                     if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                        viewModel.search()
+                        this@SearchFragment.viewModel.search()
                         activity?.dismissKeyboard()
                         return true
                     }

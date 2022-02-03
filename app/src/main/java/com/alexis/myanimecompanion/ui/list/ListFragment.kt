@@ -21,6 +21,7 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentListBinding.inflate(inflater)
         val animeRepository: AnimeRepository = AnimeRepository.getInstance(requireNotNull(context))
+
         val viewModelFactory = ListViewModelFactory(animeRepository, resources)
         val adapter = ListAdapter(this)
 
@@ -34,6 +35,7 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
         binding.apply {
             viewModel = viewModel
             lifecycleOwner = viewLifecycleOwner
+
             rvList.apply {
                 this.adapter = adapter
                 addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

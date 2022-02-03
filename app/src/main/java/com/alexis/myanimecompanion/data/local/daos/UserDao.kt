@@ -9,11 +9,11 @@ interface UserDao {
     fun insert(databaseUser: DatabaseUser)
 
     @Update
-    fun update(databaseUser: DatabaseUser)
+    fun update(databaseUser: DatabaseUser): Int
 
     @Delete
     fun delete(databaseUser: DatabaseUser)
 
     @Query("SELECT * FROM DatabaseUser WHERE id = :userId")
-    fun getUserById(userId: Int) : DatabaseUser
+    fun getUser(userId: Int): DatabaseUser
 }
