@@ -11,7 +11,9 @@ import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +54,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 Toast.makeText(applicationContext, toastMessage, Toast.LENGTH_LONG).show()
+            } else {
+                withContext(Dispatchers.IO) {
+                    AnimeRepository.getInstance(applicationContext).postLogin()
+                }
             }
         }
     }

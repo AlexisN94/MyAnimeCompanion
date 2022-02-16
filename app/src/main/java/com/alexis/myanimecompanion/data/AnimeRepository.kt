@@ -237,6 +237,11 @@ class AnimeRepository private constructor() {
         return Result.success()
     }
 
+    suspend fun postLogin() {
+        localDataSource.clearAllTables()
+        refreshAnimeList()
+    }
+
     companion object {
         private var INSTANCE: AnimeRepository? = null
 
