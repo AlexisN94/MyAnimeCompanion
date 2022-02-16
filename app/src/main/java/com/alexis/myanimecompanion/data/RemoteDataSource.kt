@@ -101,6 +101,21 @@ class RemoteDataSource private constructor() {
         }
     }
 
+    suspend fun tryDeleteAnime(animeId: Int): Result<Unit> {
+        val token = getNonExpiredToken()
+
+        if (token?.accessToken == null) {
+            return Result.failure(Error.Authorization)
+        }
+
+        return tryRequest {
+            myAnimeListApi.deleteAnime(
+                "Bearer ${token.accessToken}",
+                animeId
+            )
+        }
+    }
+
     suspend fun requestToken(authorizationCode: String): Result<Unit> {
         val params = mutableMapOf<String, String>()
 

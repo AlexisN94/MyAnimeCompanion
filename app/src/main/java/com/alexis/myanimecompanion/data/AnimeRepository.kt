@@ -206,6 +206,14 @@ class AnimeRepository private constructor() {
     }
 
     suspend fun deleteAnime(animeId: Int): Result<Unit> {
+        if (isLoggedIn()) {
+            remoteDataSource.tryDeleteAnime(animeId)?.let { result ->
+                if (result.isFailure) {
+                    return Result.failure(result.errorOrNull()!!)
+                }
+            }
+        }
+
         localDataSource.deleteAnime(animeId)
         return Result.success()
     }
