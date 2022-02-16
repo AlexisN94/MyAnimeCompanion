@@ -10,8 +10,8 @@ class LocalDataSource private constructor() {
     private lateinit var animeDatabase: AnimeDatabase
 
     fun insertOrUpdateUser(user: DatabaseUser) {
-        if (animeDatabase.userDao.update(user) == 0) {
-            animeDatabase.userDao.insert(user)
+        if (updateUser(user) == 0) {
+            insertUser(user)
         }
     }
 

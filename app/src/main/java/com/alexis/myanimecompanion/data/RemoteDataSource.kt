@@ -23,28 +23,6 @@ class RemoteDataSource private constructor() {
     private lateinit var codeChallenge: String
     private lateinit var tokenStorageManager: TokenStorageManager
 
-    private suspend fun <T> tryRequest(request: suspend () -> T?): Result<T> {
-        val requestResult = try {
-            request()
-        } catch (e: HttpException) {
-            Log.e(TAG, e.printStackTrace().toString())
-            return when (e.code()) {
-                HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
-                HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
-                HttpURLConnection.HTTP_BAD_REQUEST -> Result.failure(Error.BadRequest)
-                else -> Result.failure(Error.Network)
-            }
-        } catch (e: SocketTimeoutException) {
-            Log.e(TAG, e.printStackTrace().toString())
-            return Result.failure(Error.Network)
-        } catch (e: UnknownHostException) {
-            Log.e(TAG, e.printStackTrace().toString())
-            return Result.failure(Error.Network)
-        }
-
-        return Result.success(requestResult)
-    }
-
     /**
      * Since search results aren't stored in the database, we use them directly by returning List<Anime>
      */
@@ -183,6 +161,28 @@ class RemoteDataSource private constructor() {
 
     suspend fun hasValidToken(): Boolean {
         return getNonExpiredToken() != null
+    }
+
+    private suspend fun <T> tryRequest(request: suspend () -> T?): Result<T> {
+        val requestResult = try {
+            request()
+        } catch (e: HttpException) {
+            Log.e(TAG, e.printStackTrace().toString())
+            return when (e.code()) {
+                HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
+                HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
+                HttpURLConnection.HTTP_BAD_REQUEST -> Result.failure(Error.BadRequest)
+                else -> Result.failure(Error.Network)
+            }
+        } catch (e: SocketTimeoutException) {
+            Log.e(TAG, e.printStackTrace().toString())
+            return Result.failure(Error.Network)
+        } catch (e: UnknownHostException) {
+            Log.e(TAG, e.printStackTrace().toString())
+            return Result.failure(Error.Network)
+        }
+
+        return Result.success(requestResult)
     }
 
     companion object {

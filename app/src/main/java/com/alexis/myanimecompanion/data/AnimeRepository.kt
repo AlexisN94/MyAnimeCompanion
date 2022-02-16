@@ -11,7 +11,6 @@ import com.alexis.myanimecompanion.domain.DomainUser
 import com.alexis.myanimecompanion.domain.asDatabaseModel
 import com.alexis.myanimecompanion.toMALDate
 
-
 class AnimeRepository private constructor() {
     private lateinit var localDataSource: LocalDataSource
     private lateinit var remoteDataSource: RemoteDataSource
@@ -86,34 +85,6 @@ class AnimeRepository private constructor() {
     }
 
     /**
-     * if not logged in then get anime from database
-     *                  if (it or it.myListStatus) is null then return
-     *
-     */
-    /*
-    suspend fun getMergedAnime(remote: Anime, local: Anime): Result<Anime> {
-        if(isLoggedIn()){
-
-        }
-        val remoteUpdatedAt = remote.myListStatus!!.updatedAt
-        val localUpdatedAt = local.myListStatus!!.updatedAt
-
-        if(remoteUpdatedAt.after(localUpdatedAt)) {
-            return Result.failure(Error.OutdatedLocalData)
-        }
-
-        val mergedAnime =
-            if (remote.id == local.id && (remote.title != local.title || remote.imageUrl != local.imageUrl)) {
-                remote
-            } else {
-                Anime(remote.id, remote.title, remote.imageUrl, )
-            }
-
-        return Result.success(mergedAnime)
-    }
-     */
-
-    /**
      * Errors – [Network][Error.Network], [Authorization][Error.Authorization]
      */
     suspend fun getAnimeList(): Result<List<Anime>> {
@@ -130,9 +101,7 @@ class AnimeRepository private constructor() {
         animeList?.let {
             return Result.success(animeList)
         } ?: return Result.failure(Error.Generic)
-
     }
-
 
     /**
      * Errors – [Network][Error.Network], [Authorization][Error.Authorization]

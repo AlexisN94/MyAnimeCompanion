@@ -23,8 +23,9 @@ class TokenStorageManager private constructor() {
     }
 
     fun getToken(): DomainToken? {
-        if (!hasToken())
+        if (!hasToken()) {
             return null
+        }
 
         val tokenJson = sharedPreferences.getString("token", null)
         return jsonAdapter.fromJson(tokenJson)
@@ -37,8 +38,9 @@ class TokenStorageManager private constructor() {
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun checkExpired(domainToken: DomainToken?): Boolean {
-        if (domainToken == null)
+        if (domainToken == null) {
             return false
+        }
 
         val millisLeft = domainToken.expiresAt - System.currentTimeMillis()
         return millisLeft <= MIN_MILLIS_REMAINING_ALLOWED
