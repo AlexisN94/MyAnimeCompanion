@@ -11,7 +11,9 @@ import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.AnimeStatus
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.*
 
 private const val TAG = "EditViewModel"
 
@@ -28,15 +30,12 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
     private val _deleteClickEvent = MutableLiveData(false)
     val deleteClickEvent: LiveData<Boolean> get() = _deleteClickEvent
 
+    private val _toastMessage = MutableLiveData<String?>()
+    val toastMessage: LiveData<String?> get() = _toastMessage
+
     init {
         viewModelScope.launch {
-            animeRepository.getAnime(anime).let { result ->
-                if (result.isFailure) {
-                    handleError(result.errorOrNull()!!)
-                } else {
-                    updateUIValues(anime)
-                }
-            }
+            updateUIValues(anime)
         }
     }
 
@@ -49,11 +48,34 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
     }
 
     private fun handleError(error: Error) {
-        TODO("Not yet implemented")
+        handleError(error.name)
+    }
+
+    private fun handleError(errorMessage: String) {
+        _toastMessage.postValue("Error saving: $errorMessage")
     }
 
     fun applyChanges() {
         viewModelScope.launch(Dispatchers.IO) {
+            if (anime.myListStatus == null) {
+                cancel()
+            }
+
+            anime.myListStatus!!.updatedAt = Date()
+            anime.myListStatus!!.score = userScore.value ?: anime.myListStatus!!.score
+            anime.myListStatus!!.status = currentStatus.value ?: anime.myListStatus!!.status
+
+            if (anime.myListStatus!!.status == "completed") {
+                if (anime.details!!.status != "finished_airing") {
+                    handleError("Anime is still airing. Can't be set as 'completed'")
+                    cancel()
+                }
+                episodesWatched.postValue(anime.details!!.numEpisodes)
+                anime.myListStatus!!.episodesWatched = anime.details!!.numEpisodes
+            } else {
+                anime.myListStatus!!.episodesWatched = episodesWatched.value ?: anime.myListStatus!!.episodesWatched
+            }
+
             animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->
                 if (result.isFailure) {
                     handleError(result.errorOrNull()!!)
@@ -62,9 +84,9 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
                         it.status = currentStatus.value ?: it.status
                         it.score = userScore.value ?: it.score
                         it.episodesWatched = episodesWatched.value ?: it.episodesWatched
-                    }.also {
-                        _editEvent.postValue(EditEvent.update(anime))
                     }
+
+                    _editEvent.postValue(EditEvent.update(anime))
                 }
             }
         }
@@ -97,6 +119,10 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
 
     fun onDialogDismiss() {
         _editEvent.value = null
+    }
+
+    fun doneShowingToast() {
+        _toastMessage.value = null
     }
 }
 

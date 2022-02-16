@@ -87,8 +87,27 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
 
             if (canEditWatchedEpisodes(anime, editType)) {
                 when (editType) {
-                    WatchedEpisodesEditType.DECREMENT -> anime.myListStatus!!.episodesWatched--
-                    WatchedEpisodesEditType.INCREMENT -> anime.myListStatus!!.episodesWatched++
+                    WatchedEpisodesEditType.DECREMENT -> {
+                        anime.myListStatus!!.episodesWatched--
+
+                        if (anime.myListStatus!!.status == "completed") {
+                            anime.myListStatus!!.status = "watching"
+                        } else if (anime.myListStatus!!.episodesWatched == 0) {
+                            anime.myListStatus!!.status = "plan_to_watch"
+                        }
+                    }
+
+                    WatchedEpisodesEditType.INCREMENT -> {
+                        anime.myListStatus!!.episodesWatched++
+
+                        if (anime.myListStatus!!.episodesWatched == 1) {
+                            anime.myListStatus!!.status = "watching"
+                        } else if (anime.myListStatus!!.episodesWatched == anime.details!!.numEpisodes
+                            && anime.details!!.status == "finished_airing"
+                        ) {
+                            anime.myListStatus!!.status = "completed"
+                        }
+                    }
                 }
 
                 animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->

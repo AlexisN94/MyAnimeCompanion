@@ -38,7 +38,7 @@ interface MyAnimeListAPI {
         @Path("anime_id") animeId: Int,
     )
 
-    // TODO PATCH or PUT ? documentation ambiguous
+    @FormUrlEncoded
     @PATCH("anime/{anime_id}/my_list_status")
     suspend fun updateAnimeStatus(
         @Header("Authorization") accessToken: String,

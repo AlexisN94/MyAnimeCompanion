@@ -11,7 +11,7 @@ data class AnimeStatus(
     var score: Int = 0,
     var status: String = "watching",
     var episodesWatched: Int = 0,
-    val updatedAt: Date? = null
+    var updatedAt: Date? = null
 ) : Parcelable
 
 fun AnimeStatus.asDatabaseModel(animeId: Int): DatabaseAnimeStatus {

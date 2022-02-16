@@ -201,8 +201,8 @@ class AnimeRepository private constructor() {
         return remoteDataSource.getAuthorizationURL()
     }
 
-    suspend fun onAuthorizationCodeReceived(authorizationCode: String): Result<Unit> {
-        return remoteDataSource.onAuthorizationCodeReceived(authorizationCode)
+    suspend fun requestToken(authorizationCode: String): Result<Unit> {
+        return remoteDataSource.requestToken(authorizationCode)
     }
 
     suspend fun deleteAnime(animeId: Int): Result<Unit> {

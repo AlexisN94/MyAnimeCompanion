@@ -28,7 +28,7 @@ class RemoteDataSource private constructor() {
         val requestResult = try {
             request()
         } catch (e: HttpException) {
-            Log.e(TAG, e.printStackTrace().toString())
+            Log.e(TAG, "test " + e.printStackTrace().toString())
             /*
             when (e.code() / 100) {
                 1 -> { /* informational response */ }
@@ -46,10 +46,10 @@ class RemoteDataSource private constructor() {
                 else -> Result.failure(Error.Network)
             }
         } catch (e: SocketTimeoutException) {
-            Log.e(TAG, e.printStackTrace().toString())
+            Log.e(TAG, "test " + e.printStackTrace().toString())
             return Result.failure(Error.Network)
         } catch (e: UnknownHostException) {
-            Log.e(TAG, e.printStackTrace().toString())
+            Log.e(TAG, "test " + e.printStackTrace().toString())
             return Result.failure(Error.Network)
         }
 
@@ -92,7 +92,7 @@ class RemoteDataSource private constructor() {
 
         return tryRequest {
             myAnimeListApi.updateAnimeStatus(
-                token.accessToken,
+                "Bearer ${token.accessToken}",
                 anime.id,
                 anime.myListStatus!!.status,
                 anime.myListStatus!!.episodesWatched,

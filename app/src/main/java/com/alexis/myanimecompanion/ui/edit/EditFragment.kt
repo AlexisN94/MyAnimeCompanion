@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -36,6 +37,12 @@ class EditFragment : BottomSheetDialogFragment() {
             }
         }
 
+        viewModel.toastMessage.observe(viewLifecycleOwner) { msg ->
+            if (msg != null) {
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                viewModel.doneShowingToast()
+            }
+        }
         viewModel.deleteClickEvent.observe(viewLifecycleOwner) { deleteClickEvent ->
             if (deleteClickEvent) showDeleteConfirmationDialog()
         }

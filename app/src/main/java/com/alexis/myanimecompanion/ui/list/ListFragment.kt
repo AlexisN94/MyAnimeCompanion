@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentListBinding
 import com.alexis.myanimecompanion.domain.Anime
@@ -30,7 +29,6 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
             animeList?.let {
                 adapter.submitList(animeList)
             }
-            Log.d(TAG, "Test onCreateView() called with: animeList = $animeList")
         }
 
         binding.viewModel = viewModel
@@ -45,14 +43,8 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume() called")
+        Log.d(TAG, "Test onResume() called")
         viewModel.refreshAnimeList()
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val navBackStackEntry = findNavController().getBackStackEntry(R.id.ListFragment)
     }
 
     private fun navigateToDetailsFragment(anime: Anime) {
