@@ -12,7 +12,6 @@ import com.alexis.myanimecompanion.domain.AnimeStatus
 import com.alexis.myanimecompanion.ui.edit.EditEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DetailsViewModel(val animeWithoutDetails: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
 
@@ -37,22 +36,20 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
         get() = _loading
 
     init {
-        viewModelScope.launch {
-            _loading.postValue(true)
-            _anime.value = animeWithoutDetails
-            withContext(Dispatchers.IO) {
-                fetchAnimeDetails()
-            }
-            _loading.postValue(false)
-        }
+        _loading.value = true
+        _anime.value = animeWithoutDetails
+        fetchAnimeDetails()
+        _loading.value = false
     }
 
-    private suspend fun fetchAnimeDetails() {
-        animeRepository.getAnime(animeWithoutDetails).let { result ->
-            if (result.isFailure) {
-                handleError(result.errorOrNull()!!)
-            } else {
-                _anime.postValue(result.getOrNull()!!)
+    fun fetchAnimeDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            animeRepository.getAnime(animeWithoutDetails).let { result ->
+                if (result.isFailure) {
+                    handleError(result.errorOrNull()!!)
+                } else {
+                    _anime.postValue(result.getOrNull()!!)
+                }
             }
         }
     }

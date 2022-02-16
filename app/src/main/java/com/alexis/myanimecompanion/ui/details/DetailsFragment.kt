@@ -81,4 +81,11 @@ class DetailsFragment : Fragment() {
             findNavController().navigate(direction)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (!viewModel.loading.value!!) {
+            viewModel.fetchAnimeDetails()
+        }
+    }
 }
