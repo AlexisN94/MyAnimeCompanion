@@ -13,7 +13,7 @@
             type="com.alexis.myanimecompanion.ui.list.ListViewModel" />
     </data>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -21,22 +21,77 @@
             android:id="@+id/pb_list"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:visibility="@{viewModel.loading ? View.VISIBLE : View.GONE}" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:cardElevation="8dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_search_query"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:drawableStart="@drawable/ic_baseline_search_24"
+                    android:drawableTint="?android:attr/textColorHint"
+                    android:gravity="center_vertical"
+                    android:hint="@string/filter_hint"
+                    android:inputType="textAutoCorrect|textCapWords"
+                    android:maxLines="1"
+                    android:minHeight="48dp"
+                    android:padding="8dp"
+                    android:paddingEnd="55dp"
+                    app:searchQuery="@={viewModel.filterQuery}" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/ib_search_bar_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:backgroundTint="@color/none"
+                    android:clickable="true"
+                    android:contentDescription="Clear search text"
+                    android:onClick="@{()->viewModel.clearFilterQuery()}"
+                    android:src="@drawable/ic_baseline_close_24"
+                    android:tint="?android:attr/textColorHint"
+                    app:visibility="@{viewModel.filterQuery.length() > 0}" />
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/cardView_search"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/list_item_anime" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:text="@{viewModel.statusMessage}"
             android:visibility="@{viewModel.statusMessage != null ? View.VISIBLE : View.GONE}" />
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

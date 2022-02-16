@@ -2,10 +2,7 @@ package com.alexis.myanimecompanion.ui.list
 
 import android.content.res.Resources
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
@@ -18,7 +15,22 @@ private const val TAG = "ListViewModel"
 
 class ListViewModel(private val animeRepository: AnimeRepository, private val resources: Resources) : ViewModel() {
 
-    val animeList = animeRepository.getAnimeList()
+    private val animeList = animeRepository.getAnimeList()
+
+    val filterQuery = MutableLiveData("")
+
+    val filteredAnimeList = MediatorLiveData<List<Anime>>().apply {
+        addSource(animeList) {
+            postValue(animeList.value?.filter {
+                it.title.contains(filterQuery.value!!, true)
+            })
+        }
+        addSource(filterQuery) {
+            postValue(animeList.value?.filter {
+                it.title.contains(filterQuery.value!!, true)
+            })
+        }
+    }
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
@@ -62,7 +74,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
     }
 
     private fun setStatusMessage() {
-        val list = animeList.value
+        val list = filteredAnimeList.value
         when {
             list == null -> {
                 _statusMessage.postValue(resources.getString(R.string.network_error_occurred))
@@ -79,7 +91,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
 
     fun editWatchedEpisodes(anime: Anime, editType: WatchedEpisodesEditType) {
         viewModelScope.launch(Dispatchers.IO) {
-            val animeIndex = animeList.value?.indexOf(anime)
+            val animeIndex = filteredAnimeList.value?.indexOf(anime)
 
             if (animeIndex == null) {
                 cancel()
@@ -131,6 +143,10 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
         } else {
             false
         }
+    }
+
+    fun clearFilterQuery() {
+        filterQuery.postValue("")
     }
 
     enum class WatchedEpisodesEditType {
