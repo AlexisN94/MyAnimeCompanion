@@ -76,7 +76,7 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
                 anime.myListStatus!!.episodesWatched = episodesWatched.value ?: anime.myListStatus!!.episodesWatched
             }
 
-            animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->
+            animeRepository.updateAnimeStatus(anime).let { result ->
                 if (result.isFailure) {
                     handleError(result.errorOrNull()!!)
                 } else {

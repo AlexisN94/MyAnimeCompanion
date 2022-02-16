@@ -110,7 +110,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
                     }
                 }
 
-                animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->
+                animeRepository.updateAnimeStatus(anime).let { result ->
                     if (result.isFailure) {
                         handleError(result.errorOrNull()!!)
                     }

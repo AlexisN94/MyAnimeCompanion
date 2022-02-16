@@ -32,11 +32,25 @@ class AnimeRepository private constructor() {
      * Errors – [Network][Error.Network], [Authorization][Error.Authorization],
      * [Generic][Error.Generic],  [OutdatedLocalData][Error.OutdatedLocalData], [NullUserStatus][Error.NullUserStatus]
      */
-    suspend fun insertOrUpdateAnimeStatus(anime: Anime): Result<Unit> {
+    suspend fun updateAnimeStatus(anime: Anime): Result<Unit> {
         if (isLoggedIn()) {
             tryUpdateRemoteAnime(anime).let { result ->
                 if (result.isFailure) {
                     return result
+                }
+            }
+        }
+
+        val databaseAnime = anime.asDatabaseModel() ?: return Result.failure(Error.NullUserStatus)
+        localDataSource.insertOrUpdateAnime(databaseAnime)
+        return Result.success()
+    }
+
+    suspend fun addAnime(anime: Anime): Result<Unit> {
+        if (isLoggedIn()) {
+            remoteDataSource.tryUpdateAnimeStatus(anime).let { result ->
+                if (result.isFailure) {
+                    return Result.failure(result.errorOrNull()!!)
                 }
             }
         }

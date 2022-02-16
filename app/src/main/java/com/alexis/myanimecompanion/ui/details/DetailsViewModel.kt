@@ -8,7 +8,9 @@ import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.data.Error.*
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.domain.AnimeStatus
 import com.alexis.myanimecompanion.ui.edit.EditEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(val animeWithoutDetails: Anime, private val animeRepository: AnimeRepository) : ViewModel() {
@@ -54,28 +56,28 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
 
     private fun handleError(error: Error) {
         when (error) {
-            Network -> setErrorMessage("A network error occurred")
-            Generic -> setErrorMessage("An error occurred")
-            NullUserStatus -> setErrorMessage("Failed to get your status")
-            Authorization -> TODO()
-            DatabaseQuery -> TODO()
+            Network -> setToastMessage("A network error occurred")
+            Generic -> setToastMessage("An error occurred")
+            NullUserStatus -> setToastMessage("Failed to get your status")
+            Authorization -> setToastMessage("Authorization error")
+            DatabaseQuery -> setToastMessage("A local error occurred. Try refreshing")
         }
     }
 
     fun onEditClick() {
-        _evtEdit.value = true
+        _evtEdit.postValue(true)
     }
 
     fun doneShowingEditDialog() {
-        _evtEdit.value = false
+        _evtEdit.postValue(false)
     }
 
-    private fun setErrorMessage(msg: String) {
-        _errorMessage.value = msg
+    private fun setToastMessage(msg: String) {
+        _errorMessage.postValue(msg)
     }
 
     fun doneShowingErrorMessage() {
-        _errorMessage.value = null
+        _errorMessage.postValue(null)
     }
 
     fun toggleStatus() {
@@ -83,7 +85,18 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
     }
 
     fun addToList() {
-        _errorMessage.value = "Not yet implemented"
+        viewModelScope.launch(Dispatchers.IO) {
+            _anime.value?.let { it ->
+                it.myListStatus = AnimeStatus()
+                animeRepository.addAnime(it).let { result ->
+                    if (result.isFailure) {
+                        handleError(result.errorOrNull()!!)
+                    } else {
+                        _anime.postValue(it)
+                    }
+                }
+            }
+        }
     }
 
     fun onAnimeEdit(editEvent: EditEvent) {

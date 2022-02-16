@@ -57,12 +57,12 @@ class LocalDataSource private constructor() {
         val statusArray = animeList.map { it.animeStatus }.toTypedArray()
         val detailsArray = animeList.map { it.animeDetails }.toTypedArray()
 
-        // animeDatabase.animeDao.insertAll(*animeArray)
-        //animeDatabase.animeStatusDao.insertAll(*statusArray)
-        // animeDatabase.animeDetailsDao.insertAll(*detailsArray)
-        animeDatabase.animeDao.insert(animeList[0].anime)
+        animeDatabase.animeDao.insertAll(*animeArray)
+        animeDatabase.animeStatusDao.insertAll(*statusArray)
+        animeDatabase.animeDetailsDao.insertAll(*detailsArray)
+        /*animeDatabase.animeDao.insert(animeList[0].anime)
         animeDatabase.animeDetailsDao.insert(animeList[0].animeDetails)
-        animeDatabase.animeStatusDao.insert(animeList[0].animeStatus)
+        animeDatabase.animeStatusDao.insert(animeList[0].animeStatus)*/
         Log.d(TAG, "insertOrUpdateAnimeList() called with: animeList")
     }
 
