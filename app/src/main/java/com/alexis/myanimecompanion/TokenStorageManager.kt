@@ -50,7 +50,7 @@ class TokenStorageManager private constructor() {
     }
 
     fun clearToken() {
-        sharedPreferences.edit().clear()
+        sharedPreferences.edit().clear().apply()
     }
 
     companion object {

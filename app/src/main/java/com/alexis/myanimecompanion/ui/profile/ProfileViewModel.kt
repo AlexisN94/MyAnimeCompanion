@@ -51,4 +51,11 @@ class ProfileViewModel(val animeRepository: AnimeRepository) : ViewModel() {
     fun getAuthorizationUrl(): String {
         return animeRepository.getAuthorizationUrl()
     }
+
+    fun logout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _user.postValue(null)
+            animeRepository.logout()
+        }
+    }
 }
