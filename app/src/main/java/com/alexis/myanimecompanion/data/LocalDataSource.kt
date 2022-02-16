@@ -38,7 +38,7 @@ class LocalDataSource private constructor() {
         }
     }
 
-    fun getAnime(animeId: Int): DatabaseCompleteAnime {
+    fun getAnime(animeId: Int): DatabaseCompleteAnime? {
         return animeDatabase.animeDao.getById(animeId)
     }
 

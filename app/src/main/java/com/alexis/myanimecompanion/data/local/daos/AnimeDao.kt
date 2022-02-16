@@ -18,7 +18,7 @@ interface AnimeDao {
 
     @Transaction
     @Query("SELECT * FROM DatabaseAnime WHERE id = :animeId")
-    fun getById(animeId: Int): DatabaseCompleteAnime
+    fun getById(animeId: Int): DatabaseCompleteAnime?
 
     @Query("DELETE FROM DatabaseAnime WHERE id = :animeId")
     fun deleteById(animeId: Int)

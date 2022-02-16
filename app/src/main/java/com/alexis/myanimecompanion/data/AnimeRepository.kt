@@ -100,6 +100,11 @@ class AnimeRepository private constructor() {
             result.getOrNull()?.asDomainModel() ?: return Result.failure(result.errorOrNull()!!)
         }
 
+        if (!isLoggedIn()) {
+            val localAnime = localDataSource.getAnime(anime.id)?.asDomainModel()
+            anime.myListStatus = anime.myListStatus ?: localAnime?.myListStatus
+        }
+
         return Result.success(anime)
     }
 
