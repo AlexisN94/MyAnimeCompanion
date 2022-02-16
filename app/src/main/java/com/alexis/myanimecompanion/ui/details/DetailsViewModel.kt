@@ -29,10 +29,16 @@ class DetailsViewModel(val animeWithoutDetails: Anime, private val animeReposito
     val anime: LiveData<Anime>
         get() = _anime
 
+    private val _loading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean>
+        get() = _loading
+
     init {
         viewModelScope.launch {
+            _loading.postValue(true)
             _anime.value = animeWithoutDetails
             fetchAnimeDetails()
+            _loading.postValue(false)
         }
     }
 
