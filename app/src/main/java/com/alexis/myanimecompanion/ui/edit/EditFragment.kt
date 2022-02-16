@@ -61,7 +61,7 @@ class EditFragment : BottomSheetDialogFragment() {
                 IntRange(0, MAX_RATING).toList()
             )
             btnEditDialogSave.setOnClickListener {
-                viewModel.updateAnime()
+                viewModel.applyChanges()
             }
             btnEditDialogClose.setOnClickListener {
                 dialog?.cancel()

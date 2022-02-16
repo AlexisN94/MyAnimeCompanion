@@ -101,7 +101,7 @@ class RemoteDataSource private constructor() {
         }
     }
 
-    private suspend fun getAccessToken(authorizationCode: String): Result<Unit> {
+    suspend fun requestToken(authorizationCode: String): Result<Unit> {
         val params = mutableMapOf<String, String>()
 
         params.apply {
@@ -174,10 +174,6 @@ class RemoteDataSource private constructor() {
         return tryRequest {
             myAnimeListApi.getUserProfile("Bearer ${token?.accessToken}")
         }
-    }
-
-    suspend fun onAuthorizationCodeReceived(authorizationCode: String): Result<Unit> {
-        return getAccessToken(authorizationCode)
     }
 
     fun clearUser() {

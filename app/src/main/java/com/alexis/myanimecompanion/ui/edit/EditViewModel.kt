@@ -52,7 +52,7 @@ class EditViewModel(var anime: Anime, private val animeRepository: AnimeReposito
         TODO("Not yet implemented")
     }
 
-    fun updateAnime() {
+    fun applyChanges() {
         viewModelScope.launch(Dispatchers.IO) {
             animeRepository.insertOrUpdateAnimeStatus(anime).let { result ->
                 if (result.isFailure) {

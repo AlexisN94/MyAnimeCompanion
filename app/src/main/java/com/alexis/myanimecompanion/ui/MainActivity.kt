@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleMALAuthorizationResponse(data: Uri) {
         val authorizationCode = requireNotNull(data.getQueryParameter("code"))
         lifecycleScope.launch {
-            val result = AnimeRepository.getInstance(applicationContext).onAuthorizationCodeReceived(authorizationCode)
+            val result = AnimeRepository.getInstance(applicationContext).requestToken(authorizationCode)
             if (result.isFailure) {
                 val toastMessage = when (result.errorOrNull()!!) {
                     Error.Network -> "A network error occurred while logging you in"
