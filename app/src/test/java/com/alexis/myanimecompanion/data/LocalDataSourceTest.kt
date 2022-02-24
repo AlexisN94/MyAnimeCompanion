@@ -14,6 +14,8 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
@@ -25,7 +27,7 @@ class LocalDataSourceTest {
     @Before
     fun setup() {
         val context = RuntimeEnvironment.getApplication().applicationContext
-        animeDatabase = Room.inMemoryDatabaseBuilder(context, AnimeDatabase::class.java).build()
+        animeDatabase = spy(Room.inMemoryDatabaseBuilder(context, AnimeDatabase::class.java).build())
 
         localDataSource = ReflectionUtils.invokeConstructor(LocalDataSource::class)
 
@@ -79,5 +81,27 @@ class LocalDataSourceTest {
         result.observeForever {
             assertEquals(animeList, it)
         }
+    }
+
+    @Test
+    fun testClearAllTables() = runTest {
+        withContext(Dispatchers.IO) {
+            localDataSource.clearAllTables()
+        }
+
+        verify(animeDatabase).clearAllTables()
+    }
+
+    @Test
+    fun testDeleteAnime() = runTest {
+        val anime = MockUtils.mockDatabaseCompleteAnime()
+
+        val result = withContext(Dispatchers.IO) {
+            localDataSource.insertOrUpdateAnime(anime)
+            localDataSource.deleteAnime(anime.anime.id)
+            localDataSource.getAnime(anime.anime.id)
+        }
+
+        assertNull(result)
     }
 }

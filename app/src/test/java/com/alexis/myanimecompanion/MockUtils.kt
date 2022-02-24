@@ -1,9 +1,7 @@
 package com.alexis.myanimecompanion
 
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeDetails
-import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeStatus
-import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
+import com.alexis.myanimecompanion.data.local.models.*
+import org.mockito.Mockito
 
 object MockUtils {
 
@@ -38,5 +36,13 @@ object MockUtils {
                 DatabaseAnimeDetails(3, "", "", "", 0.0, 0, "", "")
             )
         )
+    }
+
+    fun mockDatabaseUser(): DatabaseUser {
+        return DatabaseUser(id = 0)
+    }
+
+    fun <T> anyObject(): T {
+        return Mockito.any()
     }
 }

@@ -1,5 +1,6 @@
 package com.alexis.myanimecompanion.data
 
+import com.alexis.myanimecompanion.MockUtils
 import com.alexis.myanimecompanion.ReflectionUtils
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeDetails
@@ -111,15 +112,11 @@ class AnimeRepositoryTest {
         testAddAnime(isLoggedIn = false, AnimeStatus(), successExpected = true)
     }
 
-    private fun <T> anyObject(): T {
-        return any()
-    }
-
     fun testAddAnime(isLoggedIn: Boolean, myListStatus: AnimeStatus?, successExpected: Boolean) = runTest {
         `when`(repository.isLoggedIn())
             .thenReturn(isLoggedIn)
 
-        `when`(remoteDataSource.tryUpdateAnimeStatus(anyObject()))
+        `when`(remoteDataSource.tryUpdateAnimeStatus(MockUtils.anyObject()))
             .thenReturn(
                 if (myListStatus != null) {
                     Result.success()
@@ -189,7 +186,7 @@ class AnimeRepositoryTest {
         `when`(repository.isLoggedIn())
             .thenReturn(false)
 
-        `when`(remoteDataSource.tryGetAnimeDetails(anyObject())).thenReturn(
+        `when`(remoteDataSource.tryGetAnimeDetails(MockUtils.anyObject())).thenReturn(
             if (remoteDataSourceFails) {
                 Result.failure(Error.Generic)
             } else {
