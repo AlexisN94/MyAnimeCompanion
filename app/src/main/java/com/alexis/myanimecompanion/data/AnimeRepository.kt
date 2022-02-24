@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
 import com.alexis.myanimecompanion.data.local.models.asDomainModel
 import com.alexis.myanimecompanion.data.remote.models.asDatabaseModel
 import com.alexis.myanimecompanion.data.remote.models.asDomainModel
@@ -64,7 +63,7 @@ class AnimeRepository private constructor() {
      * Errors – [Network][Error.Network], [Authorization][Error.Authorization],
      * [Generic][Error.Generic],  [OutdatedLocalData][Error.OutdatedLocalData]
      */
-    private suspend fun tryUpdateRemoteAnime(anime: Anime): Result<Unit> {
+    suspend fun tryUpdateRemoteAnime(anime: Anime): Result<Unit> {
         val remoteAnime = remoteDataSource.tryGetAnimeDetails(anime).let {
             it.getOrNull() ?: return Result.failure(it.errorOrNull()!!)
         }
@@ -108,42 +107,12 @@ class AnimeRepository private constructor() {
         return Result.success(anime)
     }
 
-    /**
-     * if not logged in then get anime from database
-     *                  if (it or it.myListStatus) is null then return
-     *
-     */
-    /*
-    suspend fun getMergedAnime(remote: Anime, local: Anime): Result<Anime> {
-        if(isLoggedIn()){
-
-        }
-        val remoteUpdatedAt = remote.myListStatus!!.updatedAt
-        val localUpdatedAt = local.myListStatus!!.updatedAt
-
-        if(remoteUpdatedAt.after(localUpdatedAt)) {
-            return Result.failure(Error.OutdatedLocalData)
-        }
-
-        val mergedAnime =
-            if (remote.id == local.id && (remote.title != local.title || remote.imageUrl != local.imageUrl)) {
-                remote
-            } else {
-                Anime(remote.id, remote.title, remote.imageUrl, )
-            }
-
-        return Result.success(mergedAnime)
-    }
-     */
-
     fun getAnimeList(): LiveData<List<Anime>> {
         val animeListLiveData = localDataSource.getAnimeList()
 
-        animeListLiveData?.let { animeListLiveData ->
-            return Transformations.map(animeListLiveData) { animeList ->
-                animeList.map { anime ->
-                    anime.asDomainModel()
-                }
+        return Transformations.map(animeListLiveData) { animeList ->
+            animeList.map { anime ->
+                anime.asDomainModel()
             }
         }
     }
@@ -164,24 +133,12 @@ class AnimeRepository private constructor() {
         return Result.success()
     }
 
-
-    /**
-     * Errors – [Network][Error.Network], [Authorization][Error.Authorization]
-     */
-    private suspend fun tryGetRemoteAnimeList(): Result<List<DatabaseCompleteAnime>> {
-        val animeList = remoteDataSource.tryGetAnimeList().let { result ->
-            result.getOrNull() ?: return Result.failure(result.errorOrNull()!!)
-        }
-
-        return Result.success(animeList.asDatabaseModel())
-    }
-
     /**
      * Errors – [Authorization][Error.Authorization], [Network][Error.Network]
      */
     private suspend fun trySaveRemoteListToDatabase(): Result<Unit> {
-        val databaseAnimeList = tryGetRemoteAnimeList().let { result ->
-            result.getOrNull() ?: return Result.failure(result.errorOrNull()!!)
+        val databaseAnimeList = remoteDataSource.tryGetAnimeList().let { result ->
+            result.getOrNull()?.asDatabaseModel() ?: return Result.failure(result.errorOrNull()!!)
         }
 
         localDataSource.insertOrUpdateAnimeList(databaseAnimeList)

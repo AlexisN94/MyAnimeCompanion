@@ -5,11 +5,11 @@ import kotlin.reflect.jvm.isAccessible
 
 object ReflectionUtils {
 
-    fun invokeMethod(className: String, methodName: String) {
-        val clazz = Class.forName(className)
+    fun <T> invokeMethod(obj: Any, methodName: String): T? {
+        val clazz = obj::class.java
         val method = clazz.getDeclaredMethod(methodName)
         method.isAccessible = true
-        method.invoke(null)
+        return method.invoke(obj) as T?
     }
 
     fun <T> invokeConstructor(clazz: KClass<*>): T {

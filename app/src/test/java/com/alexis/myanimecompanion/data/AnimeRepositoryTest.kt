@@ -1,19 +1,25 @@
 package com.alexis.myanimecompanion.data
 
 import com.alexis.myanimecompanion.ReflectionUtils
-import com.alexis.myanimecompanion.data.remote.models.MainPicture
-import com.alexis.myanimecompanion.data.remote.models.Node
-import com.alexis.myanimecompanion.data.remote.models.SearchResult
-import com.alexis.myanimecompanion.data.remote.models.SearchResultData
+import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
+import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeDetails
+import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeStatus
+import com.alexis.myanimecompanion.data.local.models.DatabaseCompleteAnime
+import com.alexis.myanimecompanion.data.remote.models.*
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.domain.AnimeDetails
+import com.alexis.myanimecompanion.domain.AnimeStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.*
 import org.robolectric.RobolectricTestRunner
+import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
 @ExperimentalCoroutinesApi
@@ -84,4 +90,168 @@ class AnimeRepositoryTest {
 
         assertEquals(true, isLoggedIn)
     }
+
+    @Test
+    fun `addAnime() fails when logged in and myListStatus is null`() = runTest {
+        testAddAnime(isLoggedIn = true, null, successExpected = false)
+    }
+
+    @Test
+    fun `addAnime() succeeds when logged in and myListStatus is not null`() = runTest {
+        testAddAnime(isLoggedIn = true, AnimeStatus(), successExpected = true)
+    }
+
+    @Test
+    fun `addAnime() fails when not logged in and myListStatus is null`() = runTest {
+        testAddAnime(isLoggedIn = false, null, successExpected = false)
+    }
+
+    @Test
+    fun `addAnime() succeeds when not logged in and myListStatus is not null`() = runTest {
+        testAddAnime(isLoggedIn = false, AnimeStatus(), successExpected = true)
+    }
+
+    private fun <T> anyObject(): T {
+        return any()
+    }
+
+    fun testAddAnime(isLoggedIn: Boolean, myListStatus: AnimeStatus?, successExpected: Boolean) = runTest {
+        `when`(repository.isLoggedIn())
+            .thenReturn(isLoggedIn)
+
+        `when`(remoteDataSource.tryUpdateAnimeStatus(anyObject()))
+            .thenReturn(
+                if (myListStatus != null) {
+                    Result.success()
+                } else {
+                    Result.failure(Error.NullUserStatus)
+                }
+            )
+
+        val result = repository.addAnime(
+            Anime(
+                0,
+                "Anime1",
+                "",
+                myListStatus,
+                AnimeDetails(
+                    "",
+                    "",
+                    Date(),
+                    0.0,
+                    0,
+                    "",
+                    ""
+                )
+            )
+        )
+
+        if (successExpected) {
+            assertEquals(true, result.isSuccess)
+        } else {
+            assertEquals(true, result.isFailure)
+        }
+    }
+
+    @Test
+    fun `getAnime() queries remote and local sources`() {
+        testGetAnime(
+            remoteDataSourceFails = false,
+            localDataSourceReturnsNull = false,
+            successExpected = true
+        )
+    }
+
+    @Test
+    fun `getAnime() fails when remote source fails`() {
+        testGetAnime(
+            remoteDataSourceFails = true,
+            localDataSourceReturnsNull = false,
+            successExpected = false
+        )
+    }
+
+    @Test
+    fun `getAnime() succeeds when local source returns null`() {
+        testGetAnime(
+            remoteDataSourceFails = false,
+            localDataSourceReturnsNull = true,
+            successExpected = true
+        )
+    }
+
+    fun testGetAnime(
+        remoteDataSourceFails: Boolean,
+        localDataSourceReturnsNull: Boolean,
+        successExpected: Boolean
+    ) = runTest {
+        // Arrange
+        `when`(repository.isLoggedIn())
+            .thenReturn(false)
+
+        `when`(remoteDataSource.tryGetAnimeDetails(anyObject())).thenReturn(
+            if (remoteDataSourceFails) {
+                Result.failure(Error.Generic)
+            } else {
+                Result.success(
+                    Details(id = 1)
+                )
+            }
+        )
+
+        `when`(localDataSource.getAnime(anyInt())).thenReturn(
+            if (localDataSourceReturnsNull) {
+                null
+            } else {
+                DatabaseCompleteAnime(
+                    DatabaseAnime(1, "", ""),
+                    DatabaseAnimeStatus(1, 0, "", 0),
+                    DatabaseAnimeDetails(1, "", "", "", 0.0, 0, "", "")
+                )
+            }
+        )
+
+        // Act
+        val result = repository.getAnime(Anime(1, "", ""))
+
+
+        // Assert
+        verify(remoteDataSource).tryGetAnimeDetails(Anime(1, "", ""))
+
+        if (!remoteDataSourceFails) {
+            verify(localDataSource).getAnime(1)
+        }
+
+        if (successExpected) {
+            assertEquals(true, result.isSuccess)
+            assertEquals(1, result.getOrNull()!!.id)
+        } else {
+            assertEquals(true, result.isFailure)
+        }
+    }
+
+//    @Test
+//    fun `updateAnimeStatus() updates remote if logged in`() = runTest {
+//        `when`(repository.isLoggedIn()).thenReturn(true)
+//        `when`(remoteDataSource.getAnimeDetails(anyObject())).thenReturn(
+//            Result.success(
+//                Details(
+//                    id = 1, myListStatus = MyListStatus(updatedAt = "2000-01-02'T'00:00:00+00:00")
+//                )
+//            )
+//        )
+//
+//        repository.updateAnimeStatus(
+//            Anime(
+//                1, "", "",
+//                AnimeStatus(updatedAt = Calendar.getInstance().let {
+//                    it.set(2000, 0, 2)
+//                    it.time
+//                })
+//            )
+//        )
+//
+//        verify(remoteDataSource).updateAnimeStatus(anyObject())
+//        verify(localDataSource).insertOrUpdateAnime(anyObject())
+//    }
 }
