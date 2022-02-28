@@ -1,33 +1,53 @@
 package com.alexis.myanimecompanion.data
 
-import androidx.room.Room
-import com.alexis.myanimecompanion.MockUtils
+import com.alexis.myanimecompanion.MockUtils.anyObject
+import com.alexis.myanimecompanion.MockUtils.mockDatabaseAnimeList
+import com.alexis.myanimecompanion.MockUtils.mockDatabaseCompleteAnime
+import com.alexis.myanimecompanion.MockUtils.mockDatabaseUser
 import com.alexis.myanimecompanion.ReflectionUtils
 import com.alexis.myanimecompanion.data.local.AnimeDatabase
+import com.alexis.myanimecompanion.data.local.daos.AnimeDao
+import com.alexis.myanimecompanion.data.local.daos.AnimeDetailsDao
+import com.alexis.myanimecompanion.data.local.daos.AnimeStatusDao
+import com.alexis.myanimecompanion.data.local.daos.UserDao
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
+@ExperimentalCoroutinesApi
 class LocalDataSourceTest {
     lateinit var animeDatabase: AnimeDatabase
     lateinit var localDataSource: LocalDataSource
 
     @Before
     fun setup() {
-        val context = RuntimeEnvironment.getApplication().applicationContext
-        animeDatabase = spy(Room.inMemoryDatabaseBuilder(context, AnimeDatabase::class.java).build())
+        animeDatabase = mock(AnimeDatabase::class.java)
+
+        `when`(animeDatabase.userDao).thenReturn(
+            mock(UserDao::class.java)
+        )
+
+        `when`(animeDatabase.animeDao).thenReturn(
+            mock(AnimeDao::class.java)
+        )
+
+        `when`(animeDatabase.animeDetailsDao).thenReturn(
+            mock(AnimeDetailsDao::class.java)
+        )
+
+        `when`(animeDatabase.animeStatusDao).thenReturn(
+            mock(AnimeStatusDao::class.java)
+        )
 
         localDataSource = ReflectionUtils.invokeConstructor(LocalDataSource::class)
 
@@ -40,47 +60,62 @@ class LocalDataSourceTest {
     }
 
     @Test
-    fun testInsertAndReadUser() = runTest {
-        val user = withContext(Dispatchers.IO) {
-            localDataSource.insertOrUpdateUser(DatabaseUser(id = 1))
-            localDataSource.getUser()
+    fun testInsertOrUpdateUser_shouldInsert() = runTest {
+        `when`(animeDatabase.userDao.update(anyObject())).thenReturn(0)
+
+        withContext(Dispatchers.IO) {
+            localDataSource.insertOrUpdateUser(DatabaseUser())
         }
 
-        assertEquals(DatabaseUser(id = 1), user)
+        verify(animeDatabase.userDao).update(anyObject())
+        verify(animeDatabase.userDao).insert(DatabaseUser())
     }
 
     @Test
-    fun testReadNullUser() = runTest {
-        val user = withContext(Dispatchers.IO) {
-            localDataSource.getUser()
+    fun testInsertOrUpdateUser_shouldUpdate() = runTest {
+        `when`(animeDatabase.userDao.update(anyObject())).thenReturn(1)
+
+        withContext(Dispatchers.IO) {
+            localDataSource.insertOrUpdateUser(DatabaseUser())
         }
-        assertNull(user)
+
+        verify(animeDatabase.userDao).update(anyObject())
+        verify(animeDatabase.userDao, times(0)).insert(DatabaseUser())
     }
 
     @Test
-    fun testInsertAndReadAnime() = runTest {
-        val completeDatabaseAnime = MockUtils.mockDatabaseCompleteAnime()
+    fun testGetAnime() = runTest {
+        `when`(animeDatabase.animeDao.getById(anyInt())).thenReturn(mockDatabaseCompleteAnime())
 
         val result = withContext(Dispatchers.IO) {
-            localDataSource.insertOrUpdateAnime(completeDatabaseAnime)
             localDataSource.getAnime(0)
         }
 
-        assertEquals(completeDatabaseAnime, result)
+        animeDatabase.animeDao.getById(0)
+        assertEquals(mockDatabaseCompleteAnime(), result)
+    }
+
+    @Test
+    fun testGetUser() = runTest {
+        `when`(animeDatabase.userDao.getUser()).thenReturn(mockDatabaseUser())
+
+        val user = withContext(Dispatchers.IO) {
+            localDataSource.getUser()
+        }
+
+        verify(animeDatabase.userDao).getUser()
+        assertEquals(mockDatabaseUser(), user)
     }
 
     @Test
     fun testInsertAnimeList() = runTest {
-        val animeList = MockUtils.mockDatabaseAnimeList()
-
-        val result = withContext(Dispatchers.IO) {
-            localDataSource.insertOrUpdateAnimeList(animeList)
-            localDataSource.getAnimeList()
+        withContext(Dispatchers.IO) {
+            localDataSource.insertOrUpdateAnimeList(mockDatabaseAnimeList())
         }
 
-        result.observeForever {
-            assertEquals(animeList, it)
-        }
+        verify(animeDatabase.animeDao).insert(anyObject())
+        verify(animeDatabase.animeDetailsDao).insert(anyObject())
+        verify(animeDatabase.animeStatusDao).insert(anyObject())
     }
 
     @Test
@@ -94,14 +129,12 @@ class LocalDataSourceTest {
 
     @Test
     fun testDeleteAnime() = runTest {
-        val anime = MockUtils.mockDatabaseCompleteAnime()
-
-        val result = withContext(Dispatchers.IO) {
-            localDataSource.insertOrUpdateAnime(anime)
-            localDataSource.deleteAnime(anime.anime.id)
-            localDataSource.getAnime(anime.anime.id)
+        withContext(Dispatchers.IO) {
+            localDataSource.deleteAnime(0)
         }
 
-        assertNull(result)
+        verify(animeDatabase.animeDao).deleteById(0)
+        verify(animeDatabase.animeStatusDao).deleteByAnimeId(0)
+        verify(animeDatabase.animeDetailsDao).deleteByAnimeId(0)
     }
 }

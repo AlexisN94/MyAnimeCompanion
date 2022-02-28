@@ -1,7 +1,13 @@
 package com.alexis.myanimecompanion
 
 import com.alexis.myanimecompanion.data.local.models.*
+import com.alexis.myanimecompanion.data.remote.models.Token
+import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.domain.AnimeDetails
+import com.alexis.myanimecompanion.domain.AnimeStatus
+import com.alexis.myanimecompanion.domain.DomainToken
 import org.mockito.Mockito
+import java.util.*
 
 object MockUtils {
 
@@ -44,5 +50,22 @@ object MockUtils {
 
     fun <T> anyObject(): T {
         return Mockito.any()
+    }
+
+    fun mockAnime(): Anime {
+        return Anime(
+            0, "", "",
+            AnimeStatus(),
+            AnimeDetails("", "", Date(), 0.0, 0, "", "")
+        )
+    }
+
+    fun mockToken(): Token {
+        return Token("", 0, "", "")
+    }
+
+    fun mockDomainToken(): DomainToken {
+        return DomainToken("", 0L, "", "")
+
     }
 }
