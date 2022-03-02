@@ -19,9 +19,9 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.junit.runners.JUnit4
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(JUnit4::class)
 @ExperimentalCoroutinesApi
 class AnimeDatabaseTest {
     lateinit var db: AnimeDatabase

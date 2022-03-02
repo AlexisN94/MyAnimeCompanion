@@ -1,10 +1,5 @@
 package com.alexis.myanimecompanion.data
 
-import com.alexis.myanimecompanion.MockUtils.anyObject
-import com.alexis.myanimecompanion.MockUtils.mockAnime
-import com.alexis.myanimecompanion.MockUtils.mockDomainToken
-import com.alexis.myanimecompanion.MockUtils.mockToken
-import com.alexis.myanimecompanion.ReflectionUtils
 import com.alexis.myanimecompanion.TokenStorageManager
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import com.alexis.myanimecompanion.data.remote.models.Details
@@ -17,10 +12,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.Mockito.*
-import org.robolectric.RobolectricTestRunner
+import org.mockito.MockitoAnnotations
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(JUnit4::class)
 @ExperimentalCoroutinesApi
 class RemoteDataSourceTest {
     lateinit var remoteDataSource: RemoteDataSource

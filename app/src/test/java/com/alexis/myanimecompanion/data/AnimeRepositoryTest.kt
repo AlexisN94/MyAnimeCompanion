@@ -1,7 +1,5 @@
 package com.alexis.myanimecompanion.data
 
-import com.alexis.myanimecompanion.MockUtils
-import com.alexis.myanimecompanion.ReflectionUtils
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnime
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeDetails
 import com.alexis.myanimecompanion.data.local.models.DatabaseAnimeStatus
@@ -10,19 +8,25 @@ import com.alexis.myanimecompanion.data.remote.models.*
 import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.AnimeDetails
 import com.alexis.myanimecompanion.domain.AnimeStatus
+import com.alexis.myanimecompanion.testutils.MockUtils
+import com.alexis.myanimecompanion.testutils.ReflectionUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.*
-import org.robolectric.RobolectricTestRunner
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
 import java.util.*
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(JUnit4::class)
 @ExperimentalCoroutinesApi
 class AnimeRepositoryTest {
     lateinit var repository: AnimeRepository

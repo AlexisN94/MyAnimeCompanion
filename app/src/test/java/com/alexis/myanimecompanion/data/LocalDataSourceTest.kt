@@ -20,10 +20,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.mockito.Mockito.*
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(JUnit4::class)
 @ExperimentalCoroutinesApi
 class LocalDataSourceTest {
     lateinit var animeDatabase: AnimeDatabase

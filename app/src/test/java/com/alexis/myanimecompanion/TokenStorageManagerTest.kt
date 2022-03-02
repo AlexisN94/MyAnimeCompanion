@@ -1,9 +1,9 @@
 package com.alexis.myanimecompanion
 
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.junit.runners.JUnit4
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(JUnit4::class)
 class TokenStorageManagerTest {
 //    lateinit var tokenStorageManager: TokenStorageManager
 //    lateinit var token: DomainToken

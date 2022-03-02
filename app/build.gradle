@@ -39,7 +39,10 @@ android {
         dataBinding true
     }
     testOptions {
-        unitTests.includeAndroidResources = true
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
     }
 }
 
