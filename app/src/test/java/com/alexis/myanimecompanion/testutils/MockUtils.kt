@@ -1,4 +1,4 @@
-package com.alexis.myanimecompanion
+package com.alexis.myanimecompanion.testutils
 
 import com.alexis.myanimecompanion.data.local.models.*
 import com.alexis.myanimecompanion.data.remote.models.Token

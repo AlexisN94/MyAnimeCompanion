@@ -1,4 +1,4 @@
-package com.alexis.myanimecompanion
+package com.alexis.myanimecompanion.testutils
 
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.isAccessible
