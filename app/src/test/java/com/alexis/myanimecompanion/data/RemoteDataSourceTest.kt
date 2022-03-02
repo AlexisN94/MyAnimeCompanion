@@ -6,13 +6,20 @@ import com.alexis.myanimecompanion.data.remote.models.Details
 import com.alexis.myanimecompanion.data.remote.models.SearchResult
 import com.alexis.myanimecompanion.data.remote.models.User
 import com.alexis.myanimecompanion.data.remote.models.UserAnimeList
+import com.alexis.myanimecompanion.testutils.MockUtils.anyObject
+import com.alexis.myanimecompanion.testutils.MockUtils.mockAnime
+import com.alexis.myanimecompanion.testutils.MockUtils.mockDomainToken
+import com.alexis.myanimecompanion.testutils.MockUtils.mockToken
+import com.alexis.myanimecompanion.testutils.ReflectionUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 
@@ -20,11 +27,14 @@ import org.mockito.MockitoAnnotations
 @ExperimentalCoroutinesApi
 class RemoteDataSourceTest {
     lateinit var remoteDataSource: RemoteDataSource
-    val myAnimeListApi = mock(MyAnimeListAPI::class.java)
-    val tokenStorageManager = mock(TokenStorageManager::class.java)
+    @Mock lateinit var myAnimeListApi: MyAnimeListAPI
+    @Mock lateinit var tokenStorageManager: TokenStorageManager
+    lateinit var closeable: AutoCloseable
 
     @Before
     fun setup() {
+        closeable = MockitoAnnotations.openMocks(this)
+
         remoteDataSource = spy(ReflectionUtils.invokeConstructor<RemoteDataSource>(RemoteDataSource::class))
 
         `when`(tokenStorageManager.checkExpired()).thenReturn(false)
@@ -47,6 +57,11 @@ class RemoteDataSourceTest {
             "codeVerifier",
             "someCodeVerifier"
         )
+    }
+
+    @After
+    fun releaseMocks() {
+        closeable.close()
     }
 
     @Test
@@ -218,7 +233,7 @@ class RemoteDataSourceTest {
     @Test
     fun testGetAuthorizationURL() {
         // TODO
-        remoteDataSource.getAuthorizationURL()
+        //remoteDataSource.getAuthorizationURL()
     }
 
     @Test

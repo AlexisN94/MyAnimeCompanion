@@ -30,18 +30,23 @@ import java.util.*
 @ExperimentalCoroutinesApi
 class AnimeRepositoryTest {
     lateinit var repository: AnimeRepository
-    lateinit var localDataSource: LocalDataSource
-    lateinit var remoteDataSource: RemoteDataSource
+    @Mock lateinit var localDataSource: LocalDataSource
+    @Mock lateinit var remoteDataSource: RemoteDataSource
+    lateinit var closeable: AutoCloseable
 
     @Before
     fun setup() {
         repository = ReflectionUtils.invokeConstructor(AnimeRepository::class)
 
-        localDataSource = mock(LocalDataSource::class.java)
-        remoteDataSource = mock(RemoteDataSource::class.java)
+        closeable = MockitoAnnotations.openMocks(this)
 
         ReflectionUtils.setField(repository, "localDataSource", localDataSource)
         ReflectionUtils.setField(repository, "remoteDataSource", remoteDataSource)
+    }
+
+    @After
+    fun releaseMocks() {
+        closeable.close()
     }
 
     @Test
@@ -231,28 +236,28 @@ class AnimeRepositoryTest {
         }
     }
 
-//    @Test
-//    fun `updateAnimeStatus() updates remote if logged in`() = runTest {
-//        `when`(repository.isLoggedIn()).thenReturn(true)
-//        `when`(remoteDataSource.getAnimeDetails(anyObject())).thenReturn(
-//            Result.success(
-//                Details(
-//                    id = 1, myListStatus = MyListStatus(updatedAt = "2000-01-02'T'00:00:00+00:00")
-//                )
-//            )
-//        )
-//
-//        repository.updateAnimeStatus(
-//            Anime(
-//                1, "", "",
-//                AnimeStatus(updatedAt = Calendar.getInstance().let {
-//                    it.set(2000, 0, 2)
-//                    it.time
-//                })
-//            )
-//        )
-//
-//        verify(remoteDataSource).updateAnimeStatus(anyObject())
-//        verify(localDataSource).insertOrUpdateAnime(anyObject())
-//    }
+    //    @Test
+    //    fun `updateAnimeStatus() updates remote if logged in`() = runTest {
+    //        `when`(repository.isLoggedIn()).thenReturn(true)
+    //        `when`(remoteDataSource.getAnimeDetails(anyObject())).thenReturn(
+    //            Result.success(
+    //                Details(
+    //                    id = 1, myListStatus = MyListStatus(updatedAt = "2000-01-02'T'00:00:00+00:00")
+    //                )
+    //            )
+    //        )
+    //
+    //        repository.updateAnimeStatus(
+    //            Anime(
+    //                1, "", "",
+    //                AnimeStatus(updatedAt = Calendar.getInstance().let {
+    //                    it.set(2000, 0, 2)
+    //                    it.time
+    //                })
+    //            )
+    //        )
+    //
+    //        verify(remoteDataSource).updateAnimeStatus(anyObject())
+    //        verify(localDataSource).insertOrUpdateAnime(anyObject())
+    //    }
 }
