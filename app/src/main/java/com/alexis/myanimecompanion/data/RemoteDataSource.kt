@@ -56,18 +56,12 @@ class RemoteDataSource private constructor() {
         return Result.success(requestResult)
     }
 
-    /**
-     * Since search results aren't stored in the database, we use them directly by returning List<Anime>
-     */
     suspend fun trySearch(q: String, limit: Int = 24, offset: Int = 0, fields: String = ""): Result<SearchResult> {
         return tryRequest {
             myAnimeListApi.search(q, limit, offset, fields)
         }
     }
 
-    /**
-     * Since anime details aren't stored in the database, we use them directly by returning Anime
-     */
     suspend fun tryGetAnimeDetails(anime: Anime): Result<Details> {
         val token = getNonExpiredToken()
 
@@ -157,14 +151,14 @@ class RemoteDataSource private constructor() {
         codeChallenge = codeVerifier
     }
 
-    private suspend fun getNonExpiredToken(): DomainToken? {
+    suspend fun getNonExpiredToken(): DomainToken? {
         if (tokenStorageManager.checkExpired()) {
             refreshAccessToken()
         }
         return tokenStorageManager.getToken()
     }
 
-    private suspend fun refreshAccessToken() {
+    suspend fun refreshAccessToken() {
         var token = tokenStorageManager.getToken()
 
         token?.let {
