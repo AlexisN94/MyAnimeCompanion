@@ -1,16 +1,16 @@
 package com.alexis.myanimecompanion.data
 
-import com.alexis.myanimecompanion.MockUtils.anyObject
-import com.alexis.myanimecompanion.MockUtils.mockDatabaseAnimeList
-import com.alexis.myanimecompanion.MockUtils.mockDatabaseCompleteAnime
-import com.alexis.myanimecompanion.MockUtils.mockDatabaseUser
-import com.alexis.myanimecompanion.ReflectionUtils
 import com.alexis.myanimecompanion.data.local.AnimeDatabase
 import com.alexis.myanimecompanion.data.local.daos.AnimeDao
 import com.alexis.myanimecompanion.data.local.daos.AnimeDetailsDao
 import com.alexis.myanimecompanion.data.local.daos.AnimeStatusDao
 import com.alexis.myanimecompanion.data.local.daos.UserDao
 import com.alexis.myanimecompanion.data.local.models.DatabaseUser
+import com.alexis.myanimecompanion.testutils.MockUtils.anyObject
+import com.alexis.myanimecompanion.testutils.MockUtils.mockDatabaseAnimeList
+import com.alexis.myanimecompanion.testutils.MockUtils.mockDatabaseCompleteAnime
+import com.alexis.myanimecompanion.testutils.MockUtils.mockDatabaseUser
+import com.alexis.myanimecompanion.testutils.ReflectionUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -113,9 +113,9 @@ class LocalDataSourceTest {
             localDataSource.insertOrUpdateAnimeList(mockDatabaseAnimeList())
         }
 
-        verify(animeDatabase.animeDao).insert(anyObject())
-        verify(animeDatabase.animeDetailsDao).insert(anyObject())
-        verify(animeDatabase.animeStatusDao).insert(anyObject())
+        verify(animeDatabase.animeDao).insertAll(anyObject())
+        verify(animeDatabase.animeDetailsDao).insertAll(anyObject())
+        verify(animeDatabase.animeStatusDao).insertAll(anyObject())
     }
 
     @Test
