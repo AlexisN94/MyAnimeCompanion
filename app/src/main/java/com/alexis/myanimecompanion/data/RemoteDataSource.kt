@@ -1,6 +1,5 @@
 package com.alexis.myanimecompanion.data
 
-import android.content.Context
 import android.util.Base64
 import android.util.Log
 import com.alexis.myanimecompanion.QueryFieldsBuilder
@@ -18,27 +17,18 @@ import java.security.SecureRandom
 
 private const val TAG = "RemoteDataSource"
 
-class RemoteDataSource private constructor() {
-    private var myAnimeListApi: MyAnimeListAPI = APIClient.myAnimeListApi
+class RemoteDataSource private constructor(
+    private val myAnimeListApi: MyAnimeListAPI,
+    private val tokenStorageManager: TokenStorageManager
+) {
     private lateinit var codeVerifier: String
     private lateinit var codeChallenge: String
-    private lateinit var tokenStorageManager: TokenStorageManager
 
     private suspend fun <T> tryRequest(request: suspend () -> T?): Result<T> {
         val requestResult = try {
             request()
         } catch (e: HttpException) {
             Log.e(TAG, "test " + e.printStackTrace().toString())
-            /*
-            when (e.code() / 100) {
-                1 -> { /* informational response */ }
-                2 -> { /* success response */ }
-                3 -> { /* redirection response */ }
-                4 -> { /* client error response */ }
-                5 -> { /* server error response */ }
-                else -> { /* bad response code */ }
-            }
-            */
             return when (e.code()) {
                 HttpURLConnection.HTTP_FORBIDDEN -> Result.failure(Error.Generic)
                 HttpURLConnection.HTTP_UNAUTHORIZED -> Result.failure(Error.Authorization)
@@ -207,11 +197,9 @@ class RemoteDataSource private constructor() {
     companion object {
         private var INSTANCE: RemoteDataSource? = null
 
-        fun getInstance(context: Context): RemoteDataSource {
+        fun getInstance(api: MyAnimeListAPI, tokenStorageManager: TokenStorageManager): RemoteDataSource {
             synchronized(this) {
-                return INSTANCE ?: RemoteDataSource().also { instance ->
-                    val tokenStorageManager = TokenStorageManager.getInstance(context)
-                    instance.tokenStorageManager = tokenStorageManager
+                return INSTANCE ?: RemoteDataSource(api, tokenStorageManager).also { instance ->
                     INSTANCE = instance
                 }
             }

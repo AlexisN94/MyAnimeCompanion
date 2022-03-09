@@ -1,6 +1,5 @@
 package com.alexis.myanimecompanion.data
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.alexis.myanimecompanion.data.local.AnimeDatabase
@@ -9,17 +8,16 @@ import com.alexis.myanimecompanion.data.local.models.DatabaseUser
 
 private const val TAG = "LocalDataSource"
 
-class LocalDataSource private constructor() {
-    private lateinit var animeDatabase: AnimeDatabase
+class LocalDataSource private constructor(private val database: AnimeDatabase) {
 
     fun insertOrUpdateUser(user: DatabaseUser) {
-        if (animeDatabase.userDao.update(user) == 0) {
-            animeDatabase.userDao.insert(user)
+        if (this.database.userDao.update(user) == 0) {
+            this.database.userDao.insert(user)
         }
     }
 
     fun getUser(): DatabaseUser? {
-        return animeDatabase.userDao.getUser()
+        return this.database.userDao.getUser()
     }
 
     fun insertOrUpdateAnime(completeAnime: DatabaseCompleteAnime) {
@@ -27,29 +25,29 @@ class LocalDataSource private constructor() {
         val status = completeAnime.animeStatus
         val details = completeAnime.animeDetails
 
-        if (animeDatabase.animeDao.update(anime) == 0) {
-            animeDatabase.animeDao.insert(anime)
+        if (this.database.animeDao.update(anime) == 0) {
+            this.database.animeDao.insert(anime)
         }
-        if (animeDatabase.animeStatusDao.update(status) == 0) {
-            animeDatabase.animeStatusDao.insert(status)
+        if (this.database.animeStatusDao.update(status) == 0) {
+            this.database.animeStatusDao.insert(status)
         }
-        if (animeDatabase.animeDetailsDao.update(details) == 0) {
-            animeDatabase.animeDetailsDao.insert(details)
+        if (this.database.animeDetailsDao.update(details) == 0) {
+            this.database.animeDetailsDao.insert(details)
         }
     }
 
     fun getAnime(animeId: Int): DatabaseCompleteAnime? {
-        return animeDatabase.animeDao.getById(animeId)
+        return this.database.animeDao.getById(animeId)
     }
 
     fun deleteAnime(animeId: Int) {
-        animeDatabase.animeDao.deleteById(animeId)
-        animeDatabase.animeDetailsDao.deleteByAnimeId(animeId)
-        animeDatabase.animeStatusDao.deleteByAnimeId(animeId)
+        this.database.animeDao.deleteById(animeId)
+        this.database.animeDetailsDao.deleteByAnimeId(animeId)
+        this.database.animeStatusDao.deleteByAnimeId(animeId)
     }
 
     fun getAnimeList(): LiveData<List<DatabaseCompleteAnime>> {
-        return animeDatabase.animeDao.getAll()
+        return this.database.animeDao.getAll()
     }
 
     fun insertOrUpdateAnimeList(animeList: List<DatabaseCompleteAnime>) {
@@ -57,9 +55,9 @@ class LocalDataSource private constructor() {
         val statusArray = animeList.map { it.animeStatus }.toTypedArray()
         val detailsArray = animeList.map { it.animeDetails }.toTypedArray()
 
-        animeDatabase.animeDao.insertAll(*animeArray)
-        animeDatabase.animeStatusDao.insertAll(*statusArray)
-        animeDatabase.animeDetailsDao.insertAll(*detailsArray)
+        this.database.animeDao.insertAll(*animeArray)
+        this.database.animeStatusDao.insertAll(*statusArray)
+        this.database.animeDetailsDao.insertAll(*detailsArray)
         /*animeDatabase.animeDao.insert(animeList[0].anime)
         animeDatabase.animeDetailsDao.insert(animeList[0].animeDetails)
         animeDatabase.animeStatusDao.insert(animeList[0].animeStatus)*/
@@ -70,16 +68,15 @@ class LocalDataSource private constructor() {
      * Only call on logout
      */
     fun clearAllTables() {
-        return animeDatabase.clearAllTables()
+        return this.database.clearAllTables()
     }
 
     companion object {
         private var INSTANCE: LocalDataSource? = null
 
-        fun getInstance(context: Context): LocalDataSource {
+        fun getInstance(database: AnimeDatabase): LocalDataSource {
             synchronized(this) {
-                return INSTANCE ?: LocalDataSource().also { instance ->
-                    instance.animeDatabase = AnimeDatabase.getInstance(context)
+                return INSTANCE ?: LocalDataSource(database).also { instance ->
                     INSTANCE = instance
                 }
             }

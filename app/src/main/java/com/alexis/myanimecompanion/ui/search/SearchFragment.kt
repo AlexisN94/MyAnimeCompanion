@@ -15,13 +15,18 @@ import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentSearchBinding
 import com.alexis.myanimecompanion.dismissKeyboard
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.ui.MainActivity
+import javax.inject.Inject
 
 class SearchFragment : Fragment(), SearchListAdapter.ClickListener {
     private lateinit var viewModel: SearchViewModel
+    @Inject lateinit var animeRepository: AnimeRepository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        (requireContext() as MainActivity).appComponent.inject(this)
+
         val binding = FragmentSearchBinding.inflate(inflater)
-        val animeRepository = AnimeRepository.getInstance(requireContext())
+
         val viewModelFactory = SearchViewModelFactory(animeRepository, resources)
         val adapter = SearchListAdapter(this)
 

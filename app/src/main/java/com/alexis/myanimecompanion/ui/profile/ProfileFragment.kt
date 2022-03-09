@@ -7,18 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentProfileBinding
+import com.alexis.myanimecompanion.ui.MainActivity
+import javax.inject.Inject
 
 class ProfileFragment : Fragment() {
     lateinit var viewModel: ProfileViewModel
+    @Inject lateinit var animeRepository: AnimeRepository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        (requireContext() as MainActivity).appComponent.inject(this)
+
         val binding = FragmentProfileBinding.inflate(inflater)
-        val animeRepository = AnimeRepository.getInstance(requireContext())
 
         val viewModelFactory = ProfileViewModelFactory(animeRepository)
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ProfileViewModel::class.java]
@@ -26,11 +28,11 @@ class ProfileFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-        viewModel.evtStartLogin.observe(viewLifecycleOwner, { startLogin ->
+        viewModel.evtStartLogin.observe(viewLifecycleOwner) { startLogin ->
             if (startLogin) {
                 onStartLogin()
             }
-        })
+        }
 
         return binding.root
     }
@@ -42,7 +44,3 @@ class ProfileFragment : Fragment() {
         viewModel.onStartLoginHandled()
     }
 }
-
-
-
-

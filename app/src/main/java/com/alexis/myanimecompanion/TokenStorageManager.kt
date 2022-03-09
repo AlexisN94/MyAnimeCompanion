@@ -1,8 +1,6 @@
 package com.alexis.myanimecompanion
 
-import android.content.Context
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
+import android.content.SharedPreferences
 import com.alexis.myanimecompanion.domain.DomainToken
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -10,8 +8,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 private const val MIN_MILLIS_REMAINING_ALLOWED = 60 * 1000 // 1 min
 
-class TokenStorageManager private constructor() {
-    private lateinit var sharedPreferences: EncryptedSharedPreferences
+class TokenStorageManager private constructor(private val sharedPreferences: SharedPreferences) {
     private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val jsonAdapter: JsonAdapter<DomainToken> = moshi.adapter(DomainToken::class.java)
 
@@ -56,22 +53,11 @@ class TokenStorageManager private constructor() {
     companion object {
         private var INSTANCE: TokenStorageManager? = null
 
-        fun getInstance(context: Context): TokenStorageManager {
+        fun getInstance(sharedPreferences: SharedPreferences): TokenStorageManager {
             synchronized(this) {
                 return INSTANCE
-                    ?: TokenStorageManager()
+                    ?: TokenStorageManager(sharedPreferences)
                         .also { instance ->
-                            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-
-                            instance.sharedPreferences = EncryptedSharedPreferences
-                                .create(
-                                    "token_sp",
-                                    masterKeyAlias,
-                                    context.applicationContext,
-                                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                                ) as EncryptedSharedPreferences
-
                             INSTANCE = instance
                         }
             }

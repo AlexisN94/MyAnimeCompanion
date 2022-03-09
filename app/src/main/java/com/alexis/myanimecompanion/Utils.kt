@@ -2,7 +2,10 @@ package com.alexis.myanimecompanion
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.view.inputmethod.InputMethodManager
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -120,4 +123,17 @@ fun Date.toString(pattern: String): String {
 
 fun Date.toMALDateString(): String {
     return this.toString(MyAnimeListAPI.DATE_PATTERN)
+}
+
+fun createEncryptedSharedPreferences(context: Context): SharedPreferences {
+    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+
+    return EncryptedSharedPreferences
+        .create(
+            "token_sp",
+            masterKeyAlias,
+            context.applicationContext,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
 }

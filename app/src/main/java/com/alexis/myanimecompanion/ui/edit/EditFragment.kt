@@ -13,7 +13,9 @@ import androidx.navigation.fragment.navArgs
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentEditBinding
+import com.alexis.myanimecompanion.ui.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import javax.inject.Inject
 
 private const val MAX_RATING = 10
 private const val TAG = "EditFragment"
@@ -21,11 +23,13 @@ const val EDIT_EVENT = "edit_event"
 
 class EditFragment : BottomSheetDialogFragment() {
     lateinit var viewModel: EditViewModel
+    @Inject lateinit var animeRepository: AnimeRepository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        (requireContext() as MainActivity).appComponent.inject(this)
+
         val binding = FragmentEditBinding.inflate(inflater)
         val args: EditFragmentArgs by navArgs()
-        val animeRepository = AnimeRepository.getInstance(requireNotNull(context))
         val viewModelFactory = EditViewModelFactory(args.anime, animeRepository)
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[EditViewModel::class.java]
 

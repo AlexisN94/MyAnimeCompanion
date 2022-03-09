@@ -1,6 +1,5 @@
 package com.alexis.myanimecompanion.data
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -15,9 +14,10 @@ import com.alexis.myanimecompanion.toMALDate
 
 private const val TAG = "AnimeRepository"
 
-class AnimeRepository private constructor() {
-    private lateinit var localDataSource: LocalDataSource
-    private lateinit var remoteDataSource: RemoteDataSource
+class AnimeRepository private constructor(
+    private val localDataSource: LocalDataSource,
+    private val remoteDataSource: RemoteDataSource
+) {
 
     suspend fun search(q: String, limit: Int, offset: Int): Result<List<Anime>?> {
         val animeList = remoteDataSource.trySearch(q, limit, offset).let { result ->
@@ -202,13 +202,11 @@ class AnimeRepository private constructor() {
     companion object {
         private var INSTANCE: AnimeRepository? = null
 
-        fun getInstance(context: Context): AnimeRepository {
+        fun getInstance(localDataSource: LocalDataSource, remoteDataSource: RemoteDataSource): AnimeRepository {
             synchronized(this) {
                 return INSTANCE
-                    ?: AnimeRepository()
+                    ?: AnimeRepository(localDataSource, remoteDataSource)
                         .also { animeRepo ->
-                            animeRepo.localDataSource = LocalDataSource.getInstance(context)
-                            animeRepo.remoteDataSource = RemoteDataSource.getInstance(context)
                             INSTANCE = animeRepo
                         }
             }

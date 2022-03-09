@@ -10,13 +10,24 @@ import androidx.navigation.ui.setupWithNavController
 import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
+import com.alexis.myanimecompanion.di.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
+    @Inject lateinit var animeRepository: AnimeRepository
+    lateinit var appComponent: AppComponent
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        appComponent = DaggerAppComponent.factory().create(
+            DataSourceModule(),
+            RepositoryModule(),
+            ContextModule(this)
+        )
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -45,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleMALAuthorizationResponse(data: Uri) {
         val authorizationCode = requireNotNull(data.getQueryParameter("code"))
         lifecycleScope.launch {
-            val result = AnimeRepository.getInstance(applicationContext).requestToken(authorizationCode)
+            val result = animeRepository.requestToken(authorizationCode)
             if (result.isFailure) {
                 val toastMessage = when (result.errorOrNull()!!) {
                     Error.Network -> "A network error occurred while logging you in"
@@ -56,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, toastMessage, Toast.LENGTH_LONG).show()
             } else {
                 withContext(Dispatchers.IO) {
-                    AnimeRepository.getInstance(applicationContext).postLogin()
+                    animeRepository.postLogin()
                 }
             }
         }

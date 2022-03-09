@@ -12,15 +12,19 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.databinding.FragmentListBinding
 import com.alexis.myanimecompanion.domain.Anime
+import com.alexis.myanimecompanion.ui.MainActivity
+import javax.inject.Inject
 
 private const val TAG = "ListFragment"
 
 class ListFragment : Fragment(), ListAdapter.ClickListener {
     private lateinit var viewModel: ListViewModel
+    @Inject lateinit var animeRepository: AnimeRepository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        (requireContext() as MainActivity).appComponent.inject(this)
+
         val binding = FragmentListBinding.inflate(inflater)
-        val animeRepository: AnimeRepository = AnimeRepository.getInstance(requireNotNull(context))
         val viewModelFactory = ListViewModelFactory(animeRepository, resources)
         val adapter = ListAdapter(this)
 
