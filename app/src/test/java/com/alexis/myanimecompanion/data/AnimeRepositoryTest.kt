@@ -9,44 +9,48 @@ import com.alexis.myanimecompanion.domain.Anime
 import com.alexis.myanimecompanion.domain.AnimeDetails
 import com.alexis.myanimecompanion.domain.AnimeStatus
 import com.alexis.myanimecompanion.testutils.MockUtils
-import com.alexis.myanimecompanion.testutils.ReflectionUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
+import org.mockito.Mockito.*
+import org.mockito.junit.MockitoJUnitRunner
 import java.util.*
 
-@RunWith(JUnit4::class)
+@RunWith(MockitoJUnitRunner::class)
 @ExperimentalCoroutinesApi
 class AnimeRepositoryTest {
-    lateinit var repository: AnimeRepository
-    @Mock lateinit var localDataSource: LocalDataSource
-    @Mock lateinit var remoteDataSource: RemoteDataSource
-    lateinit var closeable: AutoCloseable
+    companion object {
+        lateinit var repository: AnimeRepository
+        lateinit var localDataSource: LocalDataSource
+        lateinit var remoteDataSource: RemoteDataSource
 
-    @Before
-    fun setup() {
-        repository = ReflectionUtils.invokeConstructor(AnimeRepository::class)
-
-        closeable = MockitoAnnotations.openMocks(this)
-
-        ReflectionUtils.setField(repository, "localDataSource", localDataSource)
-        ReflectionUtils.setField(repository, "remoteDataSource", remoteDataSource)
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            localDataSource = mock(LocalDataSource::class.java)
+            remoteDataSource = mock(RemoteDataSource::class.java)
+            repository = AnimeRepository.getInstance(localDataSource, remoteDataSource)
+        }
     }
 
+//    lateinit var repository: AnimeRepository
+//    @Mock lateinit var localDataSource: LocalDataSource
+//    @Mock lateinit var remoteDataSource: RemoteDataSource
+//
+//    @Before
+//    fun setup() {
+//        repository = AnimeRepository.getInstance(localDataSource, remoteDataSource)
+//    }
+
     @After
-    fun releaseMocks() {
-        closeable.close()
+    fun resetMocks() {
+        reset(remoteDataSource, localDataSource)
     }
 
     @Test
@@ -60,6 +64,7 @@ class AnimeRepositoryTest {
 
         assertEquals("search() returns success on failure!?", true, searchResult.isFailure)
         assertEquals(expectedError, searchResult.errorOrNull())
+        reset(remoteDataSource)
     }
 
     @Test

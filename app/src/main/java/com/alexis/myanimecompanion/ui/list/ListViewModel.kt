@@ -7,15 +7,19 @@ import com.alexis.myanimecompanion.R
 import com.alexis.myanimecompanion.data.AnimeRepository
 import com.alexis.myanimecompanion.data.Error
 import com.alexis.myanimecompanion.domain.Anime
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 private const val TAG = "ListViewModel"
 
-class ListViewModel(private val animeRepository: AnimeRepository, private val resources: Resources) : ViewModel() {
+class ListViewModel(
+    private val animeRepository: AnimeRepository,
+    private val resources: Resources,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
 
-    private val animeList = animeRepository.getAnimeList()
+    val animeList = animeRepository.getAnimeList()
 
     val filterQuery = MutableLiveData("")
 
@@ -40,7 +44,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
     val statusMessage: LiveData<String?>
         get() = _statusMessage
 
-    init {
+    fun init() {
         viewModelScope.launch(Dispatchers.IO) {
             unsetStatusMessage()
             setLoading()
@@ -62,7 +66,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
     }
 
     private fun handleError(error: Error) {
-        TODO()
+        // TODO
     }
 
     private fun setLoading() {
@@ -90,13 +94,7 @@ class ListViewModel(private val animeRepository: AnimeRepository, private val re
     }
 
     fun editWatchedEpisodes(anime: Anime, editType: WatchedEpisodesEditType) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val animeIndex = filteredAnimeList.value?.indexOf(anime)
-
-            if (animeIndex == null) {
-                cancel()
-            }
-
+        viewModelScope.launch(ioDispatcher) {
             if (canEditWatchedEpisodes(anime, editType)) {
                 when (editType) {
                     WatchedEpisodesEditType.DECREMENT -> {

@@ -29,6 +29,7 @@ class ListFragment : Fragment(), ListAdapter.ClickListener {
         val adapter = ListAdapter(this)
 
         viewModel = ViewModelProvider(viewModelStore, viewModelFactory)[ListViewModel::class.java]
+        viewModel.init()
         viewModel.filteredAnimeList.observe(viewLifecycleOwner) { animeList ->
             animeList?.let {
                 adapter.submitList(animeList)

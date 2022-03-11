@@ -15,53 +15,45 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import org.mockito.Mock
 import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(JUnit4::class)
+@RunWith(MockitoJUnitRunner::class)
 @ExperimentalCoroutinesApi
 class RemoteDataSourceTest {
-    lateinit var remoteDataSource: RemoteDataSource
-    @Mock lateinit var myAnimeListApi: MyAnimeListAPI
-    @Mock lateinit var tokenStorageManager: TokenStorageManager
-    lateinit var closeable: AutoCloseable
+    companion object {
+        lateinit var myAnimeListApi: MyAnimeListAPI
+        lateinit var tokenStorageManager: TokenStorageManager
+        lateinit var remoteDataSource: RemoteDataSource
 
-    @Before
-    fun setup() {
-        closeable = MockitoAnnotations.openMocks(this)
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            tokenStorageManager = mock(TokenStorageManager::class.java)
+            myAnimeListApi = mock(MyAnimeListAPI::class.java)
 
-        remoteDataSource = spy(ReflectionUtils.invokeConstructor<RemoteDataSource>(RemoteDataSource::class))
+            `when`(tokenStorageManager.checkExpired()).thenReturn(false)
+            `when`(tokenStorageManager.getToken()).thenReturn(mockDomainToken())
 
-        `when`(tokenStorageManager.checkExpired()).thenReturn(false)
-        `when`(tokenStorageManager.getToken()).thenReturn(mockDomainToken())
+            remoteDataSource = spy(RemoteDataSource.getInstance(myAnimeListApi, tokenStorageManager))
 
-        ReflectionUtils.setField(
-            remoteDataSource,
-            "tokenStorageManager",
-            tokenStorageManager
-        )
-
-        ReflectionUtils.setField(
-            remoteDataSource,
-            "myAnimeListApi",
-            myAnimeListApi
-        )
-
-        ReflectionUtils.setField(
-            remoteDataSource,
-            "codeVerifier",
-            "someCodeVerifier"
-        )
+            ReflectionUtils.setField(
+                remoteDataSource,
+                "codeVerifier",
+                "someCodeVerifier"
+            )
+        }
     }
 
     @After
-    fun releaseMocks() {
-        closeable.close()
+    fun resetMocks() {
+        reset(tokenStorageManager, myAnimeListApi)
+
+        `when`(tokenStorageManager.checkExpired()).thenReturn(false)
+        `when`(tokenStorageManager.getToken()).thenReturn(mockDomainToken())
     }
 
     @Test
@@ -79,11 +71,11 @@ class RemoteDataSourceTest {
 
     @Test
     fun testTryGetAnimeDetails() = runTest {
-        `when`(myAnimeListApi.getAnimeDetails(anyString(), anyInt(), anyString())).thenReturn(Details())
+        `when`(myAnimeListApi.getAnimeDetails(any(), anyInt(), anyString())).thenReturn(Details())
 
         val result = remoteDataSource.tryGetAnimeDetails(mockAnime())
 
-        verify(myAnimeListApi).getAnimeDetails(anyString(), anyInt(), anyString())
+        verify(myAnimeListApi).getAnimeDetails(any(), anyInt(), anyString())
         assert(result.isSuccess)
         assertEquals(Details(), result.getOrNull())
     }
@@ -100,6 +92,7 @@ class RemoteDataSourceTest {
 
     @Test
     fun testTryDeleteAnime_withToken() = runTest {
+
         val result = remoteDataSource.tryDeleteAnime(0)
 
         assert(result.isSuccess)
@@ -131,10 +124,6 @@ class RemoteDataSourceTest {
 
     @Test
     fun testTryUpdateAnimeStatus_withToken() = runTest {
-        `when`(remoteDataSource.getNonExpiredToken()).thenReturn(
-            mockDomainToken()
-        )
-
         val result = remoteDataSource.tryUpdateAnimeStatus(mockAnime())
 
         assert(result.isSuccess)
@@ -154,10 +143,6 @@ class RemoteDataSourceTest {
 
     @Test
     fun testTryUpdateAnimeStatus_WithNullAnimeStatus() = runTest {
-        `when`(remoteDataSource.getNonExpiredToken()).thenReturn(
-            mockDomainToken()
-        )
-
         val result = remoteDataSource.tryUpdateAnimeStatus(mockAnime().apply { myListStatus = null })
 
         assert(result.isFailure)
@@ -166,10 +151,6 @@ class RemoteDataSourceTest {
 
     @Test
     fun testHasValidToken_WithToken() = runTest {
-        `when`(remoteDataSource.getNonExpiredToken()).thenReturn(
-            mockDomainToken()
-        )
-
         val result = remoteDataSource.hasValidToken()
 
         assertEquals(true, result)
@@ -177,9 +158,7 @@ class RemoteDataSourceTest {
 
     @Test
     fun testHasValidToken_WithoutToken() = runTest {
-        `when`(remoteDataSource.getNonExpiredToken()).thenReturn(
-            null
-        )
+        `when`(remoteDataSource.getNonExpiredToken()).thenReturn(null)
 
         val result = remoteDataSource.hasValidToken()
 
@@ -196,9 +175,7 @@ class RemoteDataSourceTest {
     @Test
     fun testGetNonExpiredToken_WithExpiredToken() = runTest {
         `when`(tokenStorageManager.checkExpired()).thenReturn(true)
-        `when`(tokenStorageManager.getToken()).thenReturn(
-            mockDomainToken()
-        )
+
         val result = remoteDataSource.getNonExpiredToken()
 
         verify(remoteDataSource).refreshAccessToken()
@@ -216,10 +193,6 @@ class RemoteDataSourceTest {
 
     @Test
     fun testRefreshAccessToken_WithToken() = runTest {
-        `when`(tokenStorageManager.getToken()).thenReturn(
-            mockDomainToken()
-        )
-
         `when`(myAnimeListApi.refreshAccessToken(anyObject())).thenReturn(
             mockToken()
         )
@@ -238,9 +211,7 @@ class RemoteDataSourceTest {
 
     @Test
     fun testRequestToken() = runTest {
-        `when`(myAnimeListApi.getAccessToken(anyMap())).thenReturn(
-            mockToken()
-        )
+        `when`(myAnimeListApi.getAccessToken(anyMap())).thenReturn(mockToken())
 
         val result = remoteDataSource.requestToken("someAuthCode")
 

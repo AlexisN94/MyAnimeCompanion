@@ -12,8 +12,8 @@ data class AnimeDetails(
     val genres: String,
     val releaseDate: Date?,
     val globalScore: Double,
-    val numEpisodes: Int,
-    val status: String,
+    var numEpisodes: Int,
+    var status: String,
     val alternativeTitles: String,
 ) : Parcelable
 

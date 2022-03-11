@@ -10,7 +10,6 @@ import org.mockito.Mockito
 import java.util.*
 
 object MockUtils {
-
     fun mockDatabaseCompleteAnime(): DatabaseCompleteAnime {
         return DatabaseCompleteAnime(
             DatabaseAnime(0, "", ""),
@@ -66,6 +65,5 @@ object MockUtils {
 
     fun mockDomainToken(): DomainToken {
         return DomainToken("", 0L, "", "")
-
     }
 }

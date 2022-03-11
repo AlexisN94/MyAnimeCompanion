@@ -10,7 +10,6 @@ import com.alexis.myanimecompanion.testutils.MockUtils.anyObject
 import com.alexis.myanimecompanion.testutils.MockUtils.mockDatabaseAnimeList
 import com.alexis.myanimecompanion.testutils.MockUtils.mockDatabaseCompleteAnime
 import com.alexis.myanimecompanion.testutils.MockUtils.mockDatabaseUser
-import com.alexis.myanimecompanion.testutils.ReflectionUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -18,21 +17,30 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito.*
+import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(JUnit4::class)
+@RunWith(MockitoJUnitRunner::class)
 @ExperimentalCoroutinesApi
 class LocalDataSourceTest {
-    lateinit var animeDatabase: AnimeDatabase
-    lateinit var localDataSource: LocalDataSource
+    companion object {
+        lateinit var animeDatabase: AnimeDatabase
+        lateinit var localDataSource: LocalDataSource
+
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            animeDatabase = mock(AnimeDatabase::class.java)
+
+            localDataSource = LocalDataSource.getInstance(animeDatabase)
+        }
+    }
 
     @Before
-    fun setup() {
-        animeDatabase = mock(AnimeDatabase::class.java)
-
+    fun mockDaos() {
         `when`(animeDatabase.userDao).thenReturn(
             mock(UserDao::class.java)
         )
@@ -48,15 +56,11 @@ class LocalDataSourceTest {
         `when`(animeDatabase.animeStatusDao).thenReturn(
             mock(AnimeStatusDao::class.java)
         )
-
-        localDataSource = ReflectionUtils.invokeConstructor(LocalDataSource::class)
-
-        ReflectionUtils.setField(localDataSource, "animeDatabase", animeDatabase)
     }
 
     @After
-    fun closeDb() {
-        animeDatabase.close()
+    fun resetMocks() {
+        reset(animeDatabase)
     }
 
     @Test

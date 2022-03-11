@@ -4,9 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.view.inputmethod.InputMethodManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.alexis.myanimecompanion.data.remote.MyAnimeListAPI
+import kotlinx.coroutines.CoroutineScope
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -137,3 +140,9 @@ fun createEncryptedSharedPreferences(context: Context): SharedPreferences {
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
 }
+
+fun ViewModel.getViewModelScope(coroutineScope: CoroutineScope?) =
+    when (coroutineScope) {
+        null -> viewModelScope
+        else -> coroutineScope
+    }
